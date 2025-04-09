@@ -1,0 +1,308 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+/* ________________________________________________________________________ */
+
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+/* 
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+} */
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.vanilla:hover {
+  filter: drop-shadow(0 0 2em #f7df1eaa);
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+/* imported from my previous work */
+
+body { 
+  margin:0; 
+  padding:0;
+  height: 100%;
+  overflow: hidden; 
+  }
+#map { 
+  position: absolute; top: 0; bottom: 0; width: 100%; height: 100%; z-index: 1;
+}
+/* Position the automatically generated MapTiler attribution */ */
+.maptiler-attribution {
+  position: absolute !important;
+  bottom: 10px;  /* Adjust to desired space from the bottom */
+  left: 10px;    /* Adjust to desired space from the left */
+  z-index: 9999; /* Ensure it appears above the map */
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.maptibregl-ctrl-icon {
+  display: none;
+}
+
+.map-overlay {
+  font-family: "Lexend", sans-serif;
+  font-weight: 300;
+  font-size: 13px;
+  position: absolute;
+  width: 13%;
+  top: 0;
+  left: 0;
+  padding: 15px;
+  z-index: 2;
+}
+
+.map-overlay .map-overlay-inner {
+  background-color: #fff;
+  box-shadow:0 1px 2px rgba(0, 0, 0, 0.20);
+  border-radius: 3px;
+  padding: 20px;
+  margin-bottom: 10px;
+}
+
+.map-overlay table {
+  border: none;
+  width: 100%;
+}
+
+.map-overlay h2 {
+  line-height: 24px;
+  font-weight: 700;
+  display: block;
+  margin: 0 0 10px;
+  padding-top: 0px;
+  padding-bottom: 10px;
+  /* padding: 10px; */
+}
+
+.map-overlay h3 {
+  line-height: 24px;
+  font-weight: 500;
+  display: block;
+  margin: 0 0 10px;
+  padding-top: 10px;
+  padding-bottom: 0px;
+}
+
+.map-overlay h4 {
+  line-height: 18px;
+  font-weight: 500;
+  display: block;
+  margin: 0 0 10px;
+  padding-top: 10px;
+  padding-bottom: 0px;
+  
+}
+
+/* .map-overlay h4 {
+  line-height: 24px;
+  display: block;
+  margin: 0 0 10px;
+} */
+
+.map-overlay label {
+  font: 16px/18px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  vertical-align: bottom;
+  margin: 0;
+  padding: 0;
+}
+
+.map-overlay .legend .bar {
+  height: 10px;
+  width: 100%;
+  background: linear-gradient(to right, #FCA107, #7F3121);
+}
+
+.map-overlay input {
+  display: inline;
+  vertical-align: middle;
+  margin: 5px;
+  padding: 0;
+}
+
+.map-overlay p.credit {
+  margin: 5px 0 0 0;
+  padding: 0;
+}
+
+.place-parent-container {
+  display: flex;
+  flex-direction: column;
+  /* align-items: flex-start; Ensures vertical alignment */
+  gap: 5px; /* Space between elements */
+}
+
+.place-name-container {
+  background-color: transparent;
+  display: flex;
+  align-items: flex-end;
+  /* gap: 18px; Space between popup and line */
+}
+
+/* Remove the default white background from the popup */
+.place-popup {
+  background-color: transparent !important; /* Ensure background is transparent */
+  border: none !important; /* Remove the border */
+  box-shadow: none !important; /* Remove shadow */
+  padding: 0 !important; /* Remove padding */
+  /* position: absolute; */
+}
+
+/* Remove default MapLibre popup content styles */
+.maplibregl-popup-content {
+  background-color: transparent !important; /* Transparent background */
+  padding: 0 !important; /* No padding */
+  border: none !important; /* No border */
+  box-shadow: none !important; /* No shadow */
+}
+
+/* Remove the MapLibre popup tip (the arrow) */
+.maplibregl-popup-tip {
+  display: none !important; /* Hide the arrow */
+}
+
+/* Remove the default MapLibre popup container styles */
+.maplibregl-popup {
+  background-color: transparent !important; /* Ensure the popup background is transparent */
+  border: none !important; /* Remove the border */
+  box-shadow: none !important; /* Remove the shadow */
+  padding: 0 !important; /* Remove padding */
+}
+
+
+.place-name-popup {
+  background-color: #ED562C !important;
+  max-height: 20px;
+  min-width: 200px;
+  border-radius: 0px;
+  font-family: "Lexend", sans-serif;
+  font-weight: 500;
+  font-size: 14px !important;
+  color: white !important;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  /* position: absolute; */
+}
+
+.place-name-line {
+  width: 10px;
+  height: 20px;
+  background: #7C2A13 !important;
+  /* position: absolute; */
+  /* transform: translateX(-0px);  */
+}
+
+.category-container {
+  background-color: transparent;
+  display: flex;
+  align-items: self-start; /* Ensures left alignment */
+  flex-direction: column;
+  gap: -4px; /* Space between popup and line */
+  transform: translateX(20px); 
+}
+
+.category-popup {
+  /* background: blue; */
+  max-height: auto;
+  border-radius: 0px;
+  font-family: "Lexend", sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  font-display: swap;
+  color: black;
+  padding: 0px;
+  text-align: left;
+  opacity: 0; /* Initially hidden for animation */
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  transform: translateY(300px); /* Start slightly lower */
+  /* transform: translateX(300px);  */
+  /* position: absolute; */
+}
+.category-popup.show {
+  opacity: 1;
+  transform: translateY(0); /* Move into place */
+}
