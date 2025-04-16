@@ -1,0 +1,1 @@
+{"version": 0.6, "generator": "Overpass API 0.7.62.5 1bd436f1", "osm3s": {"timestamp_osm_base": "2025-04-16T18:53:33Z", "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."}, "elements": [{"type": "node", "id": 11252008360, "lat": 55.3815217, "lon": -3.9212565, "tags": {"natural": "cave_entrance"}}]}
