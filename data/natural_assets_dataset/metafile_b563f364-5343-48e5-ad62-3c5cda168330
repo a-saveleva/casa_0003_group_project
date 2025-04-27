@@ -1,0 +1,10 @@
+dggrid_operation GENERATE_GRID
+dggs_type ISEA3H
+dggs_res_spec 3
+clip_subset_type SEQNUMS
+clip_region_files /home/jovyan/work/Documents/UCL/CASA0003/casa_0003_group_project/data/natural_assets_dataset/temp_clip_003a34f3-43dc-4cad-b561-e7576013c9c4.txt
+cell_output_type GDAL
+cell_output_gdal_format FlatGeobuf
+cell_output_file_name /home/jovyan/work/Documents/UCL/CASA0003/casa_0003_group_project/data/natural_assets_dataset/temp_ISEA3H_3_out_003a34f3-43dc-4cad-b561-e7576013c9c4.fgb
+point_output_type NONE
+output_address_type SEQNUM
