@@ -25,3 +25,4 @@ dist-ssr
 
 # Ignore folders
 /natural_assets_data_raw/
+/cache/
