@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -30,4 +30,47 @@
 
     <script type="module" src="/src/main.js"></script>
 </body>
-</html>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Train Isochrone Visualization</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+</head>
+<body>
+<div id="map"></div>
+
+<!-- Control Panel -->
+<div id="controls">
+    <div class="control-title">🚆 Train Isochrone</div>
+    <label for="timeRange">Select time range:</label>
+    <input type="range" id="timeRange" min="5" max="240" step="5" value="60">
+    <div><span id="timeValue">60 minutes</span></div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #FF5722;"></div>
+            <span>Origin Station</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #42A5F5;"></div>
+            <span>Reachable Stations</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #888;"></div>
+            <span>Other Stations</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #FF3C38; width: 15px; height: 4px;"></div>
+            <span>Connections</span>
+        </div>
+    </div>
+</div>
+
+<!-- Debug Info -->
+<div class="debug-info" id="debugInfo"></div>
