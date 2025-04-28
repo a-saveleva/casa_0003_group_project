@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 
 travelTimeKey = import.meta.env.VITE_TRAVEL_TIME_API_KEY;
 
-mapboxgl.accessToken = 'pk.eyJ1IjoicGFuZXZhIiwiYSI6ImNtNXk0NXdiOTBhM3AyanIyNHR1OXBsejEifQ.gELzGrqRoZiEhabFwjVkiw'; // Put your Mapbox Public Access token here
+// mapboxgl.accessToken = 'pk.eyJ1IjoicGFuZXZhIiwiYSI6ImNtNXk0NXdiOTBhM3AyanIyNHR1OXBsejEifQ.gELzGrqRoZiEhabFwjVkiw'; // Put your Mapbox Public Access token here
 
 // // Load a new map in the 'map' HTML div
 // const map = new mapboxgl.Map({
