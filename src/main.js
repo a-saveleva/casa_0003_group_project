@@ -1,4 +1,7 @@
 import './style.css'
+import mapboxgl from 'mapbox-gl';
+
+travelTimeKey = import.meta.env.VITE_TRAVEL_TIME_API_KEY;
 
 mapboxgl.accessToken = 'pk.eyJ1IjoicGFuZXZhIiwiYSI6ImNtNXk0NXdiOTBhM3AyanIyNHR1OXBsejEifQ.gELzGrqRoZiEhabFwjVkiw'; // Put your Mapbox Public Access token here
 
@@ -307,7 +310,7 @@ map.on('load', async function() {
                 headers: {
                     "Content-Type": "application/json",
                     "X-Application-Id": "2b79ce8a",
-                    "X-Api-Key": "ed689b7f33087e3e548a2fd3e7872ca1"
+                    "X-Api-Key": travelTimeKey
                 },
                 body: JSON.stringify({
                     departure_searches: [{
