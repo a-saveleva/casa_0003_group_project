@@ -1,28 +1,8 @@
 import './style.css'
 import mapboxgl from 'mapbox-gl';
+// import Chartist from 'chartist';
 
-travelTimeKey = import.meta.env.VITE_TRAVEL_TIME_API_KEY;
-
-// mapboxgl.accessToken = 'pk.eyJ1IjoicGFuZXZhIiwiYSI6ImNtNXk0NXdiOTBhM3AyanIyNHR1OXBsejEifQ.gELzGrqRoZiEhabFwjVkiw'; // Put your Mapbox Public Access token here
-
-// // Load a new map in the 'map' HTML div
-// const map = new mapboxgl.Map({
-//   container: 'map', // container id
-//   style: 'mapbox://styles/paneva/cm8g3esp700lp01qsdl13anxg', // map style
-//   center: [0, 51.5], // starting position [lng, lat]
-//   zoom: 8 // starting zoom
-//   // pitch: 50 // optional tilt
-// });
-
-// Wait for the map to load before doing stuff
-// map.on('load', function() {
-//   // Set global light properties which influence 3D layer shadows
-//   // map.setLight({ color: "#fff", intensity: 0.25, position: [1.15, 210, 30] });
-
-//   // Add standard navigation control (zoom, rotate)
-//   map.addControl(new mapboxgl.NavigationControl());
-// });
-
+const travelTimeKey = import.meta.env.VITE_TRAVEL_TIME_API_KEY;
 mapboxgl.accessToken = 'pk.eyJ1IjoieWFsbGxlMDUwMyIsImEiOiJjbTZpMnpoYWkwNGNlMnFzaGg2OTZ6dWcwIn0.9crGea8A_PZB83mBnq1r2w';
 
 const map = new mapboxgl.Map({
@@ -64,7 +44,7 @@ timeRange.addEventListener('input', function() {
 });
 
 map.on('load', async function() {
-    // 1. 添加数据源
+    // 1. Add data sources
     map.addSource('stations', {
         type: 'vector',
         url: 'mapbox://yallle0503.10evu8w5'
@@ -73,18 +53,18 @@ map.on('load', async function() {
         type: 'vector',
         url: 'mapbox://yallle0503.1qo5b74k'
     });
-    map.addSource('greenspace', {
+    map.addSource('natural_assets', {
         type: 'vector',
-        url: 'mapbox://yallle0503.1kf0p7om'
+        url: 'mapbox://yallle0503.4lbkc4fp'
     });
 
-    // 2. 添加底图图层
-    // (1) 灰色绿地（底层，默认灰色）
+    // 2. Add base map layers
+    // (1) Gray greenspace (base layer, default gray)
     map.addLayer({
         id: 'greenspace-fill-default',
         type: 'fill',
-        source: 'greenspace',
-        'source-layer': 'greenspace-635xeg',
+        source: 'natural_assets',
+        'source-layer': 'natural_assets-2q506d',
         paint: {
             'fill-color': '#D6D6D6',
             'fill-opacity': 0.4,
@@ -93,26 +73,37 @@ map.on('load', async function() {
         minzoom: 5
     });
 
-    // (2) hover 高亮绿地（加在 default 上面）
+    // (2) hover greenspace (on top of default)
     map.addLayer({
         id: 'greenspace-fill-hover',
         type: 'fill',
-        source: 'greenspace',
-        'source-layer': 'greenspace-635xeg',
+        source: 'natural_assets',
+        'source-layer': 'natural_assets-2q506d',
         paint: {
-            'fill-color': [
-                'case',
-                ['==', ['get', 'sourse'], 'national-parks'], '#81C784',
-                ['==', ['get', 'sourse'], 'natural-assets'], '#4DB6AC',
-                ['==', ['get', 'sourse'], 'heritage-coast'], '#4FC3F7',
-                '#BDBDBD' // 默认灰
-            ],
+            'fill-color': '#D6D6D0',
             'fill-opacity': 0.7,
             'fill-outline-color': '#2E7D32'
         },
         filter: ['==', 'fid', ''],
         minzoom: 5
     }, 'greenspace-fill-default');
+
+
+    // Add chart
+    new Chartist.default.BarChart('#chart', {
+        id: 'chart',
+        labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10'],
+        series: [
+            [1, 2, 4, 8, 6, -2, -1, -4, -6, -2]
+        ]
+        }, {
+        high: 10,
+        low: -10,
+        axisX: {
+            labelInterpolationFnc: (value, index) => (index % 2 === 0 ? value : null)
+        }
+        });
+    console.log("Chart loaded");
 
     // 绿地 hover 效果
     let hoveredGreenspaceId = null;
