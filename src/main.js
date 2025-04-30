@@ -1,6 +1,6 @@
 import './style.css'
 import mapboxgl from 'mapbox-gl';
-// import Chartist from 'chartist';
+import * as d3 from 'd3';
 
 const travelTimeKey = import.meta.env.VITE_TRAVEL_TIME_API_KEY;
 mapboxgl.accessToken = 'pk.eyJ1IjoieWFsbGxlMDUwMyIsImEiOiJjbTZpMnpoYWkwNGNlMnFzaGg2OTZ6dWcwIn0.9crGea8A_PZB83mBnq1r2w';
@@ -58,6 +58,35 @@ map.on('load', async function() {
         url: 'mapbox://yallle0503.4lbkc4fp'
     });
 
+    // 1.1 Add chart container
+    const labels = ['Hiking', 'Cycling', 'Birdwatching', 'Coast Leisure', 'Camping', 'Geodiversity'];
+    const width = 500;
+    const height = 400;
+    const margin = { top: 20, right: 20, bottom: 20, left: 30 };
+    
+    const svg = d3.select("#chart")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+    
+    const x = d3.scaleBand()
+    .domain(labels)
+    .range([margin.left, width - margin.right])
+    .padding(0.2);
+    
+    const y = d3.scaleLinear()
+    .domain([0, 1])
+    .nice()
+    .range([height - margin.bottom, margin.top]);
+    
+    svg.append("g")
+    .attr("transform", `translate(0,${y(0)})`)
+    .call(d3.axisBottom(x));
+    
+    svg.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y));
+
     // 2. Add base map layers
     // (1) Gray greenspace (base layer, default gray)
     map.addLayer({
@@ -88,28 +117,14 @@ map.on('load', async function() {
         minzoom: 5
     }, 'greenspace-fill-default');
 
-
-    // Add chart
-    new Chartist.default.BarChart('#chart', {
-        id: 'chart',
-        labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10'],
-        series: [
-            [1, 2, 4, 8, 6, -2, -1, -4, -6, -2]
-        ]
-        }, {
-        high: 10,
-        low: -10,
-        axisX: {
-            labelInterpolationFnc: (value, index) => (index % 2 === 0 ? value : null)
-        }
-        });
-    console.log("Chart loaded");
+    console.log("Chart successfully loaded");
 
     // 绿地 hover 效果
     let hoveredGreenspaceId = null;
     map.on('mousemove', 'greenspace-fill-default', (e) => {
         if (e.features.length > 0) {
             const feature = e.features[0];
+            console.log("Feature properties:", feature.properties);
             const fid = feature.properties?.fid;
             if (hoveredGreenspaceId !== null) {
                 map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
@@ -118,11 +133,48 @@ map.on('load', async function() {
                 hoveredGreenspaceId = fid;
                 map.setFilter('greenspace-fill-hover', ['==', 'fid', hoveredGreenspaceId]);
             }
+            // On hover display category scores
+            const chart_data = [
+                feature.properties.hiking_score,
+                feature.properties.cycling_score,
+                feature.properties.birdwatching_score,
+                feature.properties.coast_score,
+                feature.properties.camping_score,
+                feature.properties.geology_score];
+
+            const bars = svg.selectAll(".bar")
+                .data(chart_data)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", (d, i) => x(labels[i]))
+                .attr("y", y(0))  // start from y=0
+                .attr("height", 0) // start from height=0
+                .attr("width", x.bandwidth())
+                .attr("fill", d => d >= 0 ? "#42A5F5" : "#E57373");
+
+            bars.transition()
+                .ease(d3.easeCubic)
+                .duration(110)
+                .attr("y", d => y(d))
+                .attr("height", d => Math.abs(y(d) - y(0)));
+
         }
     });
     map.on('mouseleave', 'greenspace-fill-default', () => {
         map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
         hoveredGreenspaceId = null;
+        map.getCanvas().style.cursor = ''; // Reset cursor to default
+        // Reset the chart container
+        const bars = svg.selectAll(".bar");
+        bars.transition()
+            .ease(d3.easeCubic)
+            .duration(90)
+            .attr("y", y(0))
+            .attr("height", 0)
+            .on("end", function() {
+                d3.select(this).remove(); // Remove each bar after animation
+        });
     });
 
     // 3. 添加车站和线路图层

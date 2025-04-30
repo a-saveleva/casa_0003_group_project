@@ -82,16 +82,19 @@ input[type="range"] {
 }
 
 #chart {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 300px;
-  height: 200px;
-  background: white;
-  z-index: 10;
-  padding: 10px;
+  position: fixed;
+  bottom: 0px;
+  left: 20px;
+  width: 500px;
+  height: 450px;
+  background: "transparent";
+  z-index: 99;
+  padding: 0px;
+  font-family: "Lexend", sans-serif;
+  font-size: 25px;
+  font-weight: 1000;
 }
-
+  
 /*
 a {
   font-weight: 500;
