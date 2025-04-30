@@ -8,20 +8,13 @@
         <!-- Mapbox -->
         <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
         <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
-
+        <!-- link to project stylesheet -->
         <link rel="stylesheet" href="/src/style.css"> 
-
         <!-- chart library -->
-        <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chartist@1.3.1/dist/chartist.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/chartist@1.3.1/dist/index.umd.js"></script> -->
-        <!-- <link rel="stylesheet" href="node_modules/chartist/dist/chartist.min.css"> -->
-         <!-- Add this inside the <head> tag -->
-        <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.css"> -->
-
-        <script src="https://d3js.org/d3.v4.js" charset="utf-8"></script>
-
-
+        <script src="https://d3js.org/d3.v4.js" charset="utf-8"></script> 
+        <!-- <script src="https://cdn.jsdelivr.net/npm/d3-scale-chromatic@3"></script>  -->
         <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+        
 
 
     </head>
@@ -29,6 +22,16 @@
     <body>
         <div id="map"></div>
         <div id="chart" class="ct-chart"></div>
+        <table>
+            <tr class="radio-row">
+              <td><input type="radio" name="layers" id="layer1" value="option1"></td>
+              <td><input type="radio" name="layers" id="layer2" value="option2"></td>
+              <td><input type="radio" name="layers" id="layer3" value="option3"></td>
+              <td><input type="radio" name="layers" id="layer4" value="option4"></td>
+              <td><input type="radio" name="layers" id="layer5" value="option5"></td>
+              <td><input type="radio" name="layers" id="layer6" value="option6"></td>
+            </tr>
+          </table>          
 
         <!-- Control Panel -->
         <div id="controls">
@@ -60,6 +63,5 @@
         <!-- Debug Info -->
         <div class="debug-info" id="debugInfo"></div>
         <script type="module" src="/src/main.js"></script> 
-        <!-- <script src="node_modules/chartist/dist/chartist.min.js"></script> -->
     </body>
 </html>

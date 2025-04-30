@@ -87,20 +87,45 @@ map.on('load', async function() {
     .attr("transform", `translate(${margin.left},0)`)
     .call(d3.axisLeft(y));
 
+    console.log("Chart axis loaded");
+    
+    //Make colour maps for all categories
+    const steps = 5;
+    function generateStops(interpolator, maxValue = 1, steps = 5) {
+        const scale = d3.scaleSequential(interpolator).domain([0, 0.75]);
+        return Array.from({ length: steps + 1 }, (_, i) => {
+            const t = i / steps;
+            return [t, scale(t)];
+        }).flat();
+    }
+    
+    const stops_bestoverall = generateStops(d3.interpolatePuRd);
+    const stops_hiking        = generateStops(d3.interpolateOrRd);
+    const stops_cycling       = generateStops(d3.interpolateYlGn);
+    const stops_camping       = generateStops(d3.interpolateGreens);
+    const stops_birdwatching  = generateStops(d3.interpolateRdPu);
+    const stops_geodiversity  = generateStops(d3.interpolateCividis);
+    const stops_coast         = generateStops(d3.interpolateYlGnBu);
+
     // 2. Add base map layers
     // (1) Gray greenspace (base layer, default gray)
     map.addLayer({
-        id: 'greenspace-fill-default',
-        type: 'fill',
-        source: 'natural_assets',
-        'source-layer': 'natural_assets-2q506d',
-        paint: {
-            'fill-color': '#D6D6D6',
-            'fill-opacity': 0.4,
-            'fill-outline-color': '#999'
-        },
-        minzoom: 5
+    id: 'greenspace-fill-default',
+    type: 'fill',
+    source: 'natural_assets',
+    'source-layer': 'natural_assets-2q506d',
+    paint: {
+        'fill-color': [
+            'interpolate',
+            ['linear'],
+            ['get', 'birdwatching_score'],
+            ...stops_bestoverall
+        ],
+        'fill-opacity': 0.85,
+    },
+    // minzoom: 0,
     });
+
 
     // (2) hover greenspace (on top of default)
     map.addLayer({
@@ -117,7 +142,28 @@ map.on('load', async function() {
         minzoom: 5
     }, 'greenspace-fill-default');
 
-    console.log("Chart successfully loaded");
+    // add radio buttons to switch between categories
+    const radios = document.querySelectorAll('input[name="layers"]');
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const selectedValue = e.target.value;
+            console.log("Selected layer:", selectedValue);
+
+            // Example: show/hide layers based on value
+            switch (selectedValue) {
+            case 'option1':
+                map.setPaintProperty('greenspace-fill-default', 'fill-extrusion-opacity', 0.95);
+                map.setPaintProperty('EngWal_Hex_Res', 'fill-extrusion-opacity', 0);
+                break;
+            case 'option2':
+                map.setPaintProperty('EngWal_Hex_Emp', 'fill-extrusion-opacity', 0);
+                map.setPaintProperty('EngWal_Hex_Res', 'fill-extrusion-opacity', 0.95);
+                break;
+            // Add more cases for option3 to option6 as needed
+            }
+        });
+    });
 
     // 绿地 hover 效果
     let hoveredGreenspaceId = null;
