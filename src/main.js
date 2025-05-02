@@ -147,19 +147,18 @@ map.on('load', async function() {
 
     radios.forEach(radio => {
         radio.addEventListener('change', (e) => {
-            const selectedValue = e.target.value;
-            console.log("Selected layer:", selectedValue);
+            const selectedCategoryDisplay = e.target.value;
+            console.log("Selected layer:", selectedCategoryDisplay);
 
             // Example: show/hide layers based on value
-            switch (selectedValue) {
-            case 'option1':
-                map.setPaintProperty('greenspace-fill-default', 'fill-extrusion-opacity', 0.95);
-                map.setPaintProperty('EngWal_Hex_Res', 'fill-extrusion-opacity', 0);
-                break;
-            case 'option2':
-                map.setPaintProperty('EngWal_Hex_Emp', 'fill-extrusion-opacity', 0);
-                map.setPaintProperty('EngWal_Hex_Res', 'fill-extrusion-opacity', 0.95);
-                break;
+            switch (selectedCategoryDisplay) {
+                case 'option1':
+                    map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'],['get', 'hiking_score'], ...stops_hiking]);
+                    break;
+                case 'option2':
+                    map.setPaintProperty('EngWal_Hex_Emp', 'fill-extrusion-opacity', 0);
+                    map.setPaintProperty('EngWal_Hex_Res', 'fill-extrusion-opacity', 0.95);
+                    break;
             // Add more cases for option3 to option6 as needed
             }
         });

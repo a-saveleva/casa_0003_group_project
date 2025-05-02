@@ -97,6 +97,9 @@ input[type="range"] {
 
 /* styles for radio buttons */
 .radio-row td {
+  position: fixed;
+  bottom: 0px;
+  left: 20px;
   padding: 5px 10px;
   z-index: 100;
 }
