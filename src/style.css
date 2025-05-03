@@ -1,7 +1,21 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
-  font-weight: 400;
+  font-weight: 400; */
+  --text-normal-font: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --text-normal-size: 14px;
+  --text-normal-color: #000;
+  --text-normal-line-height: 1.5;
+  --text-normal-weight: 400;
+
+  /* Title Text */
+  --text-title-size: 24px;
+  --text-title-weight: 700;
+  --text-title-color: #222;
+
+  /* Highlight Text */
+  --text-highlight-color: #d32f2f;
+  --text-highlight-weight: 600;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
@@ -15,6 +29,28 @@
 /* ________________________________________________________________________ */
 
 body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
+
+.text-normal {
+  font-family: var(--text-normal-font);
+  font-size: var(--text-normal-size);
+  color: var(--text-normal-color);
+  line-height: var(--text-normal-line-height);
+  font-weight: var(--text-normal-weight);
+}
+
+.text-title {
+  font-family: var(--text-normal-font);
+  font-size: var(--text-title-size);
+  font-weight: var(--text-title-weight);
+  color: var(--text-title-color);
+  line-height: 1.2;
+}
+
+.text-highlight {
+  color: var(--text-highlight-color);
+  font-weight: var(--text-highlight-weight);
+}
+
 /* controls is a container for selecting the travel time */
 #controls { 
     position: absolute;
@@ -85,306 +121,9 @@ input[type="range"] {
   position: fixed;
   bottom: 0px;
   left: 20px;
-  width: 500px;
+  width: 600px;
   height: 450px;
   background: transparent;
   z-index: 99;
   padding: 0px;
-  font-family: "Lexend", sans-serif;
-  font-size: 25px;
-  font-weight: 1000;
 }
-
-/* styles for radio buttons */
-.radio-row td {
-  position: fixed;
-  bottom: 0px;
-  left: 20px;
-  padding: 5px 10px;
-  z-index: 100;
-}
-
-.radio-row input[type="radio"] {
-  margin-right: 5px;
-  z-index: 101;
-}
-
-.radio-row label {
-  font-family: sans-serif;
-  font-size: 14px;
-  cursor: pointer;
-  z-index: 102;
-}
-
-  
-/*
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-} 
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #f7df1eaa);
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
-imported from my previous work
-
-body { 
-  margin:0; 
-  padding:0;
-  height: 100%;
-  overflow: hidden; 
-  }
-#map { 
-  position: absolute; top: 0; bottom: 0; width: 100%; height: 100%; z-index: 1;
-}
-Position the automatically generated MapTiler attribution
-
-.maptiler-attribution {
-  position: absolute !important;
-  bottom: 10px;  
-  left: 10px;    
-  z-index: 9999; 
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-.maptibregl-ctrl-icon {
-  display: none;
-}
-
-.map-overlay {
-  font-family: "Lexend", sans-serif;
-  font-weight: 300;
-  font-size: 13px;
-  position: absolute;
-  width: 13%;
-  top: 0;
-  left: 0;
-  padding: 15px;
-  z-index: 2;
-}
-
-.map-overlay .map-overlay-inner {
-  background-color: #fff;
-  box-shadow:0 1px 2px rgba(0, 0, 0, 0.20);
-  border-radius: 3px;
-  padding: 20px;
-  margin-bottom: 10px;
-}
-
-.map-overlay table {
-  border: none;
-  width: 100%;
-}
-
-.map-overlay h2 {
-  line-height: 24px;
-  font-weight: 700;
-  display: block;
-  margin: 0 0 10px;
-  padding-top: 0px;
-  padding-bottom: 10px;
-  /* padding: 10px;
-}
-
-.map-overlay h3 {
-  line-height: 24px;
-  font-weight: 500;
-  display: block;
-  margin: 0 0 10px;
-  padding-top: 10px;
-  padding-bottom: 0px;
-}
-
-.map-overlay h4 {
-  line-height: 18px;
-  font-weight: 500;
-  display: block;
-  margin: 0 0 10px;
-  padding-top: 10px;
-  padding-bottom: 0px;
-  
-}
-
-/* .map-overlay h4 {
-  line-height: 24px;
-  display: block;
-  margin: 0 0 10px;
-}
-
-.map-overlay label {
-  font: 16px/18px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  vertical-align: bottom;
-  margin: 0;
-  padding: 0;
-}
-
-.map-overlay .legend .bar {
-  height: 10px;
-  width: 100%;
-  background: linear-gradient(to right, #FCA107, #7F3121);
-}
-
-.map-overlay input {
-  display: inline;
-  vertical-align: middle;
-  margin: 5px;
-  padding: 0;
-}
-
-.map-overlay p.credit {
-  margin: 5px 0 0 0;
-  padding: 0;
-}
-
-.place-parent-container {
-  display: flex;
-  flex-direction: column;
-  /* align-items: flex-start; 
-  gap: 5px; 
-}
-
-.place-name-container {
-  background-color: transparent;
-  display: flex;
-  align-items: flex-end;
-}
-
-
-.place-popup {
-  background-color: transparent !important; 
-  border: none !important; 
-  box-shadow: none !important;
-  padding: 0 !important; 
-  /* position: absolute;
-}
-
-
-
-.place-name-popup {
-  background-color: #ED562C !important;
-  max-height: 20px;
-  min-width: 200px;
-  border-radius: 0px;
-  font-family: "Lexend", sans-serif;
-  font-weight: 500;
-  font-size: 14px !important;
-  color: white !important;
-  padding-left: 10px;
-  padding-right: 10px;
-  text-align: center;
-  display: flex;
-  align-items: center;
-}
-
-.place-name-line {
-  width: 10px;
-  height: 20px;
-  background: #7C2A13 !important;
-  /* position: absolute;
-  /* transform: translateX(-0px);
-}
-
-.category-container {
-  background-color: transparent;
-  display: flex;
-  align-items: self-start;
-  flex-direction: column;
-  gap: -4px;
-  transform: translateX(20px); 
-}
-
-.category-popup {
-  max-height: auto;
-  border-radius: 0px;
-  font-family: "Lexend", sans-serif;
-  font-weight: 700;
-  font-size: 11px;
-  font-display: swap;
-  color: black;
-  padding: 0px;
-  text-align: left;
-  opacity: 0; 
-  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-  transform: translateY(300px);
-  /* transform: translateX(300px);
-  /* position: absolute;
-}
-.category-popup.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-*/

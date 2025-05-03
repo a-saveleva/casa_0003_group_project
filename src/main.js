@@ -57,40 +57,96 @@ map.on('load', async function() {
         type: 'vector',
         url: 'mapbox://yallle0503.4lbkc4fp'
     });
+    map.addSource('greenspace', {
+        type: 'vector',
+        url: 'mapbox://yallle0503.1kf0p7om'
+    });
 
-    // 1.1 Add chart container
-    const labels = ['Hiking', 'Cycling', 'Birdwatching', 'Coast Leisure', 'Camping', 'Geodiversity'];
+    // Add chart container
+    const labels = ['Best Overall', 'Hiking', 'Cycling', 'Birdwatching', 'Coast Leisure', 'Camping', 'Geodiversity'];
     const width = 500;
     const height = 400;
     const margin = { top: 20, right: 20, bottom: 20, left: 30 };
-    
+
+    // Create SVG and scales
     const svg = d3.select("#chart")
     .append("svg")
     .attr("width", width)
     .attr("height", height);
-    
+
     const x = d3.scaleBand()
-    .domain(labels)
-    .range([margin.left, width - margin.right])
+    .domain(labels) // Use the labels array for x-axis
+    .range([margin.left, width - margin.right]) // Adjusted to fit within the SVG
     .padding(0.2);
-    
+
     const y = d3.scaleLinear()
     .domain([0, 1])
     .nice()
     .range([height - margin.bottom, margin.top]);
-    
-    svg.append("g")
-    .attr("transform", `translate(0,${y(0)})`)
-    .call(d3.axisBottom(x));
-    
+
+    // Draw axis
+    const xAxisGroup = svg.append("g") // Create a group for x-axis
+    .attr("transform", `translate(0,${y(0)})`) // Position at the bottom of the chart
+    .call(d3.axisBottom(x)); // Add x-axis
+
+    xAxisGroup.selectAll("text")
+    .attr("dy", "1.5em"); // Push labels down below
+
     svg.append("g")
     .attr("transform", `translate(${margin.left},0)`)
     .call(d3.axisLeft(y));
 
-    console.log("Chart axis loaded");
-    
+    // Add radio buttons on top of x-axis ticks
+    xAxisGroup.selectAll(".tick")
+        .each(function(d, i) {
+                const tick = d3.select(this);
+                const label = tick.select("text");
+                const labelBBox = label.node().getBBox();
+
+            // Append a radio button above the label
+            tick.append("foreignObject")
+                .attr("x", labelBBox.x + labelBBox.width / 2 - 10) // Center the radio button
+                .attr("y", labelBBox.y - 25) // Position above the label
+                .attr("width", 20) // Width of the radio button
+                .attr("height", 20) // Height of the radio button
+                .append("xhtml:input") // Use XHTML namespace for HTML elements
+                .attr("type", "radio") // Radio button type
+                .attr("name", "chart-layer") // Name for the radio button group
+                .attr("value", labels[i]) // Value of the radio button
+                .on("change", function() {
+                    const selectedCategory = this.value;
+                    console.log("Selected category:", selectedCategory);
+
+                    switch (selectedCategory) {
+                        case 'Hiking':
+                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'hiking_score'], ...stops_hiking]);
+                            break;
+                        case 'Cycling':
+                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'cycling_score'], ...stops_cycling]);
+                            break;
+                        case 'Birdwatching':
+                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'birdwatching_score'], ...stops_birdwatching]);
+                            break;
+                        case 'Coast Leisure':
+                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'coast_score'], ...stops_coast]);
+                            break;
+                        case 'Camping':
+                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'camping_score'], ...stops_camping]);
+                            break;
+                        case 'Geodiversity':
+                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'geology_score'], ...stops_geodiversity]);
+                            break;
+                        case 'Best Overall':
+                        default:
+                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'birdwatching_score'], ...stops_bestoverall]);
+                            break;
+                    }
+                });
+        });
+
+        console.log("Chart axis loaded");
+        
     //Make colour maps for all categories
-    const steps = 5;
     function generateStops(interpolator, maxValue = 1, steps = 5) {
         const scale = d3.scaleSequential(interpolator).domain([0, 0.75]);
         return Array.from({ length: steps + 1 }, (_, i) => {
@@ -98,7 +154,9 @@ map.on('load', async function() {
             return [t, scale(t)];
         }).flat();
     }
-    
+    // Annd do the following later after more work on the source has been done.
+    // make sure the pallettes work with the data - currently there are a lot of white polygons
+    // This will be addressed by changing the data in the source
     const stops_bestoverall = generateStops(d3.interpolatePuRd);
     const stops_hiking        = generateStops(d3.interpolateOrRd);
     const stops_cycling       = generateStops(d3.interpolateYlGn);
@@ -107,8 +165,24 @@ map.on('load', async function() {
     const stops_geodiversity  = generateStops(d3.interpolateCividis);
     const stops_coast         = generateStops(d3.interpolateYlGnBu);
 
-    // 2. Add base map layers
-    // (1) Gray greenspace (base layer, default gray)
+    // fill layer for natural parks and heritage coast
+    map.addLayer({
+        id: 'nationalParks-fill',
+        type: 'fill',
+        source: 'greenspace',
+        'source-layer': 'greenspace-635xeg',
+        paint: {
+            'fill-color': [
+                'case',
+                ['==', ['get', 'sourse'], 'national-parks'], '#81C784',
+                ['==', ['get', 'sourse'], 'heritage-coast'], '#81C784',
+                'transparent'
+            ],
+            'fill-opacity': 0.5,
+        },
+    });  
+
+    // fill layer for natural assets. Default pallette shows best overall green spaces
     map.addLayer({
     id: 'greenspace-fill-default',
     type: 'fill',
@@ -126,6 +200,23 @@ map.on('load', async function() {
     // minzoom: 0,
     });
 
+    // line layer for natural parks and heritage coast
+    // map.addLayer({
+    //     id: 'nationalParks-line',
+    //     type: 'line',
+    //     source: 'greenspace',
+    //     'source-layer': 'greenspace-635xeg',
+    //     paint: {
+    //         'line-color': [
+    //             'case',
+    //             ['==', ['get', 'sourse'], 'national-parks'], '#2E7D32',
+    //             ['==', ['get', 'sourse'], 'heritage-coast'], '#2E7D32',
+    //             'transparent'
+    //         ],
+    //         // 'line-width': 2
+    //     }
+    // });  
+
 
     // (2) hover greenspace (on top of default)
     map.addLayer({
@@ -138,31 +229,8 @@ map.on('load', async function() {
             'fill-opacity': 0.7,
             'fill-outline-color': '#2E7D32'
         },
-        filter: ['==', 'fid', ''],
         minzoom: 5
     }, 'greenspace-fill-default');
-
-    // add radio buttons to switch between categories
-    const radios = document.querySelectorAll('input[name="layers"]');
-
-    radios.forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            const selectedCategoryDisplay = e.target.value;
-            console.log("Selected layer:", selectedCategoryDisplay);
-
-            // Example: show/hide layers based on value
-            switch (selectedCategoryDisplay) {
-                case 'option1':
-                    map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'],['get', 'hiking_score'], ...stops_hiking]);
-                    break;
-                case 'option2':
-                    map.setPaintProperty('EngWal_Hex_Emp', 'fill-extrusion-opacity', 0);
-                    map.setPaintProperty('EngWal_Hex_Res', 'fill-extrusion-opacity', 0.95);
-                    break;
-            // Add more cases for option3 to option6 as needed
-            }
-        });
-    });
 
     // 绿地 hover 效果
     let hoveredGreenspaceId = null;
@@ -180,6 +248,8 @@ map.on('load', async function() {
             }
             // On hover display category scores
             const chart_data = [
+                // first is placeholder for best overall
+                feature.properties.hiking_score, 
                 feature.properties.hiking_score,
                 feature.properties.cycling_score,
                 feature.properties.birdwatching_score,
