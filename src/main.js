@@ -66,7 +66,7 @@ map.on('load', async function() {
     const labels = ['Best Overall', 'Hiking', 'Cycling', 'Birdwatching', 'Seaside', 'Camping', 'Geodiversity'];
     const width = 700;
     const height = 400;
-    const margin = { top: 20, right: 20, bottom: 80, left: 30 };
+    const margin = { top: 60, right: 20, bottom: 80, left: 30 };
 
     // Create SVG and scales
     const svg = d3.select("#chart")
@@ -106,7 +106,6 @@ map.on('load', async function() {
         .call(d3.axisLeft(y));
     
     let chartTextElement;
-
     // Add text in the center of the chart
     chartTextElement = svg.append("text")
         .attr("x", width / 2)
@@ -115,6 +114,17 @@ map.on('load', async function() {
         .attr("alignment-baseline", "middle")
         .attr("class", "text-normal") // Apply the CSS class
         .text("Hover over a green space to see the scores");
+    
+    let chartPlaceName;    
+    // Add text to hold the place name at the top of the chart
+    chartPlaceName = svg.append("text")
+        .attr("x", 5)  // Position horizontally in the center
+        .attr("y", 20)  // Position the text at the top (you can adjust this value)
+        .attr("text-anchor", "left")  // Center the text horizontally
+        .attr("alignment-baseline", "middle")  // Align text vertically at the middle
+        .attr("class", "text-title")  // Apply the CSS class
+        .text("No green space selected");  // Default text
+        
 
     // Add buttons on top of x-axis ticks
     // Add buttons on top of x-axis ticks (replace radio buttons with regular rectangular buttons)
@@ -289,6 +299,8 @@ map.on('load', async function() {
             }
             // Hide the chart prompt text on mousemove
             if (chartTextElement) {chartTextElement.style("opacity", 0);}
+            // Change place name in chart
+            if (chartPlaceName) {chartPlaceName.text(feature.properties?.name);}
             // On hover display category scores
             const chart_data = [
                 // first is placeholder for best overall
@@ -323,6 +335,9 @@ map.on('load', async function() {
 
         // Set back visibility of the chart prompt text on mouseleave
         if (chartTextElement) {chartTextElement.style("opacity", 1);}
+        // Reset the chart place name
+        if (chartPlaceName) {chartPlaceName.text("No green space selected");}
+        
         map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
         hoveredGreenspaceId = null;
         map.getCanvas().style.cursor = ''; // Reset cursor to default
