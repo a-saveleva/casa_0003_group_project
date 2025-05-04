@@ -62,7 +62,7 @@ map.on('load', async function() {
         url: 'mapbox://yallle0503.1kf0p7om'
     });
 
-    // Add chart container
+    // ADDING CHART WITH D3
     const labels = ['Best Overall', 'Hiking', 'Cycling', 'Birdwatching', 'Seaside', 'Camping', 'Geodiversity'];
     const width = 700;
     const height = 400;
@@ -92,7 +92,7 @@ map.on('load', async function() {
     xAxisGroup.selectAll(".tick line").remove(); // Remove ticks
 
     xAxisGroup.selectAll("text")
-    .attr("dy", "5em"); // Push labels down below
+    .attr("dy", "5.5em"); // Push labels down below
 
     // Add styles to x-axis labels (inherit from our custom css)
     xAxisGroup.selectAll("text")
@@ -101,9 +101,7 @@ map.on('load', async function() {
         .style("font-weight", "var(--text-highlight-weight)")
         .style("font-family", "var(--text-normal-font)");
 
-    svg.append("g")
-        .attr("transform", `translate(${margin.left},0)`)
-        .call(d3.axisLeft(y));
+    svg.append("g").attr("transform", `translate(${margin.left},0)`).call(d3.axisLeft(y));
     
     let chartTextElement;
     // Add text in the center of the chart
@@ -113,7 +111,26 @@ map.on('load', async function() {
         .attr("text-anchor", "middle")
         .attr("alignment-baseline", "middle")
         .attr("class", "text-normal") // Apply the CSS class
-        .text("Hover over a green space to see the scores");
+
+    chartTextElement = svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", y(0.5))
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "middle")
+        .attr("class", "text-normal") // Apply the CSS class
+        .text(""); // Start with empty text for now
+
+    // Add the first line of text
+    chartTextElement.append("tspan")
+        .attr("x", width / 2)
+        .attr("dy", 0)  // No vertical offset for the first line
+        .text("Hover over a green space to see how");
+
+    // Add the second line of text
+    chartTextElement.append("tspan")
+        .attr("x", width / 2)
+        .attr("dy", "1.2em")  // Vertical offset to push the second line below the first
+        .text("well it responds to leisure categories");
     
     let chartPlaceName;    
     // Add text to hold the place name at the top of the chart
@@ -123,49 +140,64 @@ map.on('load', async function() {
         .attr("text-anchor", "left")  // Center the text horizontally
         .attr("alignment-baseline", "middle")  // Align text vertically at the middle
         .attr("class", "text-title")  // Apply the CSS class
-        .text("No green space selected");  // Default text
-        
+        .text("No green space selected");  // Default text 
+
+    // Retrieve CSS root styles once
+    const rootStyles = getComputedStyle(document.documentElement);
+
+    // Helper function to get the color for a specific category
+    function getCategoryColor(category) {
+        return rootStyles.getPropertyValue(`--colour-${category.toLowerCase().replace(/\s+/g, '-')}`).trim();
+    }
 
     // Add buttons on top of x-axis ticks
-    // Add buttons on top of x-axis ticks (replace radio buttons with regular rectangular buttons)
     xAxisGroup.selectAll(".tick")
     .each(function(d, i) {
         const tick = d3.select(this);
         const label = tick.select("text");
         const labelBBox = label.node().getBBox();
 
-        // Add a button instead of the radio button
         tick.append("foreignObject")
             .attr("x", labelBBox.x + labelBBox.width / 2 - 20)  // Set the x position of the button
-            .attr("y", labelBBox.y - 43) // Set the y position of the button
+            .attr("y", labelBBox.y - 50) // Set the y position of the button
             .attr("width", 100)  // Increased width to make it more visible
             .attr("height", 60)  // Increased height to ensure visibility
             .style("pointer-events", "all")  // Allow interaction with the button
             .append("xhtml:button")  // Use XHTML button
             .text(function() {
                 // Dynamically change emoji based on the tick label
-                if (labels[i] === "Best Overall") {
-                    return "🤩";
-                } else if (labels[i] === "Hiking") {
-                    return "🥾";
-                } else if (labels[i] === "Cycling") {
-                    return "🚴‍♂️";
-                } else if (labels[i] === "Birdwatching") {
-                    return "🦆";
-                } else if (labels[i] === "Seaside") {
-                    return "🏖️";
-                } else if (labels[i] === "Camping") {
-                    return "⛺";
-                } else if (labels[i] === "Geodiversity") {
-                    return "⛰️";
-                } else {
-                    return "🤔";  // Default emoji for other categories
-                }
+                if (labels[i] === "Best Overall") {return "🤩";
+                } else if (labels[i] === "Hiking") {return "🥾";
+                } else if (labels[i] === "Cycling") {return "🚴‍♂️";
+                } else if (labels[i] === "Birdwatching") { return "🦆";
+                } else if (labels[i] === "Seaside") {return "🏖️";
+                } else if (labels[i] === "Camping") {return "⛺";
+                } else if (labels[i] === "Geodiversity") {return "⛰️";
+                } else {return "🤔";}  // Default emoji if something is wrong
             })
-            .classed("chart-button", true)  // Apply the CSS class here
-            .on("click", function() {
+            .classed("chart-button", true) // Apply the CSS class
+            .on("mouseenter", function() { // Handle hover event
+                const selectedCategory = labels[i]; // Get the category from the label
+                const categoryColor = getCategoryColor(selectedCategory); // Get the color for the category
+                // Reset all buttons to their default border
+                d3.selectAll(".chart-button").style("border", ""); // Reset to default
+                // Change the border color of the hovered button
+                d3.select(this).style("border", `3px solid ${categoryColor}`);
+            })
+            .on("mouseleave", function() { // Reset border on mouse leave
+                d3.select(this).style("border", ""); // Reset to default
+            })
+            .on("click", function() { // Handle button click
                 const selectedCategory = labels[i];  // Get the category from the label
                 console.log("Selected category:", selectedCategory);
+
+                // Reset all buttons to their default background color
+                d3.selectAll(".chart-button").style("background-color", ""); // Reset to default
+
+                // Get the color for the selected category
+                const categoryColor = getCategoryColor(selectedCategory);
+                // Change the clicked button's background color
+                d3.select(this).style("background-color", categoryColor);
 
                 switch (selectedCategory) {
                     case 'Hiking':
@@ -194,26 +226,42 @@ map.on('load', async function() {
             });
     });
 
-    console.log("Chart axis loaded");
-        
-    //Make colour maps for all categories
-    function generateStops(interpolator, maxValue = 1, steps = 5) {
-        const scale = d3.scaleSequential(interpolator).domain([0, 0.75]);
+
+    // Get CSS variables from :root
+    // const rootStyles = getComputedStyle(document.documentElement);
+    const colorScale = d3.scaleOrdinal()
+        .domain(labels) // Use the labels array
+        .range([
+            rootStyles.getPropertyValue('--colour-best-overall').trim(),
+            rootStyles.getPropertyValue('--colour-hiking').trim(),
+            rootStyles.getPropertyValue('--colour-cycling').trim(),
+            rootStyles.getPropertyValue('--colour-birdwatching').trim(),
+            rootStyles.getPropertyValue('--colour-seaside').trim(),
+            rootStyles.getPropertyValue('--colour-camping').trim(),
+            rootStyles.getPropertyValue('--colour-geodiversity').trim()
+        ]);   
+
+    // Function to generate stops dynamically from CSS variables
+    function generateStopsFromCSS(category, steps = 5) {
+        const baseColor = getCategoryColor(category); // Get the base color from CSS
+        const scale = d3.scaleLinear()
+            .domain([0, 0.75]) // Define the range for interpolation
+            .range(["#ffffff", baseColor]); // Interpolate from white to the base color
+
         return Array.from({ length: steps + 1 }, (_, i) => {
             const t = i / steps;
             return [t, scale(t)];
         }).flat();
     }
-    // Annd do the following later after more work on the source has been done.
-    // make sure the pallettes work with the data - currently there are a lot of white polygons
-    // This will be addressed by changing the data in the source
-    const stops_bestoverall = generateStops(d3.interpolatePuRd);
-    const stops_hiking        = generateStops(d3.interpolateOrRd);
-    const stops_cycling       = generateStops(d3.interpolateYlGn);
-    const stops_camping       = generateStops(d3.interpolateGreens);
-    const stops_birdwatching  = generateStops(d3.interpolateRdPu);
-    const stops_geodiversity  = generateStops(d3.interpolateCividis);
-    const stops_coast         = generateStops(d3.interpolateYlGnBu);
+
+    // Generate stops dynamically for each category
+    const stops_bestoverall = generateStopsFromCSS("best-overall");
+    const stops_hiking = generateStopsFromCSS("hiking");
+    const stops_cycling = generateStopsFromCSS("cycling");
+    const stops_camping = generateStopsFromCSS("camping");
+    const stops_birdwatching = generateStopsFromCSS("birdwatching");
+    const stops_geodiversity = generateStopsFromCSS("geodiversity");
+    const stops_coast = generateStopsFromCSS("seaside");
 
     // fill layer for natural parks and heritage coast
     map.addLayer({
@@ -269,18 +317,30 @@ map.on('load', async function() {
 
 
     // (2) hover greenspace (on top of default)
-    map.addLayer({
+    map.addLayer({ 
         id: 'greenspace-fill-hover',
-        type: 'fill',
+        type: 'line',
         source: 'natural_assets',
         'source-layer': 'natural_assets-2q506d',
         paint: {
-            'fill-color': '#D6D6D0',
-            'fill-opacity': 0.7,
-            'fill-outline-color': '#2E7D32'
+            "line-blur": 0.8,
+            "line-width": 5,
+            "line-color": "#5fd2ff",
+            "line-opacity": 0,
+            "line-offset": -2
         },
-        minzoom: 5
     }, 'greenspace-fill-default');
+
+    // Select the first button (Best Overall) by default
+    const firstButton = d3.select(".chart-button");
+    const defaultCategory = "Best Overall";
+    const defaultColor = getCategoryColor(defaultCategory);
+    // Set the background color of the first button
+    firstButton.style("background-color", defaultColor);
+    // Trigger the default logic for Best Overall
+    map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'best_overall_score'], ...stops_bestoverall]);
+    console.log("Chart axis loaded");
+
 
     // 绿地 hover 效果
     let hoveredGreenspaceId = null;
@@ -290,13 +350,26 @@ map.on('load', async function() {
             const feature = e.features[0];
             console.log("Feature properties:", feature.properties);
             const fid = feature.properties?.fid;
+
+            // // Use centroid for popup placement (safer than raw coordinates)
+            // const coordinates = turf.center(feature).geometry.coordinates;
+            // const name = feature.properties.name || "Unnamed";
+
+            // // Show popup
+            // popup.setLngLat(coordinates)
+            //     .setHTML(`<text-highlight>${name}</text-highlight>`)
+            //     .addTo(map);
+
             if (hoveredGreenspaceId !== null) {
                 map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
             }
             if (fid !== undefined && fid !== null) {
                 hoveredGreenspaceId = fid;
                 map.setFilter('greenspace-fill-hover', ['==', 'fid', hoveredGreenspaceId]);
-            }
+            // Set the line-opacity to 1 for the current feature
+            map.setPaintProperty('greenspace-fill-hover', 'line-opacity', 1);
+            
+        }
             // Hide the chart prompt text on mousemove
             if (chartTextElement) {chartTextElement.style("opacity", 0);}
             // Change place name in chart
@@ -321,7 +394,8 @@ map.on('load', async function() {
                 .attr("y", y(0))  // start from y=0
                 .attr("height", 0) // start from height=0
                 .attr("width", x.bandwidth())
-                .attr("fill", d => d >= 0 ? "#42A5F5" : "#E57373");
+                .attr("fill", d => d >= 0 ? "#42A5F5" : "#E57373")
+                .attr("fill", (d, i) => colorScale(labels[i])); // Assign color based on the label
 
             bars.transition()
                 .ease(d3.easeCubic)
@@ -332,12 +406,13 @@ map.on('load', async function() {
         }
     });
     map.on('mouseleave', 'greenspace-fill-default', () => {
-
+        // popup.remove();
+        map.getCanvas().style.cursor = '';
         // Set back visibility of the chart prompt text on mouseleave
         if (chartTextElement) {chartTextElement.style("opacity", 1);}
         // Reset the chart place name
         if (chartPlaceName) {chartPlaceName.text("No green space selected");}
-        
+
         map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
         hoveredGreenspaceId = null;
         map.getCanvas().style.cursor = ''; // Reset cursor to default

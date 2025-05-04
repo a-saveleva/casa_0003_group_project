@@ -18,6 +18,15 @@
   --text-highlight-color: #000;
   --text-highlight-weight: 700;
 
+  /* Specific colours used with categories */
+  --colour-best-overall: #4D3949;
+  --colour-hiking: #C22938;
+  --colour-cycling: #FC7B4E;
+  --colour-birdwatching: #B7D154;
+  --colour-camping: #F25A87;
+  --colour-seaside: #1A63AB;
+  --colour-geodiversity: #72845C;
+
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
@@ -136,7 +145,18 @@ input[type="range"] {
   color: white;
   cursor: pointer;
   border-radius: 5px;
-  font-size: 20px;
+  font-size: 25px;
   font-weight: bold;  /* Make text bold */
   text-align: center;  /* Center the text (emoji) */
+}
+
+#popup {
+  position: absolute;
+  bottom: 0px;
+  left: 20px;
+  width: 300px;
+  height: 200px;
+  background: red;
+  z-index: 99;
+  padding: 0px;
 }
