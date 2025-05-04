@@ -44,7 +44,7 @@ timeRange.addEventListener('input', function() {
 });
 
 map.on('load', async function() {
-    // 1. Add data sources
+    // 1. Add data sources from mapbox
     map.addSource('stations', {
         type: 'vector',
         url: 'mapbox://yallle0503.10evu8w5'
@@ -63,88 +63,128 @@ map.on('load', async function() {
     });
 
     // Add chart container
-    const labels = ['Best Overall', 'Hiking', 'Cycling', 'Birdwatching', 'Coast Leisure', 'Camping', 'Geodiversity'];
-    const width = 500;
+    const labels = ['Best Overall', 'Hiking', 'Cycling', 'Birdwatching', 'Seaside', 'Camping', 'Geodiversity'];
+    const width = 700;
     const height = 400;
-    const margin = { top: 20, right: 20, bottom: 20, left: 30 };
+    const margin = { top: 20, right: 20, bottom: 80, left: 30 };
 
     // Create SVG and scales
     const svg = d3.select("#chart")
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height);
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
 
     const x = d3.scaleBand()
-    .domain(labels) // Use the labels array for x-axis
-    .range([margin.left, width - margin.right]) // Adjusted to fit within the SVG
-    .padding(0.2);
+        .domain(labels) // Use the labels array for x-axis
+        .range([margin.left, width - margin.right]) // Adjusted to fit within the SVG
+        .padding(0.2);
 
     const y = d3.scaleLinear()
-    .domain([0, 1])
-    .nice()
-    .range([height - margin.bottom, margin.top]);
+        .domain([0, 1])
+        .nice()
+        .range([height - margin.bottom, margin.top]);
 
     // Draw axis
     const xAxisGroup = svg.append("g") // Create a group for x-axis
-    .attr("transform", `translate(0,${y(0)})`) // Position at the bottom of the chart
-    .call(d3.axisBottom(x)); // Add x-axis
+        .attr("transform", `translate(0,${y(0)})`) // Position at the bottom of the chart
+        .call(d3.axisBottom(x)); // Add x-axis
+
+    xAxisGroup.selectAll(".tick line").remove(); // Remove ticks
 
     xAxisGroup.selectAll("text")
-    .attr("dy", "1.5em"); // Push labels down below
+    .attr("dy", "5em"); // Push labels down below
+
+    // Add styles to x-axis labels (inherit from our custom css)
+    xAxisGroup.selectAll("text")
+        .style("font-size", "var(--text-highlight-size)")
+        .style("fill", "var(--text-highlight-color)")
+        .style("font-weight", "var(--text-highlight-weight)")
+        .style("font-family", "var(--text-normal-font)");
 
     svg.append("g")
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y));
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y));
+    
+    let chartTextElement;
 
-    // Add radio buttons on top of x-axis ticks
+    // Add text in the center of the chart
+    chartTextElement = svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", y(0.5))
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "middle")
+        .attr("class", "text-normal") // Apply the CSS class
+        .text("Hover over a green space to see the scores");
+
+    // Add buttons on top of x-axis ticks
+    // Add buttons on top of x-axis ticks (replace radio buttons with regular rectangular buttons)
     xAxisGroup.selectAll(".tick")
-        .each(function(d, i) {
-                const tick = d3.select(this);
-                const label = tick.select("text");
-                const labelBBox = label.node().getBBox();
+    .each(function(d, i) {
+        const tick = d3.select(this);
+        const label = tick.select("text");
+        const labelBBox = label.node().getBBox();
 
-            // Append a radio button above the label
-            tick.append("foreignObject")
-                .attr("x", labelBBox.x + labelBBox.width / 2 - 10) // Center the radio button
-                .attr("y", labelBBox.y - 25) // Position above the label
-                .attr("width", 20) // Width of the radio button
-                .attr("height", 20) // Height of the radio button
-                .append("xhtml:input") // Use XHTML namespace for HTML elements
-                .attr("type", "radio") // Radio button type
-                .attr("name", "chart-layer") // Name for the radio button group
-                .attr("value", labels[i]) // Value of the radio button
-                .on("change", function() {
-                    const selectedCategory = this.value;
-                    console.log("Selected category:", selectedCategory);
+        // Add a button instead of the radio button
+        tick.append("foreignObject")
+            .attr("x", labelBBox.x + labelBBox.width / 2 - 20)  // Set the x position of the button
+            .attr("y", labelBBox.y - 43) // Set the y position of the button
+            .attr("width", 100)  // Increased width to make it more visible
+            .attr("height", 60)  // Increased height to ensure visibility
+            .style("pointer-events", "all")  // Allow interaction with the button
+            .append("xhtml:button")  // Use XHTML button
+            .text(function() {
+                // Dynamically change emoji based on the tick label
+                if (labels[i] === "Best Overall") {
+                    return "🤩";
+                } else if (labels[i] === "Hiking") {
+                    return "🥾";
+                } else if (labels[i] === "Cycling") {
+                    return "🚴‍♂️";
+                } else if (labels[i] === "Birdwatching") {
+                    return "🦆";
+                } else if (labels[i] === "Seaside") {
+                    return "🏖️";
+                } else if (labels[i] === "Camping") {
+                    return "⛺";
+                } else if (labels[i] === "Geodiversity") {
+                    return "⛰️";
+                } else {
+                    return "🤔";  // Default emoji for other categories
+                }
+            })
+            .classed("chart-button", true)  // Apply the CSS class here
+            .on("click", function() {
+                const selectedCategory = labels[i];  // Get the category from the label
+                console.log("Selected category:", selectedCategory);
 
-                    switch (selectedCategory) {
-                        case 'Hiking':
-                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'hiking_score'], ...stops_hiking]);
-                            break;
-                        case 'Cycling':
-                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'cycling_score'], ...stops_cycling]);
-                            break;
-                        case 'Birdwatching':
-                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'birdwatching_score'], ...stops_birdwatching]);
-                            break;
-                        case 'Coast Leisure':
-                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'coast_score'], ...stops_coast]);
-                            break;
-                        case 'Camping':
-                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'camping_score'], ...stops_camping]);
-                            break;
-                        case 'Geodiversity':
-                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'geology_score'], ...stops_geodiversity]);
-                            break;
-                        case 'Best Overall':
-                        default:
-                            map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'birdwatching_score'], ...stops_bestoverall]);
-                            break;
-                    }
-                });
-        });
+                switch (selectedCategory) {
+                    case 'Hiking':
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'hiking_score'], ...stops_hiking]);
+                        break;
+                    case 'Cycling':
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'cycling_score'], ...stops_cycling]);
+                        break;
+                    case 'Birdwatching':
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'birdwatching_score'], ...stops_birdwatching]);
+                        break;
+                    case 'Seaside':
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'coast_score'], ...stops_coast]);
+                        break;
+                    case 'Camping':
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'camping_score'], ...stops_camping]);
+                        break;
+                    case 'Geodiversity':
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'geology_score'], ...stops_geodiversity]);
+                        break;
+                    case 'Best Overall':
+                    default:
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'best_overall_score'], ...stops_bestoverall]);
+                        break;
+                }
+            });
+    });
 
-        console.log("Chart axis loaded");
+    console.log("Chart axis loaded");
         
     //Make colour maps for all categories
     function generateStops(interpolator, maxValue = 1, steps = 5) {
@@ -236,6 +276,7 @@ map.on('load', async function() {
     let hoveredGreenspaceId = null;
     map.on('mousemove', 'greenspace-fill-default', (e) => {
         if (e.features.length > 0) {
+            map.getCanvas().style.cursor = 'pointer';
             const feature = e.features[0];
             console.log("Feature properties:", feature.properties);
             const fid = feature.properties?.fid;
@@ -246,6 +287,8 @@ map.on('load', async function() {
                 hoveredGreenspaceId = fid;
                 map.setFilter('greenspace-fill-hover', ['==', 'fid', hoveredGreenspaceId]);
             }
+            // Hide the chart prompt text on mousemove
+            if (chartTextElement) {chartTextElement.style("opacity", 0);}
             // On hover display category scores
             const chart_data = [
                 // first is placeholder for best overall
@@ -277,6 +320,9 @@ map.on('load', async function() {
         }
     });
     map.on('mouseleave', 'greenspace-fill-default', () => {
+
+        // Set back visibility of the chart prompt text on mouseleave
+        if (chartTextElement) {chartTextElement.style("opacity", 1);}
         map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
         hoveredGreenspaceId = null;
         map.getCanvas().style.cursor = ''; // Reset cursor to default

@@ -3,7 +3,7 @@
   line-height: 1.5;
   font-weight: 400; */
   --text-normal-font: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  --text-normal-size: 14px;
+  --text-normal-size: 12px;
   --text-normal-color: #000;
   --text-normal-line-height: 1.5;
   --text-normal-weight: 400;
@@ -14,8 +14,9 @@
   --text-title-color: #222;
 
   /* Highlight Text */
-  --text-highlight-color: #d32f2f;
-  --text-highlight-weight: 600;
+  --text-highlight-size: 12px;
+  --text-highlight-color: #000;
+  --text-highlight-weight: 700;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
@@ -48,6 +49,7 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
 
 .text-highlight {
   color: var(--text-highlight-color);
+  font-size: var(--text-highlight-size);
   font-weight: var(--text-highlight-weight);
 }
 
@@ -121,9 +123,20 @@ input[type="range"] {
   position: fixed;
   bottom: 0px;
   left: 20px;
-  width: 600px;
+  width: 700px;
   height: 450px;
-  background: transparent;
+  background: white;
   z-index: 99;
   padding: 0px;
+}
+.chart-button {
+  padding: 5px 10px;
+  background-color: white;  /* Button background color */
+  border: 1px solid gray;  /* Border for visibility */
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 20px;
+  font-weight: bold;  /* Make text bold */
+  text-align: center;  /* Center the text (emoji) */
 }
