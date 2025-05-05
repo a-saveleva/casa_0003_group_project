@@ -12,7 +12,6 @@
         <link rel="stylesheet" href="/src/style.css"> 
         <!-- chart library -->
         <script src="https://d3js.org/d3.v4.js" charset="utf-8"></script> 
-        <!-- <script src="https://cdn.jsdelivr.net/npm/d3-scale-chromatic@3"></script>  -->
         <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
         
 
@@ -20,38 +19,58 @@
     </head>
 
     <body>
-        <div id="map"></div>
-        <div id="chart" class="text-highlight"></div>       
-
-        <!-- Control Panel -->
-        <div id="controls">
-            <div class="control-title">🚆 Train Isochrone</div>
-            <label for="timeRange">Select time range:</label>
-            <input type="range" id="timeRange" min="5" max="240" step="5" value="60">
-            <div><span id="timeValue">60 minutes</span></div>
-            
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #FF5722;"></div>
-                    <span>Origin Station</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #42A5F5;"></div>
-                    <span>Reachable Stations</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #888;"></div>
-                    <span>Other Stations</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #FF3C38; width: 15px; height: 4px;"></div>
-                    <span>Connections</span>
-                </div>
+        <div id="map"></div>      
+        <div class="left-bar">
+            <div class="controls-internal" style="width: 490px;">
+                <div class="text-title">No car, no problem: </div>
+                <div class="text-title" style="font-style: bold; font-size: 40px; margin-top: -10px;">Go wild by rail</div>
+                <div class="text-normal">Here a short text encompassing our idea for the project. I assume the text here will take approximately three sentences. This is a placeholder showing the extent of the text and how it looks on the page.</div>
             </div>
-        </div>
+                       
 
+            <div id="controls" class="text-normal">
+                <div class="controls-internal">
+                    <div>1. Select the time you wish to travel</div>
+                    <input type="range" id="timeRange" min="5" max="240" step="5" value="60">
+                    <div><span id="timeValue">60 minutes</span></div>
+                </div>
+            
+                <div class="controls-internal">
+                    <div>2. Drag the marker to select origin</div>
+                    <div id="originStation" class="text-normal">
+                        Origin: <span id="originStationName">None selected</span>
+                    </div>
+                </div>
+                
+                <!-- <div id="controls-internal" class="text-normal">
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #FF5722;"></div>
+                            <span>Origin Station</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--colour-protected-landscape);"></div>
+                            <span>UK Protected Landscapes</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #42A5F5;"></div>
+                            <span>Reachable Stations</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #888;"></div>
+                            <span>Other Stations</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #FF3C38; width: 15px; height: 4px;"></div>
+                            <span>Connections</span>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+            <div id="chart" class="text-highlight"></div>
+        </div>
         <!-- Debug Info -->
-        <div class="debug-info" id="debugInfo"></div>
+        <!-- <div class="debug-info" id="debugInfo"></div> -->
         <script type="module" src="/src/main.js"></script> 
     </body>
 </html>

@@ -7,9 +7,9 @@ mapboxgl.accessToken = 'pk.eyJ1IjoieWFsbGxlMDUwMyIsImEiOiJjbTZpMnpoYWkwNGNlMnFza
 
 const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/yallle0503/cm99w4avp000c01sahtj70ith',
-    center: [-0.1276, 51.5072],
-    zoom: 10
+    style: 'mapbox://styles/paneva/cmab7waoz00lc01qy1a83d8id',
+    center: [-3.1, 52.058],
+    zoom: 7.05
 });
 
 let originCoords = null;
@@ -44,7 +44,7 @@ timeRange.addEventListener('input', function() {
 });
 
 map.on('load', async function() {
-    // 1. Add data sources from mapbox
+    // Add data sources from mapbox
     map.addSource('stations', {
         type: 'vector',
         url: 'mapbox://yallle0503.10evu8w5'
@@ -57,6 +57,7 @@ map.on('load', async function() {
         type: 'vector',
         url: 'mapbox://yallle0503.4lbkc4fp'
     });
+      
     map.addSource('greenspace', {
         type: 'vector',
         url: 'mapbox://yallle0503.1kf0p7om'
@@ -64,9 +65,9 @@ map.on('load', async function() {
 
     // ADDING CHART WITH D3
     const labels = ['Best Overall', 'Hiking', 'Cycling', 'Birdwatching', 'Seaside', 'Camping', 'Geodiversity'];
-    const width = 700;
-    const height = 400;
-    const margin = { top: 60, right: 20, bottom: 80, left: 30 };
+    const width = 500;
+    const height = 250;
+    const margin = { top: 60, right: 0, bottom: 80, left: 30 };
 
     // Create SVG and scales
     const svg = d3.select("#chart")
@@ -123,14 +124,14 @@ map.on('load', async function() {
     // Add the first line of text
     chartTextElement.append("tspan")
         .attr("x", width / 2)
-        .attr("dy", 0)  // No vertical offset for the first line
-        .text("Hover over a green space to see how");
+        .attr("dy", -15)  // No vertical offset for the first line
+        .text("3. Hover over a green space to see how well it serves");
 
     // Add the second line of text
     chartTextElement.append("tspan")
         .attr("x", width / 2)
         .attr("dy", "1.2em")  // Vertical offset to push the second line below the first
-        .text("well it responds to leisure categories");
+        .text("various activities and/or select category of interest");
     
     let chartPlaceName;    
     // Add text to hold the place name at the top of the chart
@@ -158,7 +159,7 @@ map.on('load', async function() {
         const labelBBox = label.node().getBBox();
 
         tick.append("foreignObject")
-            .attr("x", labelBBox.x + labelBBox.width / 2 - 20)  // Set the x position of the button
+            .attr("x", labelBBox.x + labelBBox.width / 2 - 23)  // Set the x position of the button
             .attr("y", labelBBox.y - 50) // Set the y position of the button
             .attr("width", 100)  // Increased width to make it more visible
             .attr("height", 60)  // Increased height to ensure visibility
@@ -226,9 +227,7 @@ map.on('load', async function() {
             });
     });
 
-
-    // Get CSS variables from :root
-    // const rootStyles = getComputedStyle(document.documentElement);
+    // Add styles to the buttons
     const colorScale = d3.scaleOrdinal()
         .domain(labels) // Use the labels array
         .range([
@@ -241,16 +240,21 @@ map.on('load', async function() {
             rootStyles.getPropertyValue('--colour-geodiversity').trim()
         ]);   
 
-    // Function to generate stops dynamically from CSS variables
+    // Function to get top and bottom colors for a category
+    function getCategoryColors(category) {
+        const top = rootStyles.getPropertyValue(`--colour-${category}-top`).trim();
+        const bottom = rootStyles.getPropertyValue(`--colour-${category}-bot`).trim();
+        return { top, bottom };
+    }
+
+    // Function to generate stops interpolating between bottom and top color
     function generateStopsFromCSS(category, steps = 5) {
-        const baseColor = getCategoryColor(category); // Get the base color from CSS
-        const scale = d3.scaleLinear()
-            .domain([0, 0.75]) // Define the range for interpolation
-            .range(["#ffffff", baseColor]); // Interpolate from white to the base color
+        const { top, bottom } = getCategoryColors(category);
+        const interpolator = d3.interpolateRgb(bottom, top); // interpolate from bot to top
 
         return Array.from({ length: steps + 1 }, (_, i) => {
             const t = i / steps;
-            return [t, scale(t)];
+            return [t, interpolator(t)];
         }).flat();
     }
 
@@ -264,21 +268,21 @@ map.on('load', async function() {
     const stops_coast = generateStopsFromCSS("seaside");
 
     // fill layer for natural parks and heritage coast
-    map.addLayer({
-        id: 'nationalParks-fill',
-        type: 'fill',
-        source: 'greenspace',
-        'source-layer': 'greenspace-635xeg',
-        paint: {
-            'fill-color': [
-                'case',
-                ['==', ['get', 'sourse'], 'national-parks'], '#81C784',
-                ['==', ['get', 'sourse'], 'heritage-coast'], '#81C784',
-                'transparent'
-            ],
-            'fill-opacity': 0.5,
-        },
-    });  
+    // map.addLayer({
+    //     id: 'nationalParks-fill',
+    //     type: 'fill',
+    //     source: 'greenspace',
+    //     'source-layer': 'greenspace-635xeg',
+    //     paint: {
+    //         'fill-color': [
+    //             'case',
+    //             ['==', ['get', 'sourse'], 'national-parks'], rootStyles.getPropertyValue('--colour-protected-landscape').trim(),
+    //             ['==', ['get', 'sourse'], 'heritage-coast'], rootStyles.getPropertyValue('--colour-protected-landscape').trim(),
+    //             'transparent'
+    //         ],
+    //         'fill-opacity': 0.5,
+    //     },
+    // });
 
     // fill layer for natural assets. Default pallette shows best overall green spaces
     map.addLayer({
@@ -293,9 +297,8 @@ map.on('load', async function() {
             ['get', 'birdwatching_score'],
             ...stops_bestoverall
         ],
-        'fill-opacity': 0.85,
+        'fill-opacity': 0.95,
     },
-    // minzoom: 0,
     });
 
     // line layer for natural parks and heritage coast
@@ -316,7 +319,7 @@ map.on('load', async function() {
     // });  
 
 
-    // (2) hover greenspace (on top of default)
+    // hover greenspace (on top of default)
     map.addLayer({ 
         id: 'greenspace-fill-hover',
         type: 'line',
@@ -396,7 +399,7 @@ map.on('load', async function() {
                 .attr("width", x.bandwidth())
                 .attr("fill", d => d >= 0 ? "#42A5F5" : "#E57373")
                 .attr("fill", (d, i) => colorScale(labels[i])); // Assign color based on the label
-
+        
             bars.transition()
                 .ease(d3.easeCubic)
                 .duration(110)
@@ -426,6 +429,22 @@ map.on('load', async function() {
             .on("end", function() {
                 d3.select(this).remove(); // Remove each bar after animation
         });
+    });
+
+    map.on('click', 'greenspace-fill-default', (e) => {
+        if (e.features.length > 0) {
+            const feature = e.features[0]; // Get the clicked feature
+            const coordinates = turf.center(feature).geometry.coordinates; // Get the center of the feature
+    
+            // Zoom to the feature
+            map.flyTo({
+                center: coordinates,
+                zoom: 14, // Adjust the zoom level as needed
+                essential: true // This ensures the animation is user-friendly
+            });
+    
+            console.log("Zooming to feature:", feature.properties?.name || "Unnamed Feature");
+        }
     });
 
     // 3. 添加车站和线路图层
@@ -543,8 +562,9 @@ map.on('load', async function() {
 
         if (closestStationName) {
             map.setFilter('origin-station', ['==', ['get', 'name'], closestStationName]);
+            console.log("Closest station:", closestStationName);
+            document.getElementById("originStationName").textContent = closestStationName;
         }
-
         updateIsochrone(travelTime, originCoords);
         updateDebugInfo();
     });
@@ -556,12 +576,12 @@ map.on('load', async function() {
     const closest = await findClosestStation(originCoords);
     closestStationName = getStationIdentifier(closest);
 
-    if (closestStationName) {
-        map.setFilter('origin-station', ['==', ['get', 'name'], closestStationName]);
-    }
+    // if (closestStationName) {
+    //     map.setFilter('origin-station', ['==', ['get', 'name'], closestStationName]);
+    // }
 
-    updateIsochrone(travelTime, originCoords);
-    updateDebugInfo();
+    // updateIsochrone(travelTime, originCoords);
+    // updateDebugInfo();
 
     // 6. 定义工具函数
     async function findClosestStation(coords) {
@@ -656,7 +676,6 @@ map.on('load', async function() {
                         "fill-outline-color": "#007BFF"
                     }
                 });
-
                 highlightStationsWithinIsochrone(features);
             }
         } catch (err) {
@@ -664,68 +683,4 @@ map.on('load', async function() {
         }
     }
 
-    function highlightStationsWithinIsochrone(isochroneFeatures) {
-        if (!isochroneFeatures.length || !originCoords) return;
-
-        const mergedPolygon = turf.combine(
-            turf.featureCollection(isochroneFeatures)
-        ).features[0];
-
-        const BUFFER_DISTANCE = 0.05;
-        const bufferedPolygon = turf.buffer(mergedPolygon, BUFFER_DISTANCE, {units: 'kilometers'});
-
-        const features = map.querySourceFeatures('stations', {
-            sourceLayer: '416network_nodes-clxu30'
-        });
-
-        const reachable = features.filter(f => {
-            const stationName = getStationIdentifier(f);
-            if (!stationName || stationName === closestStationName) return false;
-
-            return turf.booleanPointInPolygon(
-                turf.point(f.geometry.coordinates),
-                bufferedPolygon
-            );
-        });
-
-        reachableStationNames = [...new Set(
-            reachable.map(f => getStationIdentifier(f))
-        )].filter(Boolean);
-
-        console.log("Reachable stations:", reachableStationNames);
-
-        if (reachableStationNames.length > 0) {
-            map.setFilter('stations-highlighted', ['in', ['get', 'name'], ['literal', reachableStationNames]]);
-        } else {
-            map.setFilter('stations-highlighted', ['==', ['get', 'name'], '']);
-        }
-
-        updateDebugInfo();
-
-        // Hover 时高亮路线
-        let hoveredStationId = null;
-
-        map.on('mousemove', 'stations-highlighted', (e) => {
-            const hoverStationName = getStationIdentifier(e.features[0]);
-            if (!reachableStationNames.includes(hoverStationName)) return;
-
-            hoveredStationId = hoverStationName;
-
-            map.setFilter('highlighted-edge', ['any',
-                ['all',
-                    ['==', ['get', 'from'], closestStationName],
-                    ['==', ['get', 'to'], hoveredStationId]
-                ],
-                ['all',
-                    ['==', ['get', 'to'], closestStationName],
-                    ['==', ['get', 'from'], hoveredStationId]
-                ]
-            ]);
-        });
-
-        map.on('mouseleave', 'stations-highlighted', () => {
-            hoveredStationId = null;
-            map.setFilter('highlighted-edge', ['in', 'id', '']);
-        });
-    }
 });

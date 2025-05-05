@@ -3,7 +3,7 @@
   line-height: 1.5;
   font-weight: 400; */
   --text-normal-font: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  --text-normal-size: 12px;
+  --text-normal-size: 14px;
   --text-normal-color: #000;
   --text-normal-line-height: 1.5;
   --text-normal-weight: 400;
@@ -14,9 +14,9 @@
   --text-title-color: #222;
 
   /* Highlight Text */
-  --text-highlight-size: 12px;
+  --text-highlight-size: 11px;
   --text-highlight-color: #000;
-  --text-highlight-weight: 700;
+  --text-highlight-weight: 600;
 
   /* Specific colours used with categories */
   --colour-best-overall: #4D3949;
@@ -26,6 +26,25 @@
   --colour-camping: #F25A87;
   --colour-seaside: #1A63AB;
   --colour-geodiversity: #72845C;
+
+    /* Colours for category mapping (colour band produced using the category colours) */
+    --colour-best-overall-top: #32132c;
+    --colour-best-overall-bot: #d7b2cf86;
+    --colour-hiking-top: #fc0019;
+    --colour-hiking-bot: #f29ba46f;
+    --colour-cycling-top: #ff4502;
+    --colour-cycling-bot: #ffb69b75;
+    --colour-birdwatching-top: #9fc605;
+    --colour-birdwatching-bot: #d6e39f79;
+    --colour-camping-top: rgb(247, 48, 108);
+    --colour-camping-bot: #ffb4cb77;
+    --colour-seaside-top: #0357ac;
+    --colour-seaside-bot: #deefff7e;
+    --colour-geodiversity-top: #1f3704;
+    --colour-geodiversity-top: #72845c6f;
+
+  /* Colours to use with protected landscapes (AONB, national parks, heritage coasts) */
+  --colour-protected-landscape: #deeace;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
@@ -54,30 +73,55 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
   font-weight: var(--text-title-weight);
   color: var(--text-title-color);
   line-height: 1.2;
+  margin-bottom: 10px;
 }
 
 .text-highlight {
+  font-family: var(--text-normal-font);
   color: var(--text-highlight-color);
   font-size: var(--text-highlight-size);
   font-weight: var(--text-highlight-weight);
 }
-
-/* controls is a container for selecting the travel time */
-#controls { 
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 1;
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    font-family: sans-serif;
-    width: 250px;
+.left-bar {
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  align-items: stretch;
 }
+#controls {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+}
+
+/* .controls-internal { 
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  padding: 15px;
+} */
+.controls-internal {
+  position: relative;
+  flex: 1; /* each takes equal space */
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  padding: 15px;
+  min-width: 225px;
+}
+
 #timeValue {
-    font-weight: bold;
-    margin-left: 5px;
+    font-family: var(--text-normal-font);
+    font-size: 14px;
+    font-weight: var(--text-highlight-weight);
+    margin-top: -40px;
+    margin-left: 0px;
     color: #007BFF;
 }
 .control-title {
@@ -100,6 +144,11 @@ input[type="range"] {
     display: flex;
     align-items: center;
     margin-bottom: 5px;
+    font-family: var(--text-normal-font);
+    font-size: var(--text-normal-size);
+    color: var(--text-normal-color);
+    line-height: var(--text-normal-line-height);
+    font-weight: var(--text-normal-weight);
 }
 .legend-color {
     width: 15px;
@@ -129,14 +178,14 @@ input[type="range"] {
 }
 
 #chart {
-  position: fixed;
-  bottom: 0px;
-  left: 20px;
-  width: 700px;
-  height: 450px;
-  background: white;
-  z-index: 99;
-  padding: 0px;
+  position: relative;
+  width: 100%;
+  height: 250px;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 .chart-button {
   padding: 5px 10px;
