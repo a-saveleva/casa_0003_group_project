@@ -20,6 +20,10 @@ const popup = new mapboxgl.Popup({
     closeOnClick: false
 });
 
+document.getElementById('start-button').addEventListener('click', function() { // Hide the front page
+    document.getElementById('front-page').style.display = 'none';
+  });
+
 // Get station identifier
 function getStationIdentifier(station) {
     return station.properties?.name || 'Unnamed Station_' + (station.id || Math.random().toString(36).substr(2, 9));
