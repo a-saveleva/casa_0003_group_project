@@ -19,30 +19,52 @@
     </head>
 
     <body>
-        <div id="front-page">
+
+        <!-- <div class="full-screen-section" id="front-page">
             <video autoplay muted loop playsinline>
-                <source src="/data/assets/trimmed_video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
+              <source src="/data/assets/trimmed_video.mp4" type="video/mp4">
+            </video>
             <div class="front-page-textbox">
-                <p><img src="/data/assets/logo_white.webp" class="img" /></p>
-                <p class="text-normal" style="color: white">Here a short text encompassing our idea for the project. I assume the text here will take approximately two sentences. This is a placeholder showing the extent of the text and how it looks on the page.</p>
-                <button id="start-button">Go to map</button>
+              <p><img src="/data/assets/logo_white.webp" class="img" /></p>
+              <p class="text-normal" style="color: white">Here a short text encompassing our idea for the project. I assume the text here will take approximately three sentences. This is a placeholder showing the extent of the text and how it looks on the page.</p>
+              <button id="start-button">Go to map</button>
             </div>
-            <!-- <div class="scroll-down-indicator">
+            <div class="scroll-down-indicator">
                 <span>Scroll down for project details, methodology, and references</span>
                 <div class="arrow">&#8595;</div>
-            </div> -->
+            </div>
           </div>
+        </div>
 
-          <!-- <div id="project-details">
+        <div class="full-screen-section" id="project-details" style="height: 300vh;"> 
             <h2>Project Details</h2>
-            <p>Here we explain the methodology, background, and other content.</p> -->
-          <!-- </div> -->
-
+            <p>Here we explain the methodology, background, and other content.</p>
+        </div> -->
+<!-- style="background:white; color:black; z-index:auto;" -->
 
           
-        <div id="map"></div>      
+        <div id="map"></div> 
+        
+        <div id="front-overlay">
+            <video autoplay muted loop playsinline>
+              <source src="/data/assets/trimmed_video.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <div class="front-page-textbox">
+              <p><img src="/data/assets/logo_white.webp" class="img" /></p>
+              <p class="text-normal" style="color: white">Here a short text encompassing our idea for the project. I assume the text here will take approximately three sentences. This is a placeholder showing the extent of the text and how it looks on the page.</p>
+              <button id="start-button">Go to map</button>
+            </div>
+            <div class="scroll-down-indicator">
+                <span>Scroll down for project details, methodology, and references</span>
+                <div class="arrow">&#8595;</div>
+            </div>
+            <div style="height: 300vh;"> 
+                <p>Project Details</p>
+                <p>Here we explain the methodology, background, and other content.</p>
+            </div>
+        </div>
+
         <div class="left-bar">
             <div class="controls-internal" style="width: 490px;">
                 <p><img src="/data/assets/logo_colour.webp"/></p>

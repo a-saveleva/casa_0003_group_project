@@ -20,8 +20,8 @@ const popup = new mapboxgl.Popup({
     closeOnClick: false
 });
 
-document.getElementById('start-button').addEventListener('click', function() { // Hide the front page
-    document.getElementById('front-page').style.display = 'none';
+document.getElementById('start-button').addEventListener('click', () => {
+    document.getElementById('front-overlay').style.display = 'none';
   });
 
 // Get station identifier
