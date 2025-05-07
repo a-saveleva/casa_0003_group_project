@@ -20,9 +20,17 @@ const popup = new mapboxgl.Popup({
     closeOnClick: false
 });
 
-document.getElementById('start-button').addEventListener('click', () => {
-    document.getElementById('front-overlay').style.display = 'none';
-  });
+document.getElementById("start-button").addEventListener("click", function() {
+    document.getElementById("front-page").style.display = "none";
+});
+
+// document.body.style.overflow = "hidden";
+
+// document.getElementById("start-button").addEventListener("click", function () {
+//     document.getElementById("front-overlay").style.display = "none";
+//     document.getElementById("map").style.display = "block";
+//     document.body.style.overflow = "auto";
+// });
 
 // Get station identifier
 function getStationIdentifier(station) {
