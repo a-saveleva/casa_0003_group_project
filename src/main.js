@@ -22,18 +22,6 @@ const popup = new mapboxgl.Popup({
     closeOnClick: false
 });
 
-document.getElementById("start-button").addEventListener("click", function() {
-    document.getElementById("front-page").style.display = "none";
-});
-
-// document.body.style.overflow = "hidden";
-
-// document.getElementById("start-button").addEventListener("click", function () {
-//     document.getElementById("front-overlay").style.display = "none";
-//     document.getElementById("map").style.display = "block";
-//     document.body.style.overflow = "auto";
-// });
-
 // Get station identifier
 function getStationIdentifier(station) {
     return station.properties?.name || 'Unnamed Station_' + (station.id || Math.random().toString(36).substr(2, 9));
@@ -81,10 +69,10 @@ map.on('load', async function() {
         url: 'mapbox://yallle0503.0f6sng01'
     });
       
-    map.addSource('greenspace', {
-        type: 'vector',
-        url: 'yallle0503.0f6sng01'
-    });
+    // map.addSource('greenspace', {
+    //     type: 'vector',
+    //     url: 'mapbox://yallle0503.0f6sng01'
+    // });
     map.addSource('shortest-path', {
         type: 'geojson',
         data: {
@@ -332,7 +320,20 @@ map.on('load', async function() {
             });
       });
 
-    // hover greenspace (on top of default)
+    // // hover greenspace (on top of default)
+    // map.addLayer({ 
+    //     id: 'greenspace-fill-hover',
+    //     type: 'line',
+    //     source: 'natural_assets',
+    //     'source-layer': 'natural_assets_2-9ukio1',
+    //     filter: ['==', 'fid', ''],
+    //     paint: {
+    //         "line-width": 5,
+    //         "line-color": "#5fd2ff",
+    //         "line-opacity": 0,
+    //         "line-offset": -2
+    //     },
+    // }, 'greenspace-fill-default');
     map.addLayer({ 
         id: 'greenspace-fill-hover',
         type: 'line',
@@ -382,8 +383,8 @@ map.on('load', async function() {
             if (fid !== undefined && fid !== null) {
                 hoveredGreenspaceId = fid;
                 map.setFilter('greenspace-fill-hover', ['==', 'fid', hoveredGreenspaceId]);
-            // Set the line-opacity to 1 for the current feature
-            map.setPaintProperty('greenspace-fill-hover', 'line-opacity', 1);
+                map.setPaintProperty('greenspace-fill-hover', 'line-opacity', 1); // Highlight the hovered green space
+    
             
         }
             // Hide the chart prompt text on mousemove
@@ -424,12 +425,14 @@ map.on('load', async function() {
     map.on('mouseleave', 'greenspace-fill-default', () => {
         // popup.remove();
         map.getCanvas().style.cursor = '';
+        map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
+        map.setPaintProperty('greenspace-fill-hover', 'line-opacity', 0);
+        
         // Set back visibility of the chart prompt text on mouseleave
         if (chartTextElement) {chartTextElement.style("opacity", 1);}
         // Reset the chart place name
         if (chartPlaceName) {chartPlaceName.text("No green space selected");}
 
-        map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
         hoveredGreenspaceId = null;
         map.getCanvas().style.cursor = ''; // Reset cursor to default
         // Reset the chart container

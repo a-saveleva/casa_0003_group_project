@@ -1,15 +1,12 @@
 :root {
-  /* font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400; */
-  --text-normal-font: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  --text-normal-size: 14px;
+ --text-normal-font: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --text-normal-size: 18px;
   --text-normal-color: #000;
   --text-normal-line-height: 1.5;
   --text-normal-weight: 400;
 
   /* Title Text */
-  --text-title-size: 24px;
+  --text-title-size: 30px;
   --text-title-weight: 700;
   --text-title-color: #222;
 
@@ -18,14 +15,20 @@
   --text-highlight-color: #000;
   --text-highlight-weight: 600;
 
+    /* Project colours */
+  --colour-hiking: #C22938;
+  --colour-cycling: #FC7B4E;
+  --colour-birdwatching: #1eaca1;
+  --colour-seaside: #1A63AB;
+
   /* Specific colours used with categories */
   --colour-best-overall: #4D3949;
   --colour-hiking: #C22938;
   --colour-cycling: #FC7B4E;
-  --colour-birdwatching: #B7D154;
+  --colour-birdwatching: #1eaca1;
   --colour-camping: #F25A87;
   --colour-seaside: #1A63AB;
-  --colour-geodiversity: #72845C;
+  --colour-geodiversity: #7e461e;
 
     /* Colours for category mapping (colour band produced using the category colours) */
     --colour-best-overall-top: #190114;
@@ -34,14 +37,14 @@
     --colour-hiking-bot: #fca3836f;
     --colour-cycling-top: #db3a00;
     --colour-cycling-bot: #fbd86e75;
-    --colour-birdwatching-top: #005e52;
-    --colour-birdwatching-bot: #afeeec79;
+    --colour-birdwatching-top: #03666a;
+    --colour-birdwatching-bot: #7eece879;
     --colour-camping-top: rgb(136, 0, 41);
     --colour-camping-bot: #ffa1dd77;
     --colour-seaside-top: #0a0075;
     --colour-seaside-bot: #b5dfff7e;
     --colour-geodiversity-top: #210a00;
-    --colour-geodiversity-bot: #72845c6f;
+    --colour-geodiversity-bot: #bfac5e6f;
 
   /* Colours to use with protected landscapes (AONB, national parks, heritage coasts) */
   --colour-protected-landscape: #deeace;
@@ -57,7 +60,11 @@
 }
 /* ________________________________________________________________________ */
 
-body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
 
 .text-normal {
   font-family: var(--text-normal-font);
@@ -170,12 +177,26 @@ input[type="range"] {
     border-radius: 3px;
 }
 
+/* #map {
+  position: relative;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+} */
 #map {
   position: absolute;
   top: 0;
   bottom: 0;
   width: 100%;
+  height: 100%;
+  z-index: 0;
 }
+/* position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; */
 
 #chart {
   position: relative;
@@ -210,8 +231,8 @@ input[type="range"] {
   padding: 0px;
 }
 
-#front-page {
-  position: fixed;
+/* .front-page {
+  position: relative;
   top: 0;
   left: 0;
   width: 100vw;
@@ -225,9 +246,10 @@ input[type="range"] {
   z-index: 9999;
   text-align: center;
   padding: 20px;
-}
+} */
 
-#front-page button {
+/* .front-page-button {
+  position: relative;
   font-family: var(--text-normal-font);
   color: white;
   font-size: 12px;
@@ -238,78 +260,60 @@ input[type="range"] {
   border-radius: 12px;
   cursor: pointer;
   width: 10vw;
-  min-width: 200px;   /* never go smaller than 200px */
+  min-width: 200px;
   max-width: 300px;
-}
-#front-page video {
+} */
+
+.front-page-video {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  z-index: -1;
+  z-index: 0;
   filter: brightness(0.6) contrast(0.9);
 }
-/* #front-page img {
-  position: relative;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 40vw;
-  min-width: 300px;
-  max-width: 500px;
-  z-index: 1;
-} */
 
-#front-page img {
-  display: block;
-  margin: 0 auto;
-  width: 40vw;
-  min-width: 300px;
-  max-width: 500px;
-  z-index: 1;
+.front-page-img {
+  /* position: relative; */
+  /* display: block;
+  margin: 0 auto; */
+  width: 14vw;
+  height: auto;
+  object-fit: contain;
+  min-width: 50px;
+  flex-shrink: 0;
+  /* max-width: 500px; */
+  z-index: 2;
+  margin-right: 5%;
 }
 
 .front-page-textbox {
-  position: absolute;
-  top: 60%;
+  position: relative;
+  top: 52%;
   left: 50%;
   transform: translate(-50%, -50%);
-  
   display: flex;
   flex-direction: column;
   align-items: center; /* center children horizontally */
   gap: 10px;
-  
-  width: 30vw;
+  width: 50%;
   min-width: 200px;
-  max-width: 500px;
-  z-index: 1;
-  color: white;
-}
-
-.scroll-down-indicator {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 30vw;
-  min-width: 200px;
-  max-width: 500px;
-  color: white;
-  font-family: var(--text-normal-font);
-  font-size: 12px;
-  font-weight: 800;
+  /* max-width: 50%; */
   z-index: 2;
-  animation: fadeIn 2s ease-in-out;
-  bottom: 20px;
+  color: white;
 }
 
 .arrow {
   font-size: 24px;
-  animation: pulse 2s infinite;
   margin-top: 5px;
+  animation: fadeIn 2s ease-in-out, pulse 2s infinite 2s; /* note delay for pulse */
+  position: absolute; 
+  bottom: -180px;
+  font-family: var(--text-normal-font);
+  font-size: 34px;
+  font-weight: 600;
 }
 
 @keyframes pulse {
@@ -321,4 +325,49 @@ input[type="range"] {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+.landing-container{
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.landing-slide{
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: block;
+  /* gap: 50px; */
+  color: black;
+  background: white;
+  /* box-sizing: border-box; */
+  /* margin: 0;
+  padding: 0; */
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+/* .landing-slide {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  overflow: hidden;
+} */
+
+.landing-textbox{
+  width: 30%;
+  font-family: var(--text-normal-font);
+  color: black;
+  max-width: 500px;
+  min-width: 300px;
+  margin-top: 10%;
+  margin-left: 10%;
+  margin-bottom: 10%;
+  justify-content: left;
 }

@@ -13,90 +13,136 @@
         <!-- chart library -->
         <script src="https://d3js.org/d3.v4.js" charset="utf-8"></script> 
         <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
-        
-
-
     </head>
 
     <body>
-        
-        <div id="front-page">
-            <video autoplay muted loop playsinline>
-                <source src="/data/assets/trimmed_video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
-            <!-- <p><img src="/data/assets/logo_white.webp" class="img" /></p> -->
-            <div class="front-page-textbox">
-                <img src="/data/assets/logo_white.webp" class="img" />
-                <!-- <p style="margin: 0;"><img src="/data/assets/logo_white.webp" class="img" /></p> -->
-                <p class="text-normal" style="color: white">Here a short text encompassing our idea for the project. I assume the text here will take approximately two sentences. This is a placeholder showing the extent of the text and how it looks on the page.</p>
-                <button id="start-button">Go to map</button>
+
+        <div class="landing-container">
+            <div class="landing-slide" style="align-items: center; justify-content: center;">
+                <video class="front-page-video" autoplay muted loop playsinline>
+                    <source src="/data/assets/trimmed_video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                    </video>
+                <div class="front-page-textbox">
+                    <div style="display: flex; flex-direction: row; align-items: flex-start; ">
+                        <img class="front-page-img" src="/data/assets/logo_white.webp" />
+                        <h1 class="text-title" style="font-size: 45px; color: white; margin-top: -10px; ">Developing a web tool to inspire sustainable journeys into UK nature by train.</h1>
+                    </div>
+                    <p class="text-normal" style="color: white">Placeholder text, to be replaced: Our project aims to help users explore natural spaces that are easily accessible by train, promoting low-carbon leisure travel and… (about various habit or why else train journeys can be be preferable). While many nature destinations in the UK remain car-dependent, we focus on identifying green assets—such as marshes, park, and reserves—that can be reached by train. By combining travel time data with green space quality scores, we support more sustainable outdoor choices.</p>
+                    <div class="arrow">&#8595;</div>
+                    </div>
             </div>
-            <!-- <div class="scroll-down-indicator">
-                <span>Scroll down for project details, methodology, and references</span>
-                <div class="arrow">&#8595;</div>
-            </div> -->
+            <div class="landing-slide">
+                <div class="landing-textbox">
+                    <h1 class="text-title">Describing the problem: what is happening now?</h1>
+                    <p class="text-normal">Currently this many people go to nature each year
+                        Surveys show that 90 % of those people come by car
+                        Why is that a problem? E.g. carbon emissions. E.g. space required for parking - harm for green space. Maybe some parts get erosion from driving? E.g. traffic on the way and congestion. E.g. reliance on car journeys in general - how it affects behaviour and life choices. Life of animals is interrupted.
+                        Roadkills, habitat fragmentation
+                        </p>
+                    </div>
+            </div>
+            <div class="landing-slide">
+                <div class="landing-textbox">
+                    <h1 class="text-title">How can we address this?</h1>
+                    <p class="text-normal">Uk has this much coverage with rail. Maybe statistics on train usage for leisure. How % of journeys for leisure?
+                        Of green spaces mentioned in this study, this many are accessible by train which shows the potential to access them by rail more often.
+                        For example, London has this many green assets within 60min journey.Another example, Edinburgh has this many. And if you are willing to travel longer , the quantity of green increases - one plot with bubbles.
+                        </p>
+                    </div>
+            </div>
+            <div class="landing-slide">
+                <div class="landing-textbox">
+                    <h1 class="text-title">Changes to lifestyle and behaviours</h1>
+                    <p class="text-normal">Even if they are accessible, would people not want to go by car because it is just more convenient?
+                        Survey data to say people are actually willing to not use car for nature trips.
+                        </p>
+                    </div>
+            </div>
+            <div class="landing-slide">
+                <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
+                    <h1 class="text-title">Our response/solution</h1>
+                    <p class="text-normal">create a tool that will promote travel by train. Here Anna to put the gif with the overall map usage (without steps).
+                        </p>
+                    </div>
+            </div>
+            <div class="landing-slide">
+                <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
+                    <h1 class="text-title">Understanding the user needs</h1>
+                    <p class="text-normal">In order to provide the most tailored experience using this tool and ensure the users are truly willing to take the train, we have studied what people are looking for when selecting a nature destination. 
+                        Survey shows that the following activities are most in demand. E.g. chart to show % of visitors to nature that are doing a particular type of activity.                        
+                        </p>
+                    </div>
+            </div>
+            <div class="landing-slide">
+                <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
+                    <h1 class="text-title">Features</h1>
+                    <p class="text-normal">Typically the travel websites only display selection of places, not overall number of accessible places, not giving the full picture. Also, they don’t typically involve the focus on rail.
+                        Our tool addresses this gap in current market and provides advice regarding activities available. We use data from OpenStreetMap (railway network), RSPB and GBIF (for birding density), Natural England (for green space types), and custom-built datasets to generate a composite score for each destination. A “Best Overall” category summarizes general suitability when users haven’t selected a specific activity.
+                        By helping people visualize where they can go by train and what they can do there, this project supports broader goals of reducing car dependency while encouraging more people to engage with nearby nature. The page will include 4 steps with gifs.
+                                        
+                        </p>
+                    </div>
+            </div>
+            <div class="landing-slide">
+
+                <div id="map"></div>      
+
+                <div class="left-bar">
+
+                    <div class="controls-internal" style="width: 490px;">
+                        <p><img src="/data/assets/logo_colour.webp"/></p>
+                        <p class="text-normal">Here a short text encompassing our idea for the project. I assume the text here will take approximately three sentences. This is a placeholder showing the extent of the text and how it looks on the page.</p>
+                    </div>
+
+                    <div id="controls" class="text-normal">
+                        <div class="controls-internal">
+                            <div>1. Select the time you wish to travel</div>
+                            <input type="range" id="timeRange" min="5" max="240" step="5" value="60">
+                            <div><span id="timeValue">60 minutes</span></div>
+                            </div>
+                    
+                        <div class="controls-internal">
+                            <div>2. Drag the marker to select origin</div>
+                            <div id="originStation" class="text-normal">
+                                Origin: <span id="originStationName">None selected</span>
+                            </div>
+                            </div>
+                        <div class="alert-message" id="alertMessage"></div>
+                        
+                        <!-- <div id="controls-internal" class="text-normal">
+                            <div class="legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #FF5722;"></div>
+                                    <span>Origin Station</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: var(--colour-protected-landscape);"></div>
+                                    <span>UK Protected Landscapes</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #42A5F5;"></div>
+                                    <span>Reachable Stations</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #888;"></div>
+                                    <span>Other Stations</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #FF3C38; width: 15px; height: 4px;"></div>
+                                    <span>Connections</span>
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>
+
+                    <div id="chart" class="text-highlight"></div>
+                    
+                </div>
+
+            </div>
         </div>
 
-          <div class="front-page">
-            <h2>Project Details</h2>
-            <p>Here we explain the methodology, background, and other content.</p> -->
-          </div>
-
-
-          
-        <div id="map"></div>      
-        <div class="left-bar">
-            <div class="controls-internal" style="width: 490px;">
-                <p><img src="/data/assets/logo_colour.webp"/></p>
-                <p class="text-normal">Here a short text encompassing our idea for the project. I assume the text here will take approximately three sentences. This is a placeholder showing the extent of the text and how it looks on the page.</p>
-            </div>
-                       
-
-            <div id="controls" class="text-normal">
-                <div class="controls-internal">
-                    <div>1. Select the time you wish to travel</div>
-                    <input type="range" id="timeRange" min="5" max="240" step="5" value="60">
-                    <div><span id="timeValue">60 minutes</span></div>
-                </div>
-            
-                <div class="controls-internal">
-                    <div>2. Drag the marker to select origin</div>
-                    <div id="originStation" class="text-normal">
-                        Origin: <span id="originStationName">None selected</span>
-                    </div>
-                </div>
-                <div class="alert-message" id="alertMessage"></div>
-                
-                <!-- <div id="controls-internal" class="text-normal">
-                    <div class="legend">
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #FF5722;"></div>
-                            <span>Origin Station</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: var(--colour-protected-landscape);"></div>
-                            <span>UK Protected Landscapes</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #42A5F5;"></div>
-                            <span>Reachable Stations</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #888;"></div>
-                            <span>Other Stations</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #FF3C38; width: 15px; height: 4px;"></div>
-                            <span>Connections</span>
-                        </div>
-                    </div>
-                </div> -->
-            </div>
-            <div id="chart" class="text-highlight"></div>
-        </div>
-        <!-- Debug Info -->
-        <!-- <div class="debug-info" id="debugInfo"></div> -->
         <script type="module" src="/src/main.js"></script> 
     </body>
 </html>
