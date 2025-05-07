@@ -28,19 +28,19 @@
   --colour-geodiversity: #72845C;
 
     /* Colours for category mapping (colour band produced using the category colours) */
-    --colour-best-overall-top: #32132c;
-    --colour-best-overall-bot: #d7b2cf86;
-    --colour-hiking-top: #fc0019;
-    --colour-hiking-bot: #f29ba46f;
-    --colour-cycling-top: #ff4502;
-    --colour-cycling-bot: #ffb69b75;
-    --colour-birdwatching-top: #9fc605;
-    --colour-birdwatching-bot: #d6e39f79;
-    --colour-camping-top: rgb(247, 48, 108);
-    --colour-camping-bot: #ffb4cb77;
-    --colour-seaside-top: #0357ac;
-    --colour-seaside-bot: #deefff7e;
-    --colour-geodiversity-top: #1f3704;
+    --colour-best-overall-top: #190114;
+    --colour-best-overall-bot: #f9aae986;
+    --colour-hiking-top: #a10010;
+    --colour-hiking-bot: #fca3836f;
+    --colour-cycling-top: #db3a00;
+    --colour-cycling-bot: #fbd86e75;
+    --colour-birdwatching-top: #005e52;
+    --colour-birdwatching-bot: #afeeec79;
+    --colour-camping-top: rgb(136, 0, 41);
+    --colour-camping-bot: #ffa1dd77;
+    --colour-seaside-top: #0a0075;
+    --colour-seaside-bot: #b5dfff7e;
+    --colour-geodiversity-top: #210a00;
     --colour-geodiversity-bot: #72845c6f;
 
   /* Colours to use with protected landscapes (AONB, national parks, heritage coasts) */

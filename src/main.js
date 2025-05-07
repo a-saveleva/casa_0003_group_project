@@ -78,12 +78,12 @@ map.on('load', async function() {
     });
     map.addSource('natural_assets', {
         type: 'vector',
-        url: 'mapbox://yallle0503.4lbkc4fp'
+        url: 'mapbox://yallle0503.0f6sng01'
     });
       
     map.addSource('greenspace', {
         type: 'vector',
-        url: 'mapbox://yallle0503.1kf0p7om'
+        url: 'yallle0503.0f6sng01'
     });
     map.addSource('shortest-path', {
         type: 'geojson',
@@ -247,26 +247,26 @@ map.on('load', async function() {
 
                 switch (selectedCategory) {
                     case 'Hiking':
-                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'hiking_score'], ...stops_hiking]);
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'hiking_score']], ...stops_hiking]);
                         break;
                     case 'Cycling':
-                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'cycling_score'], ...stops_cycling]);
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'cycling_score']], ...stops_cycling]);
                         break;
                     case 'Birdwatching':
-                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'birdwatching_score'], ...stops_birdwatching]);
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'birdwatching_score']], ...stops_birdwatching]);
                         break;
                     case 'Seaside':
-                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'coast_score'], ...stops_coast]);
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'coast_score']], ...stops_coast]);
                         break;
                     case 'Camping':
-                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'camping_score'], ...stops_camping]);
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'camping_score']], ...stops_camping]);
                         break;
                     case 'Geodiversity':
-                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'geology_score'], ...stops_geodiversity]);
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'geology_score']], ...stops_geodiversity]);
                         break;
                     case 'Best Overall':
                     default:
-                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'best_overall_score'], ...stops_bestoverall]);
+                        map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'best_overall']], ...stops_bestoverall]);
                         break;
                 }
             });
@@ -312,64 +312,32 @@ map.on('load', async function() {
     const stops_geodiversity = generateStopsFromCSS("geodiversity");
     const stops_coast = generateStopsFromCSS("seaside");
 
-    // fill layer for natural parks and heritage coast
-    // map.addLayer({
-    //     id: 'nationalParks-fill',
-    //     type: 'fill',
-    //     source: 'greenspace',
-    //     'source-layer': 'greenspace-635xeg',
-    //     paint: {
-    //         'fill-color': [
-    //             'case',
-    //             ['==', ['get', 'sourse'], 'national-parks'], rootStyles.getPropertyValue('--colour-protected-landscape').trim(),
-    //             ['==', ['get', 'sourse'], 'heritage-coast'], rootStyles.getPropertyValue('--colour-protected-landscape').trim(),
-    //             'transparent'
-    //         ],
-    //         'fill-opacity': 0.5,
-    //     },
-    // });
-
     // fill layer for natural assets. Default pallette shows best overall green spaces
-    map.addLayer({
-    id: 'greenspace-fill-default',
-    type: 'fill',
-    source: 'natural_assets',
-    'source-layer': 'natural_assets-2q506d',
-    paint: {
-        'fill-color': [
-            'interpolate',
-            ['linear'],
-            ['get', 'birdwatching_score'],
-            ...stops_bestoverall
-        ],
-        'fill-opacity': 0.95,
-    },
-    });
-
-    // line layer for natural parks and heritage coast
-    // map.addLayer({
-    //     id: 'nationalParks-line',
-    //     type: 'line',
-    //     source: 'greenspace',
-    //     'source-layer': 'greenspace-635xeg',
-    //     paint: {
-    //         'line-color': [
-    //             'case',
-    //             ['==', ['get', 'sourse'], 'national-parks'], '#2E7D32',
-    //             ['==', ['get', 'sourse'], 'heritage-coast'], '#2E7D32',
-    //             'transparent'
-    //         ],
-    //         // 'line-width': 2
-    //     }
-    // });  
-
+    requestAnimationFrame(() => {
+        const stops_bestoverall = generateStopsFromCSS("best-overall");
+        map.addLayer({
+            id: 'greenspace-fill-default',
+            type: 'fill',
+            source: 'natural_assets',
+            'source-layer': 'natural_assets_2-9ukio1',
+            paint: {
+                'fill-color': [
+                    'interpolate',
+                    ['linear'],
+                    ['to-number', ['get', 'best_overall']],
+                    ...stops_bestoverall
+                ],
+                'fill-opacity': 0.95,
+            },
+            });
+      });
 
     // hover greenspace (on top of default)
     map.addLayer({ 
         id: 'greenspace-fill-hover',
         type: 'line',
         source: 'natural_assets',
-        'source-layer': 'natural_assets-2q506d',
+        'source-layer': 'natural_assets_2-9ukio1',
         paint: {
             "line-blur": 0.8,
             "line-width": 5,
@@ -386,7 +354,7 @@ map.on('load', async function() {
     // Set the background color of the first button
     firstButton.style("background-color", defaultColor);
     // Trigger the default logic for Best Overall
-    map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'best_overall_score'], ...stops_bestoverall]);
+    map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'best_overall'], ...stops_bestoverall]);
     console.log("Chart axis loaded");
 
 
