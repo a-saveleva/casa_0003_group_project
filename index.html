@@ -13,12 +13,34 @@
         <!-- chart library -->
         <script src="https://d3js.org/d3.v4.js" charset="utf-8"></script> 
         <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+        <!-- fonts -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"> 
+
     </head>
 
     <body>
-
+        <div id="nav-bar">
+            <input id="nav-toggle" type="checkbox" checked />
+            <div id="nav-header"><a id="nav-title" >Contents</a>
+                <label for="nav-toggle"><span id="nav-toggle-burger"></span></label>
+            </div>
+                <div id="nav-content">
+                    <div class="nav-button"><a href="#section0"></a><i class="fas fa-info-circle"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Introduction</span></a></div>
+                    <div class="nav-button"><a href="#section1"></a><i class="fas fa-exclamation-triangle"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Problem overview</span></a></div>
+                    <div class="nav-button"><a href="#section4"></a><i class="fas fa-lightbulb"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Our response</span></a></div>
+                    <div class="nav-button"><a href="#section7"></a><i class="fas fa-map-marked-alt"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Nature spaces map</span></a></div>
+                    <div class="nav-button"><a href="#section8"></a><i class="fas fa-cogs"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Methods and sources</span></a></div>
+                    <div class="nav-button"><a href="#section9"></a><i class="fas fa-comments"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Limitations and discussion</span></a></div>
+                    <div class="nav-button"><a href="#section1"></a><i class="fas fa-users"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Authors</span></a></div>
+                    <!-- <div class="nav-button" style="margin-top: auto;"><a href="#section1"></a><i class="fas fa-arrow-up"></i><span style="bottom: 20%; font-weight: 400; font-size: smaller; padding-right: 40px;">Previous section</span></a></div>
+                    <div class="nav-button"><a href="#section1"></a><i class="fas fa-arrow-down"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Next section</span></a></div> -->
+                    <div id="nav-content-highlight"></div>
+                </div>
+            <input id="nav-footer-toggle" type="checkbox"/>
+        </div>
         <div class="landing-container">
-            <div class="landing-slide" style="align-items: center; justify-content: center;">
+       
+            <div id="section0" class="landing-slide" style="align-items: center; justify-content: center;">
                 <video class="front-page-video" autoplay muted loop playsinline>
                     <source src="/data/assets/trimmed_video.mp4" type="video/mp4">
                     Your browser does not support the video tag.
@@ -30,9 +52,9 @@
                     </div>
                     <p class="text-normal" style="color: white">Placeholder text, to be replaced: Our project aims to help users explore natural spaces that are easily accessible by train, promoting low-carbon leisure travel and… (about various habit or why else train journeys can be be preferable). While many nature destinations in the UK remain car-dependent, we focus on identifying green assets—such as marshes, park, and reserves—that can be reached by train. By combining travel time data with green space quality scores, we support more sustainable outdoor choices.</p>
                     <div class="arrow">&#8595;</div>
-                    </div>
+                </div>
             </div>
-            <div class="landing-slide">
+            <div id="section1" class="landing-slide">
                 <div class="landing-textbox">
                     <h1 class="text-title">Describing the problem: what is happening now?</h1>
                     <p class="text-normal">Currently this many people go to nature each year
@@ -42,7 +64,7 @@
                         </p>
                     </div>
             </div>
-            <div class="landing-slide">
+            <div id="section2" class="landing-slide">
                 <div class="landing-textbox">
                     <h1 class="text-title">How can we address this?</h1>
                     <p class="text-normal">Uk has this much coverage with rail. Maybe statistics on train usage for leisure. How % of journeys for leisure?
@@ -51,7 +73,7 @@
                         </p>
                     </div>
             </div>
-            <div class="landing-slide">
+            <div id="section3" class="landing-slide">
                 <div class="landing-textbox">
                     <h1 class="text-title">Changes to lifestyle and behaviours</h1>
                     <p class="text-normal">Even if they are accessible, would people not want to go by car because it is just more convenient?
@@ -59,14 +81,14 @@
                         </p>
                     </div>
             </div>
-            <div class="landing-slide">
+            <div id="section4" class="landing-slide">
                 <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
                     <h1 class="text-title">Our response/solution</h1>
                     <p class="text-normal">create a tool that will promote travel by train. Here Anna to put the gif with the overall map usage (without steps).
                         </p>
                     </div>
             </div>
-            <div class="landing-slide">
+            <div id="section5" class="landing-slide">
                 <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
                     <h1 class="text-title">Understanding the user needs</h1>
                     <p class="text-normal">In order to provide the most tailored experience using this tool and ensure the users are truly willing to take the train, we have studied what people are looking for when selecting a nature destination. 
@@ -74,7 +96,7 @@
                         </p>
                     </div>
             </div>
-            <div class="landing-slide">
+            <div id="section6" class="landing-slide">
                 <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
                     <h1 class="text-title">Features</h1>
                     <p class="text-normal">Typically the travel websites only display selection of places, not overall number of accessible places, not giving the full picture. Also, they don’t typically involve the focus on rail.
@@ -84,7 +106,7 @@
                         </p>
                     </div>
             </div>
-            <div class="landing-slide">
+            <div id="section7" class="landing-slide">
 
                 <div id="map"></div>      
 
@@ -140,6 +162,24 @@
 
                 </div>
 
+            </div>
+            <div id="section8" class="landing-slide">
+                <div class="landing-textbox">
+                    <h1 class="text-title">Methodology</h1>
+                    <p class="text-normal">Placeholder text: Typically the travel websites only display selection of places, not overall number of accessible places, not giving the full picture. Also, they don’t typically involve the focus on rail.
+                        Our tool addresses this gap in current market and provides advice regarding activities available. We use data from OpenStreetMap (railway network), RSPB and GBIF (for birding density), Natural England (for green space types), and custom-built datasets to generate a composite score for each destination. A “Best Overall” category summarizes general suitability when users haven’t selected a specific activity.
+                        By helping people visualize where they can go by train and what they can do there, this project supports broader goals of reducing car dependency while encouraging more people to engage with nearby nature. The page will include 4 steps with gifs.
+                                        
+                        </p>
+                    </div>
+            </div>
+            <div id="section9" class="landing-textbox">
+                <h1 class="text-title">Limitations and Discussion</h1>
+                <p class="text-normal">Placeholder text: Typically the travel websites only display selection of places, not overall number of accessible places, not giving the full picture. Also, they don’t typically involve the focus on rail.
+                    Our tool addresses this gap in current market and provides advice regarding activities available. We use data from OpenStreetMap (railway network), RSPB and GBIF (for birding density), Natural England (for green space types), and custom-built datasets to generate a composite score for each destination. A “Best Overall” category summarizes general suitability when users haven’t selected a specific activity.
+                    By helping people visualize where they can go by train and what they can do there, this project supports broader goals of reducing car dependency while encouraging more people to engage with nearby nature. The page will include 4 steps with gifs.
+                                    
+                    </p>
             </div>
         </div>
 

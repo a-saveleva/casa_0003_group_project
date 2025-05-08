@@ -22,6 +22,17 @@ const popup = new mapboxgl.Popup({
     closeOnClick: false
 });
 
+// Navigation buttons
+document.querySelectorAll('.nav-button').forEach(button => {
+    button.addEventListener('click', () => {
+        const targetId = button.getAttribute('data-target');
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+
 // Get station identifier
 function getStationIdentifier(station) {
     return station.properties?.name || 'Unnamed Station_' + (station.id || Math.random().toString(36).substr(2, 9));
