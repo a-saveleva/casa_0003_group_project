@@ -22,8 +22,36 @@ const popup = new mapboxgl.Popup({
     closeOnClick: false
 });
 
-const rootStyles = getComputedStyle(document.documentElement);
+// Document navigation
+// Enable keyboard navigation for the landing page
+document.addEventListener('DOMContentLoaded', () => {
+    const slides = Array.from(document.querySelectorAll('section.landing-slide'));
+    let currentIndex = 0;
 
+    function scrollToSlide(index) {
+        if (index >= 0 && index < slides.length) {
+        slides[index].scrollIntoView({ behavior: 'smooth' });
+        currentIndex = index;
+        }
+    }
+    document.addEventListener('keydown', (event) => {
+        if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+        switch (event.key) {
+        case 'ArrowDown':
+        case ' ':
+            event.preventDefault();
+            scrollToSlide(currentIndex + 1);
+            break;
+
+        case 'ArrowUp':
+            event.preventDefault();
+            scrollToSlide(currentIndex - 1);
+            break;
+        }
+    });
+});
+// Enable hover and click effect for navigation buttons
+const rootStyles = getComputedStyle(document.documentElement);
 document.querySelectorAll('.nav-button').forEach(button => {
     button.addEventListener('mouseenter', () => {
         const hoverColor = rootStyles.getPropertyValue('--navbar-highlight-colour').trim();
