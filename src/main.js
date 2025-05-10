@@ -22,15 +22,48 @@ const popup = new mapboxgl.Popup({
     closeOnClick: false
 });
 
-// Navigation buttons
+const rootStyles = getComputedStyle(document.documentElement);
+
 document.querySelectorAll('.nav-button').forEach(button => {
-    button.addEventListener('click', () => {
-        const targetId = button.getAttribute('data-target');
-        const targetElement = document.getElementById(targetId);
-        if (targetElement) {
-            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    });
+    button.addEventListener('mouseenter', () => {
+        const hoverColor = rootStyles.getPropertyValue('--navbar-highlight-colour').trim();
+        button.style.color = hoverColor;
+        });
+    
+    button.addEventListener('mouseleave', () => {
+        button.style.color = ''; // Resets to original color from CSS
+        });
+
+  button.addEventListener('click', () => {
+    const targetId = button.getAttribute('data-target');
+    const action = button.getAttribute('data-action');
+
+    if (targetId) {
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+    }
+
+    if (action === 'next' || action === 'previous') {
+      const slides = Array.from(document.querySelectorAll('.landing-slide'));
+      const current = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
+      const currentSlide = slides.find(slide => slide.contains(current)) || slides[0];
+      const index = slides.indexOf(currentSlide);
+      let targetSlide = null;
+
+      if (action === 'next') {
+        targetSlide = slides[index + 1] || null;
+      } else if (action === 'previous') {
+        targetSlide = slides[index - 1] || null;
+      }
+
+      if (targetSlide) {
+        targetSlide.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  });
 });
 
 // Get station identifier
@@ -188,8 +221,6 @@ map.on('load', async function() {
         .text("No green space selected");  // Default text 
 
     // Retrieve CSS root styles once
-    const rootStyles = getComputedStyle(document.documentElement);
-
     // Helper function to get the color for a specific category
     function getCategoryColor(category) {
         return rootStyles.getPropertyValue(`--colour-${category.toLowerCase().replace(/\s+/g, '-')}`).trim();

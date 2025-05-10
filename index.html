@@ -22,25 +22,25 @@
         <div id="nav-bar">
             <input id="nav-toggle" type="checkbox" checked />
             <div id="nav-header"><a id="nav-title" >Contents</a>
-                <label for="nav-toggle"><span id="nav-toggle-burger"></span></label>
+                <label for="nav-toggle"><i id="nav-toggle-icon" class="fas fa-chevron-right"></i></label>
             </div>
                 <div id="nav-content">
-                    <div class="nav-button"><a href="#section0"></a><i class="fas fa-info-circle"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Introduction</span></a></div>
-                    <div class="nav-button"><a href="#section1"></a><i class="fas fa-exclamation-triangle"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Problem overview</span></a></div>
-                    <div class="nav-button"><a href="#section4"></a><i class="fas fa-lightbulb"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Our response</span></a></div>
-                    <div class="nav-button"><a href="#section7"></a><i class="fas fa-map-marked-alt"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Nature spaces map</span></a></div>
-                    <div class="nav-button"><a href="#section8"></a><i class="fas fa-cogs"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Methods and sources</span></a></div>
-                    <div class="nav-button"><a href="#section9"></a><i class="fas fa-comments"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Limitations and discussion</span></a></div>
-                    <div class="nav-button"><a href="#section1"></a><i class="fas fa-users"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Authors</span></a></div>
-                    <!-- <div class="nav-button" style="margin-top: auto;"><a href="#section1"></a><i class="fas fa-arrow-up"></i><span style="bottom: 20%; font-weight: 400; font-size: smaller; padding-right: 40px;">Previous section</span></a></div>
-                    <div class="nav-button"><a href="#section1"></a><i class="fas fa-arrow-down"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Next section</span></a></div> -->
+                    <a href="#section0"><div class="nav-button"><i class="fas fa-info-circle"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Introduction</span></div></a>
+                    <a href="#section1"><div class="nav-button"><i class="fas fa-exclamation-triangle"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Problem overview</span></div></a>
+                    <a href="#section4"><div class="nav-button"><i class="fas fa-lightbulb"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Our response</span></div></a>
+                    <a href="#section7"><div class="nav-button"><i class="fas fa-map-marked-alt"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Nature spaces map</span></div></a>
+                    <a href="#section8"><div class="nav-button"><i class="fas fa-cogs"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Methods and sources</span></div></a>
+                    <a href="#section9"><div class="nav-button"><i class="fas fa-comments"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Limitations and discussion</span></div></a>
+                    <a href="#section10"><div class="nav-button"><i class="fas fa-users"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Authors</span></div></a>
+                    <a href="#" class="nav-button" style="margin-top: auto;" data-action="previous"><i class="fas fa-arrow-up"></i><span style="bottom: 20%; font-weight: 400; font-size: smaller; padding-right: 40px;">Previous section</span></a>
+                    <a href="#" class="nav-button" data-action="next"><i class="fas fa-arrow-down"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Next section</span></a>                    
                     <div id="nav-content-highlight"></div>
                 </div>
             <input id="nav-footer-toggle" type="checkbox"/>
         </div>
         <div class="landing-container">
        
-            <div id="section0" class="landing-slide" style="align-items: center; justify-content: center;">
+            <section id="section0" class="landing-slide" style="align-items: center; justify-content: center;">
                 <video class="front-page-video" autoplay muted loop playsinline>
                     <source src="/data/assets/trimmed_video.mp4" type="video/mp4">
                     Your browser does not support the video tag.
@@ -48,13 +48,13 @@
                 <div class="front-page-textbox">
                     <div style="display: flex; flex-direction: row; align-items: flex-start; ">
                         <img class="front-page-img" src="/data/assets/logo_white.webp" />
-                        <h1 class="text-title" style="font-size: 45px; color: white; margin-top: -10px; ">Developing a web tool to inspire sustainable journeys into UK nature by train.</h1>
+                        <h1 class="text-title" style="font-size: 45px; color: white; margin-top: -10px; ">Developing a web tool to inspire sustainable journeys into UK nature by rail.</h1>
                     </div>
                     <p class="text-normal" style="color: white">Placeholder text, to be replaced: Our project aims to help users explore natural spaces that are easily accessible by train, promoting low-carbon leisure travel and… (about various habit or why else train journeys can be be preferable). While many nature destinations in the UK remain car-dependent, we focus on identifying green assets—such as marshes, park, and reserves—that can be reached by train. By combining travel time data with green space quality scores, we support more sustainable outdoor choices.</p>
                     <div class="arrow">&#8595;</div>
                 </div>
-            </div>
-            <div id="section1" class="landing-slide">
+            </section>
+            <section id="section1" class="landing-slide">
                 <div class="landing-textbox">
                     <h1 class="text-title">Describing the problem: what is happening now?</h1>
                     <p class="text-normal">Currently this many people go to nature each year
@@ -63,8 +63,8 @@
                         Roadkills, habitat fragmentation
                         </p>
                     </div>
-            </div>
-            <div id="section2" class="landing-slide">
+            </section>
+            <section id="section2" class="landing-slide">
                 <div class="landing-textbox">
                     <h1 class="text-title">How can we address this?</h1>
                     <p class="text-normal">Uk has this much coverage with rail. Maybe statistics on train usage for leisure. How % of journeys for leisure?
@@ -72,31 +72,31 @@
                         For example, London has this many green assets within 60min journey.Another example, Edinburgh has this many. And if you are willing to travel longer , the quantity of green increases - one plot with bubbles.
                         </p>
                     </div>
-            </div>
-            <div id="section3" class="landing-slide">
+            </section>
+            <section id="section3" class="landing-slide">
                 <div class="landing-textbox">
                     <h1 class="text-title">Changes to lifestyle and behaviours</h1>
                     <p class="text-normal">Even if they are accessible, would people not want to go by car because it is just more convenient?
                         Survey data to say people are actually willing to not use car for nature trips.
                         </p>
                     </div>
-            </div>
-            <div id="section4" class="landing-slide">
+            </section>
+            <section id="section4" class="landing-slide">
                 <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
                     <h1 class="text-title">Our response/solution</h1>
                     <p class="text-normal">create a tool that will promote travel by train. Here Anna to put the gif with the overall map usage (without steps).
                         </p>
                     </div>
-            </div>
-            <div id="section5" class="landing-slide">
+            </section>
+            <section id="section5" class="landing-slide">
                 <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
                     <h1 class="text-title">Understanding the user needs</h1>
                     <p class="text-normal">In order to provide the most tailored experience using this tool and ensure the users are truly willing to take the train, we have studied what people are looking for when selecting a nature destination. 
                         Survey shows that the following activities are most in demand. E.g. chart to show % of visitors to nature that are doing a particular type of activity.                        
                         </p>
                     </div>
-            </div>
-            <div id="section6" class="landing-slide">
+            </section>
+            <section id="section6" class="landing-slide">
                 <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
                     <h1 class="text-title">Features</h1>
                     <p class="text-normal">Typically the travel websites only display selection of places, not overall number of accessible places, not giving the full picture. Also, they don’t typically involve the focus on rail.
@@ -105,8 +105,8 @@
                                         
                         </p>
                     </div>
-            </div>
-            <div id="section7" class="landing-slide">
+            </section>
+            <section id="section7" class="landing-slide">
 
                 <div id="map"></div>      
 
@@ -162,8 +162,8 @@
 
                 </div>
 
-            </div>
-            <div id="section8" class="landing-slide">
+            </section>
+            <section id="section8" class="landing-slide">
                 <div class="landing-textbox">
                     <h1 class="text-title">Methodology</h1>
                     <p class="text-normal">Placeholder text: Typically the travel websites only display selection of places, not overall number of accessible places, not giving the full picture. Also, they don’t typically involve the focus on rail.
@@ -172,15 +172,22 @@
                                         
                         </p>
                     </div>
-            </div>
-            <div id="section9" class="landing-textbox">
-                <h1 class="text-title">Limitations and Discussion</h1>
-                <p class="text-normal">Placeholder text: Typically the travel websites only display selection of places, not overall number of accessible places, not giving the full picture. Also, they don’t typically involve the focus on rail.
-                    Our tool addresses this gap in current market and provides advice regarding activities available. We use data from OpenStreetMap (railway network), RSPB and GBIF (for birding density), Natural England (for green space types), and custom-built datasets to generate a composite score for each destination. A “Best Overall” category summarizes general suitability when users haven’t selected a specific activity.
-                    By helping people visualize where they can go by train and what they can do there, this project supports broader goals of reducing car dependency while encouraging more people to engage with nearby nature. The page will include 4 steps with gifs.
-                                    
-                    </p>
-            </div>
+            </section>
+            <section id="section9" class="landing-slide">
+                <div class="landing-textbox">
+                    <h1 class="text-title">Limitations and discussion</h1>
+                    <p class="text-normal">Placeholder text              
+                        </p>
+                    </div>
+            </section>
+            <section id="section10" class="landing-slide">
+                <div class="landing-textbox">
+                    <h1 class="text-title">Authors</h1>
+                    <p class="text-normal">Placeholder text:
+                        </p>
+                    </div>
+            </section>
+            
         </div>
 
         <script type="module" src="/src/main.js"></script> 
