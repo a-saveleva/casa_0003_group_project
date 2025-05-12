@@ -98,6 +98,24 @@ html, body {
   font-size: var(--text-highlight-size);
   font-weight: var(--text-highlight-weight);
 }
+
+h2 {
+  font-size: 20px;
+  font-weight: var(--text-title-weight);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--text-normal-font);
+}
+
+ul {
+  margin-left: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+ul li {
+  margin-bottom: 0.5rem;
+}
+
 .left-bar {
   width: 500px;
   display: flex;
@@ -105,23 +123,38 @@ html, body {
   gap: 10px;
   padding: 10px;
   align-items: stretch;
+  flex-grow: 1; /* allows the left bar to grow */
+  box-sizing: border-box; /* ensures padding is respected inside width */
+  /* justify-content: space-between; */
 }
 #controls {
+  /* flex: 1; */
+  position: relative;
   display: flex;
   flex-direction: row;
   gap: 10px;
-  width: 100%;
+  width: 106%;
+  justify-content: space-between;
+  box-sizing: border-box; /* ensures padding is respected inside width */
+  /* max-width: 100%; */
 }
 
 .controls-internal {
   position: relative;
-  flex: 1; /* each takes equal space */
+  flex: 1;
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.2);
   padding: 15px;
-  min-width: 225px;
+  width: 100%;
+  /* min-width: 46%; */
+  min-width: 100px; /* responsive floor */
+  width: 100%; /* optional: can remove this */
 }
+/* 
+.left-bar, #controls, .controls-internal {
+  border: 1px solid red;
+} */
 
 #timeValue {
     font-family: var(--text-normal-font);
@@ -142,26 +175,27 @@ input[type="range"] {
     margin: 10px 0;
 }
 .legend {
-    margin-top: 15px;
-    font-size: 12px;
-    border-top: 1px solid #eee;
-    padding-top: 10px;
+    margin-top: -2px;
+    font-size: 10px;
+    /* border-top: 1px solid #eee; */
+    /* padding-top: 10px; */
 }
 .legend-item {
     display: flex;
     align-items: center;
     margin-bottom: 5px;
     font-family: var(--text-normal-font);
-    font-size: var(--text-normal-size);
+    font-size: 12px;
     color: var(--text-normal-color);
     line-height: var(--text-normal-line-height);
     font-weight: var(--text-normal-weight);
 }
 .legend-color {
-    width: 15px;
-    height: 15px;
+    width: 10px;
+    height: 10px;
     margin-right: 8px;
     border-radius: 50%;
+    flex-shrink: 0;
 }
 .mapboxgl-popup {
     max-width: 200px;
@@ -188,7 +222,7 @@ input[type="range"] {
 
 #chart {
   position: relative;
-  width: 100%;
+  width: 102%;
   height: 250px;
   z-index: 1;
   background-color: rgba(255, 255, 255, 0.9);
@@ -342,7 +376,7 @@ input[type="range"] {
   margin-left: 10%;
   margin-bottom: 10%;
   justify-content: left;
-}
+} 
 
 /* navigation bar styles*/
 #nav-toggle:checked ~ #nav-header {
@@ -399,7 +433,6 @@ input[type="range"] {
 #nav-toggle:checked ~ #nav-header label > #nav-toggle-icon {
   transform: rotate(90deg);
 }
-
 
 #nav-bar {
   position: fixed-left;
@@ -555,67 +588,6 @@ input[type="range"] {
 .nav-button .fas {
   transition: min-width 0.2s;
 }
-/* .nav-button:nth-of-type(1):hover {
-  color: var(--navbar-dark-primary);
-}
-.nav-button:nth-of-type(1):hover ~ #nav-content-highlight {
-  top: 16px;
-}
-.nav-button:nth-of-type(2):hover {
-  color: var(--navbar-dark-primary);
-}
-.nav-button:nth-of-type(2):hover ~ #nav-content-highlight {
-  top: 70px;
-}
-.nav-button:nth-of-type(3):hover {
-  color: var(--navbar-dark-primary);
-}
-.nav-button:nth-of-type(3):hover ~ #nav-content-highlight {
-  top: 124px;
-}
-.nav-button:nth-of-type(4):hover {
-  color: var(--navbar-dark-primary);
-}
-.nav-button:nth-of-type(4):hover ~ #nav-content-highlight {
-  top: 178px;
-}
-.nav-button:nth-of-type(5):hover {
-  color: var(--navbar-dark-primary);
-}
-.nav-button:nth-of-type(5):hover ~ #nav-content-highlight {
-  top: 232px;
-}
-.nav-button:nth-of-type(6):hover {
-  color: var(--navbar-dark-primary);
-}
-.nav-button:nth-of-type(6):hover ~ #nav-content-highlight {
-  top: 286px;
-} */
-/* .nav-button:nth-of-type(7):hover {
-  color: var(--navbar-dark-primary);
-}
-.nav-button:nth-of-type(7):hover ~ #nav-content-highlight {
-  top: 340px;
-}
-.nav-button:nth-of-type(8):hover {
-  color: var(--navbar-dark-primary);
-}
-.nav-button:nth-of-type(8):hover ~ #nav-content-highlight {
-  top: 394px;
-}
-.nav-button:nth-of-type(9):hover {
-  color: var(--navbar-dark-primary);
-}
-.nav-button:nth-of-type(9):hover ~ #nav-content-highlight {
-  top: 394px;
-}
-
-.nav-button:nth-of-type(10):hover {
-  color: var(--navbar-dark-primary);
-}
-.nav-button:nth-of-type(10):hover ~ #nav-content-highlight {
-  top: 394px;
-} */
 
 .nav-button:last-child,
 .nav-button:nth-last-child(2) {

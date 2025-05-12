@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Train Isochrone Visualization</title>
+        <title>Developing a web tool to inspire sustainable journeys into British nature by rail networks</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=20,user-scalable=yes">
 
         <!-- Mapbox -->
@@ -48,9 +48,14 @@
                 <div class="front-page-textbox">
                     <div style="display: flex; flex-direction: row; align-items: flex-start; ">
                         <img class="front-page-img" src="/data/assets/logo_white.webp" />
-                        <h1 class="text-title" style="font-size: 45px; color: white; margin-top: -10px; ">Developing a web tool to inspire sustainable journeys into UK nature by rail.</h1>
+                        <h1 class="text-title" style="font-size: 45px; color: white; margin-top: -10px; ">Developing a web tool to inspire sustainable journeys into British nature by rail networks.</h1>
                     </div>
-                    <p class="text-normal" style="color: white">Placeholder text, to be replaced: Our project aims to help users explore natural spaces that are easily accessible by train, promoting low-carbon leisure travel and… (about various habit or why else train journeys can be be preferable). While many nature destinations in the UK remain car-dependent, we focus on identifying green assets—such as marshes, park, and reserves—that can be reached by train. By combining travel time data with green space quality scores, we support more sustainable outdoor choices.</p>
+                    <p class="text-normal" style="color: white">Our project aims to contribute to the ongoing discussion on reducing car dependence and promoting sustainable 
+                        transportation options, particularly by increasing the use of public transport for leisure trips to natural spaces outside cities. 
+                        We demonstrate the natural assets that are easily accessible by train to help people make more sustainable travel choices without compromising on the 
+                        quality of their leisure. Our tool features an interactive map displaying natural assets within the user's chosen travel time, allowing exploration of destinations 
+                        and their suitability for different types of outdoor activities.
+                        </p>
                     <div class="arrow">&#8595;</div>
                 </div>
             </section>
@@ -75,18 +80,26 @@
             </section>
             <section id="section3" class="landing-slide">
                 <div class="landing-textbox">
-                    <h1 class="text-title">Changes to lifestyle and behaviours</h1>
+                    <h1 class="text-title">Behavioral change</h1>
                     <p class="text-normal">Even if they are accessible, would people not want to go by car because it is just more convenient?
                         Survey data to say people are actually willing to not use car for nature trips.
                         </p>
                     </div>
             </section>
-            <section id="section4" class="landing-slide">
-                <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
-                    <h1 class="text-title">Our response/solution</h1>
-                    <p class="text-normal">create a tool that will promote travel by train. Here Anna to put the gif with the overall map usage (without steps).
-                        </p>
-                    </div>
+            <section id="section4" class="landing-slide" style="display:flex; flex-direction: row;">
+                <div class="controls-internal" style="width: 100%; margin-top: 5%; margin-left: 10%; margin-bottom: 5%; width: 100%;">
+                    <p class="text-normal" style="margin-top: 0px;">MAP GIF HERE</p>
+                </div>
+                <div class="landing-textbox" style="margin-right: 10%;">
+                    <h1 class="text-title">Our response</h1>
+                    <p class="text-normal">We have developed an online tool that displays natural assets within the user's chosen travel time, allowing exploration of destinations and their suitability for different types of outdoor activities. The interactive map is backed by a selection of datasets and research on user needs.</p>
+                    <p class="text-normal">The map uses (insert name) API to calculate accessible areas, with inclusion of a short walk on start and end of the journey. The travel time can be adjusted with a slider. After the accessible area is generated, the natural assets within it are highlighted. The user can hover and click on the asset to learn more about it.</p>
+                    <p class="text-normal">A key element of the project is classifying natural assets. We have used 
+                        <a href="https://www.gov.uk/government/statistics/the-people-and-nature-survey-for-england-year-2-annual-report-data-and-publications-april-2021-march-2022-official-statistics-main-findings/the-people-and-nature-survey-for-england-year-2-annual-report-data-and-publications-april-2021-march-2022-official-statistics-main-findings" target="_blank" rel="noopener noreferrer">
+                        People and Nature Survey</a> 
+                        findings to determine the most frequent types of activities that the public engages in when in nature (see details on the next page). Each natural asset is assigned a score based on suitability for each of those activities. The scores can be viewed by hovering on the asset.</p>
+                    <p class="text-normal">Paragraph about on-click functionality (Anna will write when done with these functions).</p>
+                </div>
             </section>
             <section id="section5" class="landing-slide">
                 <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
@@ -97,95 +110,209 @@
                     </div>
             </section>
             <section id="section6" class="landing-slide">
-                <div class="landing-textbox" style="margin-left: auto; margin-right: 10%;">
-                    <h1 class="text-title">Features</h1>
-                    <p class="text-normal">Typically the travel websites only display selection of places, not overall number of accessible places, not giving the full picture. Also, they don’t typically involve the focus on rail.
-                        Our tool addresses this gap in current market and provides advice regarding activities available. We use data from OpenStreetMap (railway network), RSPB and GBIF (for birding density), Natural England (for green space types), and custom-built datasets to generate a composite score for each destination. A “Best Overall” category summarizes general suitability when users haven’t selected a specific activity.
-                        By helping people visualize where they can go by train and what they can do there, this project supports broader goals of reducing car dependency while encouraging more people to engage with nearby nature. The page will include 4 steps with gifs.
-                                        
-                        </p>
-                    </div>
+                <div class="landing-textbox">
+                    <h1 class="text-title">Map features</h1>
+                    <p class="text-normal">Each feature of our tool contributes to visualising a sustainable “city-to-nature” travel route and enabling user selection of the most appropriate destination. ANNA TO ADD GIFs BELOW</p>
+                </div>
+                <div class="methodology-columns" style=" margin-left: 10%; margin-top: 40px; display: flex; flex-direction: row; justify-content: left; width: 80%; gap: 30px;">
+                        <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
+                            <p class="text-normal" style="margin-top: 0px;"><strong>Customizable Isochrone Mapping</strong>: Users can dynamically visualize train-accessible areas from any chosen origin.</p>
+                        </div>
+                        <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
+                            <p class="text-normal" style="margin-top: 0px;"><strong>Green Space Scoring</strong>: Each natural asset is scored across six categories and one composite “Best Overall” score.</p>
+                        </div>
+                        <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
+                            <p class="text-normal" style="margin-top: 0px;"><strong>Category Filtering</strong>: Buttons allow users to highlight natural assets by a selected activity type.</p>
+                        </div>
+                        <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
+                            <p class="text-normal" style="margin-top: 0px;"><strong>Hover Insights</strong>: Tooltips display bar charts with category-specific scores when the user hovers over a natural space.</p>
+                        </div>
+                        <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
+                            <p class="text-normal" style="margin-top: 0px;"><strong>Click for Detail</strong>: Clicking on a natural asset reveals more information (Anna to include more).</p>
+                        </div>
+                        <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
+                            <p class="text-normal" style="margin-top: 0px;"><strong>Export Option</strong>: Users can download or print a version of their customized travel map from the on-click state. </p>
+                        </div>
+                </div>
             </section>
             <section id="section7" class="landing-slide">
-
                 <div id="map"></div>      
-
                 <div class="left-bar">
-
-                    <!-- <div class="controls-internal" style="width: 490px;">
-                        <p><img src="/data/assets/logo_colour.webp"/></p>
-                        <p class="text-normal">Here a short text encompassing our idea for the project. I assume the text here will take approximately three sentences. This is a placeholder showing the extent of the text and how it looks on the page.</p>
-                    </div> -->
+                    <div class="controls-internal">
+                        <h1 class="text-title" style="margin-top: 5px;">Natural assets map</h1>
+                        <p class="text-normal">Follow the instructions on the page and explore accessible natural assets in Great Britain.
+                        </p>
+                    </div>
 
                     <div id="controls" class="text-normal">
                         <div class="controls-internal">
-                            <div>1. Select the time you wish to travel</div>
+                            <div style="font-weight: 700; line-height: 22px;">1. Select the time you wish to travel</div>
                             <input type="range" id="timeRange" min="5" max="240" step="5" value="60">
                             <div><span id="timeValue">60 minutes</span></div>
                             </div>
                     
                         <div class="controls-internal">
-                            <div>2. Drag the marker to select origin</div>
-                            <div id="originStation" class="text-normal">
-                                Origin: <span id="originStationName">None selected</span>
+                            <div style="font-weight: 700; line-height: 22px;">2. Drag the marker to select origin</div>
+                            <div id="originStation" class="text-normal" style="font-size: 12px; margin-top: 5px;">
+                                Station closest to selected origin: <span id="originStationName">None selected</span>
                             </div>
+                        </div>
+                        <div class="controls-internal">
+                            <div class="legend" >
+                                <div class="text-normal" style="margin-bottom: 10px;">Legend</div>
+                                <div class="legend">
+                                    <div class="legend-item" style="line-height: 15px;">
+                                        <div class="legend-color" style="background-color: #67b1ee;"></div>
+                                        <span>Reachable area</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background-color: #afcca0;"></div>
+                                        <span>National Parks</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background-color: #FF3C38;"></div>
+                                        <span>Natural assets classified by their score:</span>
+                                    </div>
+                                </div>
                             </div>
-                        <div class="alert-message" id="alertMessage"></div>
+                        </div>
                         
-                        <!-- <div id="controls-internal" class="text-normal">
-                            <div class="legend">
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #FF5722;"></div>
-                                    <span>Origin Station</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: var(--colour-protected-landscape);"></div>
-                                    <span>UK Protected Landscapes</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #42A5F5;"></div>
-                                    <span>Reachable Stations</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #888;"></div>
-                                    <span>Other Stations</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #FF3C38; width: 15px; height: 4px;"></div>
-                                    <span>Connections</span>
-                                </div>
-                            </div>
-                        </div> -->
                     </div>
 
                     <div id="chart" class="text-highlight"></div>
 
                 </div>
 
+                <!-- <div class="alert-message" id="alertMessage"></div> -->
+
             </section>
-            <section id="section8" class="landing-slide">
-                <div class="landing-textbox">
-                    <h1 class="text-title">Methodology</h1>
-                    <p class="text-normal">Placeholder text: Typically the travel websites only display selection of places, not overall number of accessible places, not giving the full picture. Also, they don’t typically involve the focus on rail.
-                        Our tool addresses this gap in current market and provides advice regarding activities available. We use data from OpenStreetMap (railway network), RSPB and GBIF (for birding density), Natural England (for green space types), and custom-built datasets to generate a composite score for each destination. A “Best Overall” category summarizes general suitability when users haven’t selected a specific activity.
-                        By helping people visualize where they can go by train and what they can do there, this project supports broader goals of reducing car dependency while encouraging more people to engage with nearby nature. The page will include 4 steps with gifs.
-                                        
-                        </p>
+            <section id="section8" class="landing-slide" style="overflow-y: auto; scroll-snap-align: start; scroll-snap-stop: always; box-sizing: border-box;">
+                <h1 class="text-title" style="margin-top: 5%; margin-left: 10%;">Methodology</h1>
+                <div class="methodology-columns" style="margin-left: 10%; display: flex; flex-direction: row; justify-content: left; width: 80%; gap: 30px;">
+                    <div style="flex: 1; min-width: 0;">
+                        <h2>Isochrone building and Personalized Route Visualization</h2>
+                        <p class="text-normal">Isochrones are generated based on rail travel time using the TravelTime API. Users can interactively select any point on the map and specify a travel duration (up to 4 hours), upon which an isochrone is calculated accordingly. 
+                            Based on the isochrone, users can explore green assets of interest; when hovering over a green asset, the system identifies the nearest departure station to the user and the nearest 
+                            arrival station to the target green asset using railway and station data sourced from OpenStreetMap. Additionally, a railway network graph is constructed, and the shortest travel route 
+                            is computed using Dijkstra’s algorithm in NetworkX. This enables personalized route visualization for train-based green asset access.</p>
                     </div>
-            </section>
+                    
+              
+                    <div style="flex: 1; min-width: 0;">
+                        <h2>Dataset of Natural Assets</h2>
+                        <p class="text-normal"> To address the lack of open data on publicly accessible natural areas, we used OpenStreetMap to extract natural features across Great Britain using:</p>
+                        <ul class="text-normal">
+                            <li>Boundary: protected_area</li>
+                            <li>Leisure: park, nature_reserve, garden</li>
+                            <li>Natural: beach, forest, wood, wetland, scrub, hill, valley, heath, grassland</li>
+                        </ul>
+                        <p class="text-normal">This was supplemented with official SSSI datasets. We merged fragmented features into larger assets, filtered out marine or inaccessible areas, and excluded unnamed ones. Only assets over 100 hectares were retained.</p>
+                    </div>
+              
+                    <div style="flex: 1; min-width: 0;">
+                        <h2>Scoring the Natural Assets</h2>
+                        <p class="text-normal">We used thematic indicators to score assets across multiple categories:</p>
+                        <ul class="text-normal">
+                            <li><strong>Hiking</strong> - Long-distance walking routes (Walking Englishman)</li>
+                            <li><strong>Cycling</strong> - Cycle paths and National Cycle Network (OSM)</li>
+                            <li><strong>Birdwatching</strong> - Sightings, IBAs, and RSPB reserves</li>
+                            <li><strong>Camping</strong> - Camping POIs within 2 km</li>
+                            <li><strong>Seaside</strong> - Bathing waters and beach awards</li>
+                            <li><strong>Geology</strong> - Geodiversity and Geological Society’s top sites</li>
+                            <li><strong>Best Overall</strong> - Composite of all scores</li>
+                        </ul>
+                        <p class="text-normal">All indicators (except geology) include an ecological value score, normalized to a 0–1 range, and averaged.</p>
+                    </div>
+                    
+                </div>
+                <div class="methodology-columns" style=" margin-left: 10%; margin-top: 40px; display: flex; flex-direction: row; justify-content: left; width: 80%; gap: 30px;">
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
+                            <p class="text-normal" style="margin-top: 0px;">Isochrone building and Personalized Route Visualization: Sources</p>
+                            <p class="legend-item" style="display: block;">TravelTime API. (n.d.). <em>TravelTime API</em>. Available at: <a href="https://www.traveltime.com/" target="_blank" rel="noopener noreferrer">https://www.traveltime.com/</a> [Accessed __ Apr 2025].</p>
+                        </div>
+                    </div>
+                    
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
+                            <p class="text-normal" style="margin-top: 0px;">Dataset of Natural Assets: Sources</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">Boeing, G. (2024). <em>Modeling and Analyzing Urban Networks and Amenities with OSMnx</em>. Working Paper. Available at: <a href="https://geoffboeing.com/publications/osmnx-paper/" target="_blank" rel="noopener noreferrer">https://geoffboeing.com/publications/osmnx-paper/</a> [Accessed __ Apr 2025].</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">DEFRA, NRW, Scottish Government. (n.d.). <em>Sites of Special Scientific Interest (SSSI)</em>. Available at: 
+                                <a href="https://www.data.gov.uk/dataset/d64bf689-4ce8-465b-b00e-6a57dec94a22" target="_blank" rel="noopener noreferrer">https://www.data.gov.uk/dataset/d64bf689-4ce8-465b-b00e-6a57dec94a22</a>, 
+                                <a href="https://datamap.gov.wales/layers/inspire-nrw:NRW_SSSI" target="_blank" rel="noopener noreferrer">https://datamap.gov.wales/layers/inspire-nrw:NRW_SSSI</a>, and 
+                                <a href="https://naturalengland-defra.opendata.arcgis.com/datasets/Defra::sites-of-special-scientific-interest-england/about" target="_blank" rel="noopener noreferrer">https://naturalengland-defra.opendata.arcgis.com/datasets/Defra::sites-of-special-scientific-interest-england/about</a> [Accessed __ Apr 2025].</p>                                
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">OpenStreetMap contributors. (n.d.). <em>Open data</em>. Available at: <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">https://www.openstreetmap.org</a> [Accessed __ Apr 2025].</p>
+                        </div>
+                    </div>
+              
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="controls-internal" style="width: 100%; margin-bottom: 50px;">
+                            <p class="text-normal" style="margin-top: 0px;">Scoring the Natural Assets: Sources</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">Callaghan, T.V. et al. (2022). Georichness dataset. Dryad. Available at: <a href="https://datadryad.org/dataset/doi:10.5061/dryad.crjdfn39c" target="_blank" rel="noopener noreferrer">https://datadryad.org/dataset/doi:10.5061/dryad.crjdfn39c</a> [Accessed __ Apr 2025].</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">Dyer, R. and Oliver, T. (2016). UK ecological status map version 2. NERC Environmental Information Data Centre. Available at: <a href="https://doi.org/10.5285/58b248a8-6e34-4ffb-ae32-3744566399a2" target="_blank" rel="noopener noreferrer">https://doi.org/10.5285/58b248a8-6e34-4ffb-ae32-3744566399a2</a> [Accessed __ Apr 2025].</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">Environment Agency. (n.d.). Bathing Water Quality Profiles. Available at: <a href="https://environment.data.gov.uk/bwq/profiles/index.html" target="_blank" rel="noopener noreferrer">https://environment.data.gov.uk/bwq/profiles/index.html</a> [Accessed __ Apr 2025].</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">GBIF.org. (2025). GBIF Occurrence Download. Available at: <a href="https://doi.org/10.15468/dl.26ev7h" target="_blank" rel="noopener noreferrer">https://doi.org/10.15468/dl.26ev7h</a> [Accessed __ Apr 2025].</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">Natural Resources Wales. (n.d.). Bathing Waters. Available at: <a href="https://datamap.gov.wales/layers/geonode:nrw_bathing_waters" target="_blank" rel="noopener noreferrer">https://datamap.gov.wales/layers/geonode:nrw_bathing_waters</a> [Accessed __ Apr 2025].</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">OpenStreetMap contributors. (n.d.). Open data. Available at: <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">https://www.openstreetmap.org</a> [Accessed __ Apr 2025].</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">RSPB. (n.d.). Protected areas for birds – RSPB dataset. Available at: <a href="https://opendata-rspb.opendata.arcgis.com/datasets/6076715cb76d4c388fa38b87db7d9d24_0" target="_blank" rel="noopener noreferrer">https://opendata-rspb.opendata.arcgis.com/datasets/6076715cb76d4c388fa38b87db7d9d24_0</a> [Accessed __ Apr 2025].</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">Sustrans. (n.d.). National Cycle Network Routes. Available at: <a href="https://data-sustrans-uk.opendata.arcgis.com/datasets/5defd254e78745bfb12d0456abc1bcf1_0" target="_blank" rel="noopener noreferrer">https://data-sustrans-uk.opendata.arcgis.com/datasets/5defd254e78745bfb12d0456abc1bcf1_0</a> [Accessed __ Apr 2025].</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">The Geological Society. (n.d.). 100 Great Geosites. Available at: <a href="https://www.geolsoc.org.uk/science-and-policy/100-great-geosites" target="_blank" rel="noopener noreferrer">https://www.geolsoc.org.uk/science-and-policy/100-great-geosites</a> [Accessed __ Apr 2025].</p>
+                            <p class="legend-item" style="display: block; overflow-wrap: anywhere;">Walking Englishman. (n.d.). Long Distance Paths. Available at: <a href="https://www.walkingenglishman.com/ldp/ldp.html" target="_blank" rel="noopener noreferrer">https://www.walkingenglishman.com/ldp/ldp.html</a> [Accessed __ Apr 2025].</p>
+                        </div>
+                    </div>
+                    </div>
+              </section>
+              
             <section id="section9" class="landing-slide">
-                <div class="landing-textbox">
-                    <h1 class="text-title">Limitations and discussion</h1>
-                    <p class="text-normal">Placeholder text              
+                <h1 class="text-title" style="margin-top: 5%; margin-left: 10%;">Limitations and discussion</h1>
+                <div class="methodology-columns" style="margin-left: 10%; display: flex; flex-direction: row; justify-content: left; width: 80%; gap: 30px;">
+                    <div style="flex: 1; min-width: 0;">
+                        <h2>Limitations of the Data Sources</h2>
+                        <p class="text-normal">The interactive map is fully functional, but several limitations warrant careful consideration of findings. 
+                            The main concern lies in the quality and completeness of the natural assets dataset, which relies heavily on OpenStreetMap contributions and is thus susceptible to input errors. 
+                            Since some indicators are also sourced from OpenStreetMap, they inherit similar limitations.</p>
+                        <p class="text-normal">To reduce reliance on precise boundaries, future versions could adopt a more abstract data format, such as grids or point-based representations. 
+                            Indicator quality could also be enhanced by incorporating more curated datasets. 
+                            If OpenStreetMap remains a core source, improvements could come from more advanced queries and higher-resolution data.</p>
+                        <p class="text-normal">While shape aggregation improved usability and readability, it also resulted in the loss of detailed attributes (e.g., names, Wikipedia links). 
+                            Asset naming remains a challenge, but automated approaches based on dominant features and location could help assign meaningful names.</p>
+                    </div>
+                    
+                    <div style="flex: 1; min-width: 0;">
+                        <h2>Network Representation</h2>
+                        <p class="text-normal"> While isochrones are generated using the TravelTime API based on rail travel time, the underlying station and track data used by the API are not publicly disclosed. 
+                            In contrast, the network graph and route visualizations in this project are independently constructed using railway and station data extracted from OpenStreetMap. 
+                            As a result, there may be discrepancies between the isochrone coverage and the network visualization. Additionally, some minor stations or track segments may be missing from OSM, or their positional inaccuracies may lead to mismatches in the inferred rail connectivity. 
+                            These limitations introduce a degree of uncertainty into the route calculations and network representations.</p>
+                    </div>
+                
+                    <div style="flex: 1; min-width: 0;">
+                        <h2>Limitations Arising from the Tool’s Scope</h2>
+                        <p class="text-normal">Like many targeted tools, our solution is not fully independent from traditional trip planning methods. The isochrone feature, for instance, only supports rail and limited walking, excluding key modes such as buses. These omissions are due to time and scope constraints. However, for future or commercial applications, the tool would need to support all major transport modes and enable multimodal interchanges.
                         </p>
                     </div>
+                    
+                </div>
             </section>
             <section id="section10" class="landing-slide">
-                <div class="landing-textbox">
-                    <h1 class="text-title">Authors</h1>
-                    <p class="text-normal">Placeholder text:
-                        </p>
+                <h1 class="text-title" style="margin-top: 5%; margin-left: 10%;">Authors</h1>
+                <div class="methodology-columns" style=" margin-left: 10%; margin-top: 40px; display: flex; flex-direction: row; justify-content: left; width: 80%; gap: 30px;">
+                    <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
+                        <h2>Anna Saveleva</h2>
+                        <p class="text-normal" style="margin-top: 0px;">Pen portrait TBC</p>
+                        <p class="text-normal" style="margin-top: 0px;">Contact me: <a href="https://www.linkedin.com/in/anna-saveleva/" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></p>
                     </div>
+                    <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
+                        <h2>Yale Lu</h2>
+                        <p class="text-normal" style="margin-top: 0px;">Pen portrait TBC</p>
+                        <p class="text-normal" style="margin-top: 0px;">Contact me: <a href="https://www.linkedin.com/in/anna-saveleva/" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></p>
+                    </div>
+                    <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
+                        <h2>Yaqi Cui</h2>
+                        <p class="text-normal" style="margin-top: 0px;">Pen portrait TBC</p>
+                        <p class="text-normal" style="margin-top: 0px;">Contact me: <a href="https://www.linkedin.com/in/anna-saveleva/" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></p>
+                    </div>
+                </div>
             </section>
             
         </div>

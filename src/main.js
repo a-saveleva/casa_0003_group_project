@@ -170,7 +170,7 @@ map.on('load', async function() {
 
     // ADDING CHART WITH D3
     const labels = ['Best Overall', 'Hiking', 'Cycling', 'Birdwatching', 'Seaside', 'Camping', 'Geodiversity'];
-    const width = 500;
+    const width = 490;
     const height = 250;
     const margin = { top: 60, right: 0, bottom: 80, left: 30 };
 
@@ -229,14 +229,25 @@ map.on('load', async function() {
     // Add the first line of text
     chartTextElement.append("tspan")
         .attr("x", width / 2)
-        .attr("dy", -15)  // No vertical offset for the first line
-        .text("3. Hover over a green space to see how well it serves");
+        .attr("dy", -25)  // No vertical offset for the first line
+        .text("3. Hover over a natural asset to see")
+        .attr("class", "text-normal")
+        .style("font-weight", 700);
 
     // Add the second line of text
     chartTextElement.append("tspan")
         .attr("x", width / 2)
         .attr("dy", "1.2em")  // Vertical offset to push the second line below the first
-        .text("various activities and/or select category of interest");
+        .text(" how well it serves various activities")
+        .attr("class", "text-normal")
+        .style("font-weight", 700);
+
+    chartTextElement.append("tspan")
+        .attr("x", width / 2)
+        .attr("dy", "1.2em")  // Vertical offset to push the second line below the first
+        .text("and/or select category of interest")
+        .attr("class", "text-normal")
+        .style("font-weight", 700);
     
     let chartPlaceName;    
     // Add text to hold the place name at the top of the chart
@@ -246,7 +257,7 @@ map.on('load', async function() {
         .attr("text-anchor", "left")  // Center the text horizontally
         .attr("alignment-baseline", "middle")  // Align text vertically at the middle
         .attr("class", "text-title")  // Apply the CSS class
-        .text("No green space selected");  // Default text 
+        .text("No asset selected");  // Default text 
 
     // Retrieve CSS root styles once
     // Helper function to get the color for a specific category
