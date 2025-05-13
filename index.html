@@ -138,48 +138,65 @@
             <section id="section7" class="landing-slide">
                 <div id="map"></div>      
                 <div class="left-bar">
-                    <div class="controls-internal">
-                        <h1 class="text-title" style="margin-top: 5px;">Natural assets map</h1>
-                        <p class="text-normal">Follow the instructions on the page and explore accessible natural assets in Great Britain.
-                        </p>
+                    <div class="controls-internal" style="height: 10px">
+                        <h1 class="text-title" style="margin-top: 0px; margin-bottom: 0px;">Map of natural assets</h1>
                     </div>
-
                     <div id="controls" class="text-normal">
-                        <div class="controls-internal">
-                            <div style="font-weight: 700; line-height: 22px;">1. Select the time you wish to travel</div>
-                            <input type="range" id="timeRange" min="5" max="240" step="5" value="60">
-                            <div><span id="timeValue">60 minutes</span></div>
-                            </div>
-                    
-                        <div class="controls-internal">
-                            <div style="font-weight: 700; line-height: 22px;">2. Drag the marker to select origin</div>
-                            <div id="originStation" class="text-normal" style="font-size: 12px; margin-top: 5px;">
-                                Station closest to selected origin: <span id="originStationName">None selected</span>
-                            </div>
+                        <div class="controls-internal" style="padding-top: 13px;">
+                            <div class="legend-item" style="margin-bottom: 5px; font-weight: 800;">Follow instructions</div>
+                            <p class="legend-item" style="margin-top: 0px;">Follow the prompts below and explore accessible natural assets in Great Britain.
+                            </p>
                         </div>
-                        <div class="controls-internal">
+                        <div class="controls-internal" style="padding-top: 13px;">
+                            <div class="legend-item" style="margin-bottom: 5px; font-weight: 800;">Or roll the dice</div>
+                            <p class="legend-item" style="margin-top: 0px;">to select random travel time and origin.
+                            </p>
+                            <button class="dice-button" id="randomizer-button">
+                                <i class="fas fa-dice"></i>
+                            </button>
+                        </div>
+                        <div class="controls-internal" style = "flex: 1.2;">
                             <div class="legend" >
-                                <div class="text-normal" style="margin-bottom: 10px;">Legend</div>
+                                <div class="legend-item" style="margin-bottom: 10px; font-weight: 800;">Map legend</div>
                                 <div class="legend">
                                     <div class="legend-item" style="line-height: 15px;">
                                         <div class="legend-color" style="background-color: #67b1ee;"></div>
-                                        <span>Reachable area</span>
+                                        <span>Area reachable by rail</span>
                                     </div>
                                     <div class="legend-item">
                                         <div class="legend-color" style="background-color: #afcca0;"></div>
                                         <span>National Parks</span>
                                     </div>
-                                    <div class="legend-item">
-                                        <div class="legend-color" style="background-color: #FF3C38;"></div>
-                                        <span>Natural assets classified by their score:</span>
+                                    <div class="legend-item" style="position: relative;">
+                                        <div class="legend-color gradient" style="height: 45px; border-radius: 0; margin-left: 10px;"></div>
+                                        <span id="legend-category-text">Natural assets classified by their score: Best Overall</span>
+                                        <div class="gradient-labels">
+                                            <span class="label-top">1</span>
+                                            <span class="label-bottom">0</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
                     </div>
 
-                    <div id="chart" class="text-highlight"></div>
+                    <div id="controls" class="text-normal">
+                        <div class="controls-internal" style = "flex: 0.6;">
+                            <div style="font-weight: 700; line-height: 22px;">1. Select the time you wish to travel</div>
+                            <input type="range" id="timeRange" min="5" max="240" step="5" value="60">
+                            <div style="margin-top: -8px;"><span id="timeValue">60 minutes</span></div>
+                            </div>
+                    
+                        <div class="controls-internal">
+                            <div style="font-weight: 700; line-height: 22px;">2. Drag the marker</div> -->
+                            <!-- <div id="geocoder-container"></div> -->
+                            <div id="originStation" class="text-normal" style="font-size: 12px; margin-top: 5px;">
+                                Station closest to selected origin: <span id="originStationName">None selected</span>
+                            </div>
+                        </div>               
+                    </div>
+
+                    <div id="chart" class="text-highlight"></div> -->
 
                 </div>
 

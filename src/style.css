@@ -181,25 +181,34 @@ input[type="range"] {
     /* padding-top: 10px; */
 }
 .legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-    font-family: var(--text-normal-font);
-    font-size: 12px;
-    color: var(--text-normal-color);
-    line-height: var(--text-normal-line-height);
-    font-weight: var(--text-normal-weight);
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  font-family: var(--text-normal-font);
+  font-size: 12px;
+  color: var(--text-normal-color);
+  line-height: var(--text-normal-line-height);
+  font-weight: var(--text-normal-weight);
 }
 .legend-color {
-    width: 10px;
-    height: 10px;
-    margin-right: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  margin-right: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  z-index: 10;
 }
-.mapboxgl-popup {
-    max-width: 200px;
-    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+.gradient-labels {
+position: absolute;
+top: 0;
+left: 0px;
+width: 5%;
+height: 100%;
+display: flex;
+flex-direction: column;
+justify-content: space-between; /* Distribute labels at the top and bottom */
+pointer-events: none; /* Prevent labels from interfering with interactions */
+font-size: 10px;
 }
 .debug-info {
     position: absolute;

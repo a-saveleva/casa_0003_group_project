@@ -264,6 +264,41 @@ map.on('load', async function() {
     function getCategoryColor(category) {
         return rootStyles.getPropertyValue(`--colour-${category.toLowerCase().replace(/\s+/g, '-')}`).trim();
     }
+    // Function to get top and bottom colors for a category
+    function getCategoryColors(category) {
+        const top = rootStyles.getPropertyValue(`--colour-${category}-top`).trim();
+        const bottom = rootStyles.getPropertyValue(`--colour-${category}-bot`).trim();
+        return { top, bottom };
+    }
+
+    // Function to generate stops interpolating between bottom and top color
+    function generateStopsFromCSS(category, steps = 5) {
+        const { top, bottom } = getCategoryColors(category);
+        const interpolator = d3.interpolateRgb(bottom, top); // interpolate from bot to top
+
+        return Array.from({ length: steps + 1 }, (_, i) => {
+            const t = i / steps;
+            return [t, interpolator(t)];
+        }).flat();
+    }
+
+    // Generate stops dynamically for each category
+    const stops_bestoverall = generateStopsFromCSS("best-overall");
+    const stops_hiking = generateStopsFromCSS("hiking");
+    const stops_cycling = generateStopsFromCSS("cycling");
+    const stops_camping = generateStopsFromCSS("camping");
+    const stops_birdwatching = generateStopsFromCSS("birdwatching");
+    const stops_geodiversity = generateStopsFromCSS("geodiversity");
+    const stops_coast = generateStopsFromCSS("seaside");
+
+    // Update legend gradient dynamically
+    function updateLegendGradient(category) {
+        const legendGradient = document.querySelector('.legend-color.gradient');
+        if (!legendGradient) return;
+        const { top, bottom } = getCategoryColors(category);
+        legendGradient.style.backgroundImage = `linear-gradient(to top, ${bottom}, ${top})`;
+    }
+    updateLegendGradient("best-overall");
 
     // Add buttons on top of x-axis ticks
     xAxisGroup.selectAll(".tick")
@@ -354,32 +389,6 @@ map.on('load', async function() {
             rootStyles.getPropertyValue('--colour-geodiversity').trim()
         ]);   
 
-    // Function to get top and bottom colors for a category
-    function getCategoryColors(category) {
-        const top = rootStyles.getPropertyValue(`--colour-${category}-top`).trim();
-        const bottom = rootStyles.getPropertyValue(`--colour-${category}-bot`).trim();
-        return { top, bottom };
-    }
-
-    // Function to generate stops interpolating between bottom and top color
-    function generateStopsFromCSS(category, steps = 5) {
-        const { top, bottom } = getCategoryColors(category);
-        const interpolator = d3.interpolateRgb(bottom, top); // interpolate from bot to top
-
-        return Array.from({ length: steps + 1 }, (_, i) => {
-            const t = i / steps;
-            return [t, interpolator(t)];
-        }).flat();
-    }
-
-    // Generate stops dynamically for each category
-    const stops_bestoverall = generateStopsFromCSS("best-overall");
-    const stops_hiking = generateStopsFromCSS("hiking");
-    const stops_cycling = generateStopsFromCSS("cycling");
-    const stops_camping = generateStopsFromCSS("camping");
-    const stops_birdwatching = generateStopsFromCSS("birdwatching");
-    const stops_geodiversity = generateStopsFromCSS("geodiversity");
-    const stops_coast = generateStopsFromCSS("seaside");
 
     // fill layer for natural assets. Default pallette shows best overall green spaces
     requestAnimationFrame(() => {
