@@ -419,34 +419,50 @@ map.on('load', async function() {
             },
             });
       });
+    // const rootStyles = getComputedStyle(document.documentElement);
+    const highlightColor = rootStyles.getPropertyValue('--navbar-highlight-colour').trim();
+    map.addLayer({
+        id: 'greenspace-zoomedline',
+        type: 'line',
+        source: 'natural_assets',
+        'source-layer': 'natural_assets_2-9ukio1',
+        filter: ['==', 'fid', ''],
+        paint: {
+            "line-width": 5,
+            "line-color": highlightColor,
+            // "line-opacity": 1,
+            "line-offset": -2,
+        },
+    });      
 
-    // // hover greenspace (on top of default)
+    // hover greenspace (on top of default)
+    map.addLayer({ 
+        id: 'greenspace-fill-hover',
+        type: 'line',
+        source: 'natural_assets',
+        'source-layer': 'natural_assets_2-9ukio1',
+        filter: ['==', 'fid', ''],
+        paint: {
+            "line-width": 5,
+            "line-color": "#5fd2ff",
+            "line-opacity": 0,
+            "line-offset": -2,
+        },
+    }, 'greenspace-fill-default');
+
     // map.addLayer({ 
     //     id: 'greenspace-fill-hover',
     //     type: 'line',
     //     source: 'natural_assets',
     //     'source-layer': 'natural_assets_2-9ukio1',
-    //     filter: ['==', 'fid', ''],
     //     paint: {
+    //         "line-blur": 0.8,
     //         "line-width": 5,
     //         "line-color": "#5fd2ff",
     //         "line-opacity": 0,
     //         "line-offset": -2
     //     },
     // }, 'greenspace-fill-default');
-    map.addLayer({ 
-        id: 'greenspace-fill-hover',
-        type: 'line',
-        source: 'natural_assets',
-        'source-layer': 'natural_assets_2-9ukio1',
-        paint: {
-            "line-blur": 0.8,
-            "line-width": 5,
-            "line-color": "#5fd2ff",
-            "line-opacity": 0,
-            "line-offset": -2
-        },
-    }, 'greenspace-fill-default');
 
     // Select the first button (Best Overall) by default
     const firstButton = d3.select(".chart-button");
@@ -483,9 +499,7 @@ map.on('load', async function() {
             if (fid !== undefined && fid !== null) {
                 hoveredGreenspaceId = fid;
                 map.setFilter('greenspace-fill-hover', ['==', 'fid', hoveredGreenspaceId]);
-                map.setPaintProperty('greenspace-fill-hover', 'line-opacity', 1); // Highlight the hovered green space
-    
-            
+                map.setPaintProperty('greenspace-fill-hover', 'line-opacity', 1); // Highlight the hovered green space    
         }
             // Hide the chart prompt text on mousemove
             if (chartTextElement) {chartTextElement.style("opacity", 0);}
@@ -550,16 +564,14 @@ map.on('load', async function() {
     map.on('click', 'greenspace-fill-default', (e) => {
         if (e.features.length > 0) {
             const feature = e.features[0]; // Get the clicked feature
-            const coordinates = turf.center(feature).geometry.coordinates; // Get the center of the feature
-    
-            // Zoom to the feature
-            map.flyTo({
-                center: coordinates,
-                zoom: 14, // Adjust the zoom level as needed
-                essential: true // This ensures the animation is user-friendly
+            const bounds = turf.bbox(feature);
+            map.fitBounds(bounds, {
+                padding: 50, // Add padding around the feature
+                maxZoom: 14, // Set a maximum zoom level
+                duration: 1000 // Animation duration in milliseconds
             });
-    
             console.log("Zooming to feature:", feature.properties?.name || "Unnamed Feature");
+            map.setFilter('greenspace-zoomedline', ['==', 'fid', feature.properties.fid]);
         }
     });
 
