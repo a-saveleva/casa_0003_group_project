@@ -691,6 +691,48 @@ map.on('load', async function() {
         updateIsochrone(travelTime, originCoords);  // 原有等时线功能保留
         updateDebugInfo();
     });
+
+    const button = document.getElementById('randomizer-button');
+    document.getElementById('randomizer-button').addEventListener('click', () => {
+        // Generate a random travel time between 5 and 240 minutes
+        const randomTime = Math.floor(Math.random() * (240 - 15 + 1)) + 15;
+    
+        // Update the slider value and the displayed time
+        timeRange.value = randomTime;
+        document.getElementById('timeValue').textContent = `${randomTime} minutes`;
+
+        const stationFeatures = map.querySourceFeatures('stations', { 
+            sourceLayer: '505network_nodes-bv54ia'
+        });
+    
+        if (stationFeatures.length > 0) {
+            const randomStation = stationFeatures[Math.floor(Math.random() * stationFeatures.length)];
+            
+            const randomCoords = randomStation.geometry.coordinates;
+            originMarker.setLngLat(randomCoords); // Move the marker to the random station
+            originCoords = originMarker.getLngLat();
+            map.flyTo({
+                center: randomCoords, // Coordinates of the marker
+                zoom: 9, 
+                essential: true, // Ensures the animation is user-friendly
+                offset: [window.innerWidth / 8, 0]
+            });
+    
+            closestStationName = getStationIdentifier(randomStation);
+            document.getElementById("originStationName").textContent = closestStationName;
+    
+            // Update the isochrone with the new travel time and coordinates
+            const travelTime = randomTime * 60;
+            updateIsochrone(travelTime, originCoords);
+    
+            console.log(`Random station selected: ${closestStationName}`);
+        } else {
+            console.warn("No stations found in the source layer.");
+        }
+    });
+
+    button.addEventListener('mouseover', function () {this.style.border = '3px solid grey';});
+    button.addEventListener('mouseout', function () {this.style.border = '1px solid grey';});
     
     // 6. 绿地悬停效果
     async function findClosestStationToGreenSpace(greenSpaceId) {
