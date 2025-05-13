@@ -1,25 +1,333 @@
-import mapboxgl from 'mapbox-gl';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Map + D3 Bubble Chart (Force Labels + Colored Axes)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <!-- Mapbox GL -->
+  <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet"/>
+  <!-- D3 -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    html, body { margin:0; padding:0; overflow:hidden; font-family:sans-serif; }
+    #map { position:absolute; top:0; bottom:0; width:100%; }
+    #controls {
+      position:absolute; bottom:38%; left:10px; z-index:11;
+      background:transparent; padding:6px; border-radius:6px;
+      display:flex; flex-wrap:wrap; gap:4px;
+    }
+    .city-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 2px solid #458fb8;
+  background: transparent;
+  color: #4185a9;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
-import * as d3 from 'd3';
+.city-btn:hover {
+  background: rgba(62, 99, 201, 0.1);
+}
 
-let scrollStage = 0;        // 当前第几幕
-let scrollDistance = 0;     // 当前卡片已上浮的像素距离
-const scrollThreshold = 2000; // 每张卡片完全上浮所需的总距离（例如 8次×20）
-const perScrollStep = 200;    
-// 每次滚轮滑动卡片移动距离
-let sortedFeatures = [];
-let greenAssets = [];
+.city-btn.active {
+  background: #4ea4cf;
+  color: white;
+  border: 2px solid #4ea4cf;
+}
 
-async function loadData() {
- 
+    #bubble-chart {
+      position:absolute; bottom:0; left:0;
+      width:100%; height:38%; z-index:10;
+      background:transparent;
+    }
+    #radial-chart {
+      position:absolute;
+      bottom:65%;
+      left:25px;
+      width:320px;
+      height:320px;
+      background:transparent;
+      z-index:12;
+    }
+    #tooltip {
+      position:absolute; pointer-events:none;
+      padding:4px 6px; background:rgba(0,0,0,0.7);
+      color:#fff; border-radius:4px; font-size:12px;
+      visibility:secondmap; z-index:9999;
+    }
+    #layer-toggle {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  background: #89b6cf;
+  color: white;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  z-index: 999;
+  font-family: sans-serif;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
 
-  const greenRes = await fetch('/green_assets.json');
-  greenAssets = await greenRes.json();
+.layer-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
 
-  console.log('✅ 数据加载完毕:', sortedFeatures.length, greenAssets.length);
+.layer-item label {
+  cursor: pointer;
+}
+
+#layer-toggle input[type="checkbox"] {
+  margin-right: 6px;
+  transform: scale(1.1);
+  accent-color: white;  /* ✅ 让 checkbox 是白色勾选 */
+}
+
+/* 图例样式 */
+.legend {
+  width: 22px;
+  height: 12px;
+  display: inline-block;
+  position: relative;
+}
+
+/* 🚆 Rail: 两白点 + 一条白线 */
+.legend.rail::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: white;
+  transform: translateY(-10%);
+}
+.legend.rail::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  background: white;
+  transform: translateY(+40%);
+  border-radius: 50%;
+  box-shadow: calc(100% + 12px) 0 white;
+}
+
+/* 🌿 Green: 绿色圆+白边 */
+.legend.green::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 10px;
+  height: 10px;
+  background: #3EA46E;
+  border: 2px solid white;
+  border-radius: 50%;
+}
+#background-image {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image: url('train.png');
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+#intro-cover {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(121, 167, 199, 0.7);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 1s ease;
+}
+
+.intro-text {
+  font-size: 20px;
+  color: white;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 20px 30px;
+  border-radius: 10px;
+}
+#activity-bubbles {
+  position: absolute;
+  top: 8%; left: -25%;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none; /* 保证下方地图仍可交互 */
+}
+#bubble-title {
+  position: absolute;
+  top: 10%; left: 3;
+  width: 100%;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  opacity: 0;
+  animation: fadein 2s ease forwards;
+}
+
+@keyframes fadein {
+  to { opacity: 1; }
+}
+#activity-lines {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+#activity-chart {
+  width: 100%;
+  height: 100%;
+}
+.legend.iso {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 5px;  
+  margin-right: 8px;
+}
+
+.iso-30  { background-color: #c3b602; }
+.iso-60  { background-color: #d49c03; }
+.iso-90  { background-color: #ca6104; }
+.iso-120 { background-color: #af023c; }
+
+#map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+    #card-container {
+      position: absolute;
+      bottom: 5%;
+      left: 50%;
+      
+      transform: translateX(-50%);
+      width: 100%;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    .card {
+      
+      position: absolute;
+      left: 75%;
+      transform: translateX(-50%);
+      font-family: 'Segoe UI', sans-serif;
+      color: #f0f0f0;  
+      width: 600px;
+      height: 130px;
+      background: #96b7c8;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+      text-align:left;
+        line-height: 1.3;             /* ✅ 增大行距 */
+       
+      font-size: 18px;
+      opacity: 0.8;
+      transition: transform 0.6s ease, opacity 0.6s ease, visibility 0s linear 1s;
+      border-radius: 0; 
+        border-top: 3px solid rgb(18, 90, 163);       /* ✅ 上白边 */
+        border-bottom: 1px solid rgb(18, 90, 163);    /* ✅ 下白边 */
+      pointer-events: auto;
+    }
+    .card strong {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.5;  
+  color: white;           /* ✅ 白色标题 */
+  margin-bottom: 5px;
 }
 
 
+
+  </style>
+</head>
+<body>
+  
+  <div id="map"></div>
+  <div id="activity-bubbles">
+  <div id="bubble-title">Top 10 Outdoor Adventures Brits Love</div>
+  </div>
+
+  <div id="intro-cover">
+  <div id="activity-lines">
+  <svg id="activity-chart" width="100%" height="100%"></svg>
+</div>
+
+</div>
+
+  <div id="controls"></div>
+  <div id="bubble-chart"></div>
+  <div id="radial-chart"></div>
+  
+  <div id="layer-toggle">
+  <div class="layer-item">
+    <span class="legend rail"></span>
+    <label><input type="checkbox" id="rail-toggle" checked> Rail</label>
+  </div>
+
+  <div class="layer-item">
+    <span class="legend green"></span>
+    <label><input type="checkbox" id="green-toggle" checked> Green Assets</label>
+  </div>
+  <div class="layer-item">
+    <span class="legend iso iso-30"></span>
+    <label><input type="checkbox" value="30min" checked> 30 min </label>
+  </div>
+  <div class="layer-item">
+    <span class="legend iso iso-60"></span>
+   <label><input type="checkbox" value="60min" checked> 60 min </label>
+  </div>
+  <div class="layer-item">
+    <span class="legend iso iso-90"></span>
+    <label><input type="checkbox" value="90min" checked> 90 min </label>
+  </div>
+  <div class="layer-item">
+    <span class="legend iso iso-120"></span>
+    <label><input type="checkbox" value="120min" checked> 120 min </label>
+  </div>
+
+
+</div>
+
+  <div id="tooltip"></div>
+ <div id="card-container"></div>
+
+
+
+
+
+</div>
+
+
+
+  <script>
+let scrollStage = 0;        // 当前第几幕
+let scrollDistance = 0;     // 当前卡片已上浮的像素距离
+const scrollThreshold = 2000; // 每张卡片完全上浮所需的总距离（例如 8次×20）
+const perScrollStep = 200;    // 每次滚轮滑动卡片移动距离
 
 const cards = document.querySelectorAll('.card');
 let activeCard = null;
@@ -65,13 +373,13 @@ window.addEventListener('scroll', () => {
   Edinburgh:   [-3.19, 55.95]      // ✅ 爱丁堡
 };
 
-  
+  let sortedFeatures = [];
   let recs;  // ✅ 全局变量声明
 
   // 1. 初始化 Mapbox
   mapboxgl.accessToken = 'pk.eyJ1IjoieWFsbGxlMDUwMyIsImEiOiJjbTZpMnpoYWkwNGNlMnFzaGg2OTZ6dWcwIn0.9crGea8A_PZB83mBnq1r2w';
-  const secondMap = new mapboxgl.Map({
-    container:'secondMap',
+  const map = new mapboxgl.Map({
+    container:'map',
     style:'mapbox://styles/yallle0503/cmahdvqg000xm01qy0m3v0y55',
     center:[-1.5,53.1],
     zoom:6.1,
@@ -88,50 +396,134 @@ window.addEventListener('scroll', () => {
   };
 
 
-  secondMap.on('load', async () => {
-   
+  map.on('load', async () => {
     
     // 2. 加载 GeoJSON 并绘制等时圈 / edges / stations
-secondMap.addSource('iso', {
-  type: 'vector',
-  url: 'mapbox://yallle0503.cwpwadpm'
+    const resp = await fetch('all_isochrone1.geojson');
+    const js   = await resp.json();
+    const feats = js.features.filter(f=>!f.properties.id.startsWith('Leeds'));
+
+    sortedFeatures = feats;
+    
+
+     map.addSource('iso', {
+      type:'geojson',
+      data:{ type:'FeatureCollection', features:sortedFeatures }
+     });
+    const durations = ['120min','90min','60min','30min'];
+    durations.forEach(dur => {
+      const ids = sortedFeatures
+        .filter(f=>f.properties.id.endsWith(dur))
+        .map(f=>f.properties.id);
+
+      map.addLayer({
+        id:`iso-fill-${dur}`, type:'fill', source:'iso',
+        filter:['match',['get','id'],ids,true,false],
+         paint:{ 'fill-color':colorMap[+dur.replace('min','')], 'fill-opacity':0.2 }
+      }, 'waterway-label');
+
+      map.addLayer({
+        id:`iso-line-${dur}`, type:'line', source:'iso',
+        filter:['match',['get','id'],ids,true,false],
+        paint:{ 'line-color':colorMap[+dur.replace('min','')], 'line-width':1.2, 'line-opacity':0.8 }
+      }, 'waterway-label');
+    })
+
+    map.addSource('edges',{type:'vector',url:'mapbox://yallle0503.9bgonzwv'});
+    map.addLayer({
+      id:'edges-line', type:'line', source:'edges', 'source-layer':'505network_edges-8juinw',
+      paint:{
+        'line-color':'#1e6bb3',
+        'line-width':['interpolate',['linear'],['zoom'],3,0.5,8,1,13,1.5],
+        'line-opacity':0.8
+      }
+    });
+
+    map.addSource('stations',{type:'vector',url:'mapbox://yallle0503.9g0hkfgi'});
+    map.addLayer({
+      id:'stations-circle', type:'circle', source:'stations', 'source-layer':'505network_nodes-bv54ia',
+      paint:{
+        'circle-color':'#1e6bb3',
+        'circle-radius':['interpolate',['linear'],['zoom'],4,0.25,6,1,13,4],
+        'circle-opacity':0.8,
+        'circle-stroke-width':0.8,
+        'circle-stroke-color': '#ffffff'   
+      }
+    });
+    fetch('green_assets_merged_avg_area.geojson')
+  .then(res => res.json())
+  .then(data => {
+    map.addSource('all-points', {
+      type: 'geojson',
+      data: data
+    });
+
+    map.addLayer({
+      id: 'all-points-layer',
+      type: 'circle',
+      source: 'all-points',
+      paint: {
+        'circle-radius':['interpolate',['linear'],['zoom'],4,1,6,1.8,13,3],
+        'circle-color': '#3EA46E',
+        'circle-stroke-color': '#fff',
+        'circle-stroke-width': 0.4
+      },
+      filter: ['==', '$type', 'Point']
+    });
+    
+// ✅ 图层添加后立刻隐藏
+    map.setLayoutProperty('all-points-layer', 'visibility', 'none');
+  });
+  //隐藏图层 
+  // ✅ 初始隐藏所有图层
+  map.setLayoutProperty('edges-line', 'visibility', 'none');
+  map.setLayoutProperty('stations-circle', 'visibility', 'none');
+
+  ['30min','60min','90min','120min'].forEach(dur => {
+    map.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'none');
+    map.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'none');
+  });
+  //开关
+  // 铁路图层开关
+document.getElementById('rail-toggle').addEventListener('change', function(e) {
+  const visible = e.target.checked ? 'visible' : 'none';
+  map.setLayoutProperty('edges-line', 'visibility', visible);
+  map.setLayoutProperty('stations-circle', 'visibility', visible);
 });
 
-['30min', '60min', '90min', '120min'].forEach(dur => {
-  const validIds = sortedFeatures
-    .filter(f => typeof f?.properties?.id === 'string' && f.properties.id.endsWith(dur))
-    .map(f => f.properties.id);
-
-  secondMap.addLayer({
-    id: `iso-fill-${dur}`,
-    type: 'fill',
-    source: 'iso',
-    'source-layer': 'all_isochrone1-de37z7',
-    filter: ['match', ['get', 'id'], validIds, true, false],  // ✅ 只传纯字符串
-    paint: {
-      'fill-color': colorMap[+dur.replace('min','')],
-      'fill-opacity': 0.2
-    }
-  }, 'waterway-label');
-
-  secondMap.addLayer({
-    id: `iso-line-${dur}`,
-    type: 'line',
-    source: 'iso',
-    'source-layer': 'all_isochrone1-de37z7',
-    filter: ['match', ['get', 'id'], validIds, true, false],  // ✅ 同样
-    paint: {
-      'line-color': colorMap[+dur.replace('min','')],
-      'line-width': 1.2,
-      'line-opacity': 0.8
-    }
-  }, 'waterway-label');
+// 绿色图层开关
+document.getElementById('green-toggle').addEventListener('change', function(e) {
+  const visible = e.target.checked ? 'visible' : 'none';
+  if (map.getLayer('all-points-layer')) {
+    map.setLayoutProperty('all-points-layer', 'visibility', visible);
+  }
 });
-//// ✅ 加载 sortedFeatures 和构建 recs（从 json 文件加载）
-const isoRes = await fetch('./all_isochrone1.json');
-sortedFeatures = await isoRes.json();
 
-// ✅ 构造 recs（用于气泡图）
+
+    // 5) 鼠标 hover 城市时高亮对应等时圈
+    durations.forEach(dur => {
+      map.on('mousemove', `iso-fill-${dur}`, handleHover);
+      map.on('mouseleave', `iso-fill-${dur}`, restoreAllLayers);
+    });
+
+    // 6) 图层开关（保持原样）
+    document.querySelectorAll('#layer-toggle input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const fillId = `iso-fill-${cb.value}`;
+        const lineId = `iso-line-${cb.value}`;
+        const vis = cb.checked ? 'visible' : 'none';
+        if (map.getLayer(fillId)) map.setLayoutProperty(fillId,'visibility',vis);
+        if (map.getLayer(lineId)) map.setLayoutProperty(lineId,'visibility',vis);
+      });
+    });
+
+  
+    
+  // 在这里添加
+  d3.select('#controls').style('display', 'none');      // 城市按钮
+  d3.select('#layer-toggle').style('display', 'none'); // 图层选择框
+
+// ✅ 构造 recs 数据（在 map.on('load') 内）
 recs = sortedFeatures.map(f => {
   const [city, dRaw] = f.properties.id.split('_');
   const dur = +dRaw.replace('min', '');
@@ -146,130 +538,8 @@ recs = sortedFeatures.map(f => {
 
 
 
-
-    secondMap.addSource('edges',{type:'vector',url:'mapbox://yallle0503.9bgonzwv'});
-    secondMap.addLayer({
-      id:'edges-line', type:'line', source:'edges', 'source-layer':'505network_edges-8juinw',
-      paint:{
-        'line-color':'#1e6bb3',
-        'line-width':['interpolate',['linear'],['zoom'],3,0.5,8,1,13,1.5],
-        'line-opacity':0.8
-      }
-    });
-
-    secondMap.addSource('stations',{type:'vector',url:'mapbox://yallle0503.9g0hkfgi'});
-    secondMap.addLayer({
-      id:'stations-circle', type:'circle', source:'stations', 'source-layer':'505network_nodes-bv54ia',
-      paint:{
-        'circle-color':'#1e6bb3',
-        'circle-radius':['interpolate',['linear'],['zoom'],4,0.25,6,1,13,4],
-        'circle-opacity':0.8,
-        'circle-stroke-width':0.8,
-        'circle-stroke-color': '#ffffff'   
-      }
-    });
-secondMap.addSource('all-points', {
-  type: 'vector',
-  url: 'mapbox://yallle0503.7lo41qw4'
-});
-
-secondMap.addLayer({
-  id: 'all-points-layer',
-  type: 'circle',
-  source: 'all-points',
-  'source-layer': 'green_assets_merged_avg_area-bc44su',
-  paint: {
-    'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 1, 6, 1.8, 13, 3],
-    'circle-color': '#3EA46E',
-    'circle-stroke-color': '#fff',
-    'circle-stroke-width': 0.4
-  }
-  });
-//
-
-   // ✅ 图层添加后立即隐藏
-  secondMap.setLayoutProperty('all-points-layer', 'visibility', 'none');
-  secondMap.setLayoutProperty('edges-line', 'visibility', 'none');
-  secondMap.setLayoutProperty('stations-circle', 'visibility', 'none');
-  ['30min','60min','90min','120min'].forEach(dur => {
-    secondMap.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'none');
-    secondMap.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'none');
-  });
-
-  // ✅ 所有图层控制按钮放这里
-  document.getElementById('rail-toggle').addEventListener('change', function(e) {
-    const visible = e.target.checked ? 'visible' : 'none';
-    secondMap.setLayoutProperty('edges-line', 'visibility', visible);
-    secondMap.setLayoutProperty('stations-circle', 'visibility', visible);
-  });
-
-  document.getElementById('green-toggle').addEventListener('change', function(e) {
-    const visible = e.target.checked ? 'visible' : 'none';
-    if (secondMap.getLayer('all-points-layer')) {
-      secondMap.setLayoutProperty('all-points-layer', 'visibility', visible);
-    }
-  });
-}) // ✅ 这才是真正完整的 .on('load') 结束位置
-
-secondMap.setLayoutProperty('all-points-layer', 'visibility', 'none');
-// ✅ 图层添加后立刻隐藏
-    secondMap.setLayoutProperty('all-points-layer', 'visibility', 'none');
-
-  //隐藏图层 
-  // ✅ 初始隐藏所有图层
-  secondMap.setLayoutProperty('edges-line', 'visibility', 'none');
-  secondMap.setLayoutProperty('stations-circle', 'visibility', 'none');
-
-  ['30min','60min','90min','120min'].forEach(dur => {
-    secondMap.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'none');
-    secondMap.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'none');
-  });
-  //开关
-  // 铁路图层开关
-document.getElementById('rail-toggle').addEventListener('change', function(e) {
-  const visible = e.target.checked ? 'visible' : 'none';
-  secondMap.setLayoutProperty('edges-line', 'visibility', visible);
-  secondMap.setLayoutProperty('stations-circle', 'visibility', visible);
-});
-
-// 绿色图层开关
-document.getElementById('green-toggle').addEventListener('change', function(e) {
-  const visible = e.target.checked ? 'visible' : 'none';
-  if (secondMap.getLayer('all-points-layer')) {
-    secondMap.setLayoutProperty('all-points-layer', 'visibility', visible);
-  }
-});
-
-
-    // 5) 鼠标 hover 城市时高亮对应等时圈
-    durations.forEach(dur => {
-      secondMap.on('mousemove', `iso-fill-${dur}`, handleHover);
-      secondMap.on('mouseleave', `iso-fill-${dur}`, restoreAllLayers);
-    });
-
-    // 6) 图层开关（保持原样）
-    document.querySelectorAll('#layer-toggle input[type=checkbox]').forEach(cb => {
-      cb.addEventListener('change', () => {
-        const fillId = `iso-fill-${cb.value}`;
-        const lineId = `iso-line-${cb.value}`;
-        const vis = cb.checked ? 'visible' : 'none';
-        if (secondMap.getLayer(fillId)) secondMap.setLayoutProperty(fillId,'visibility',vis);
-        if (secondMap.getLayer(lineId)) secondMap.setLayoutProperty(lineId,'visibility',vis);
-      });
-    });
-
-  
-    
-  // 在这里添加
-  d3.select('#controls-panel').style('display', 'none');      // 城市按钮
-  d3.select('#layer-toggle').style('display', 'none'); // 图层选择框
-
-
-
-
-
 // ✅ 再生成城市按钮（必须在 recs 初始化后）
-const ctrl = d3.select('#controls-panel');
+const ctrl = d3.select('#controls');
 const cities = Array.from(new Set(recs.map(r => r.city)));
 cities.forEach(c => {
   ctrl.append('button')
@@ -280,7 +550,7 @@ cities.forEach(c => {
       d3.select(this).classed('active', true);
       filterCity(c);
       if (cityCoords[c]) {
-        secondMap.flyTo({
+        map.flyTo({
           center: cityCoords[c],
           zoom: 8.5,
           speed: 0.8,
@@ -306,10 +576,19 @@ scrollStage = 0;
 scrollDistance = 0;
 
 cardContainer.innerHTML = '';
-updateMapAndCard(scrollStage);
-showNewCard(scrollStage);
-setupScrollHandler(secondMap);
-  // ✅ 同步第一幕图层（轨道、车站等）
+showNewCard(scrollStage);         // ✅ 正确显示第一张卡片动画
+updateMapAndCard(scrollStage);   // ✅ 同步第一幕图层（轨道、车站等）
+
+
+});
+
+
+
+
+
+
+
+
   //文本
   function updateStoryBox(stage) {
   const box = document.getElementById('story-box');
@@ -551,7 +830,32 @@ svg.append('text')
       .attr('opacity', d=> city? (d.city===city?1:0.1):1 );
   }
 
-  
+  function handleHover(e){
+    map.getCanvas().style.cursor = 'pointer';
+    if(!e.features||!e.features.length) return;
+    const hoveredId = e.features[0].properties.id;
+    const cityPrefix = hoveredId.split('_')[0];
+    const idsToShow = sortedFeatures
+      .filter(f=>f.properties.id.startsWith(cityPrefix))
+      .map(f=>f.properties.id);
+    ['30min','60min','90min','120min'].forEach(dur=>{
+      const showIds = idsToShow.filter(id=>id.endsWith(dur));
+      map.setFilter(`iso-fill-${dur}`, ['match',['get','id'],showIds,true,false]);
+      map.setFilter(`iso-line-${dur}`, ['match',['get','id'],showIds,true,false]);
+    });
+  }
+
+  function restoreAllLayers(){
+    map.getCanvas().style.cursor = '';
+    ['30min','60min','90min','120min'].forEach(dur=>{
+      const ids = sortedFeatures
+        .filter(f=>f.properties.id.endsWith(dur))
+        .map(f=>f.properties.id);
+      map.setFilter(`iso-fill-${dur}`, ['match',['get','id'],ids,true,false]);
+      map.setFilter(`iso-line-${dur}`, ['match',['get','id'],ids,true,false]);
+    });
+  }
+  let introCleared = false;
 
 
   const activityData = [
@@ -764,168 +1068,174 @@ let scrollCount = 0;
 // ✅ 放在你的 main.js 或 <script> 上部
 const cardContainer = document.getElementById('card-container');
 const textData = [
-  "🚆 Britain's rail system is among the densest in Europe. Trains link cities with remarkable speed and frequency—laying the foundation for exploring green spaces near and far.",
-  "⏱️ 30-minute Accessibility",
-  "⏱️ 60-minute Expansion",
-  "⏱️ 90-minute Reach",
-  "⏱️ 120-minute Full Ring",
-  "📊 Compare with Bubble Chart",
-  "📍 Fly to London",
-  "📍 Fly to Glasgow",
-  "📍 Back to National View"
-];
-const maxStage = textData.length - 1;  //
+  `🚆 Britain's rail system is among the densest in Europe.\nTrains link cities with remarkable speed and frequency—laying the foundation for exploring green spaces near and far.`,
+  `⏱️ 30-minute Accessibility
+  Starting from major central train stations in cities like London, Manchester, Birmingham, and Edinburgh, we examine areas reachable within 30 minutes by rail. Despite London's extensive urban footprint and network, its 30-minute isochrone covers a smaller area than other cities.`,
+  `⏱️ 60-minute Expansion
+  The one-hour rail isochrone begins to reveal London's advantage as a national railway hub, with extensive connectivity to surrounding towns and a high density of accessible stations in all directions.`,
+  `⏱️ 90-minute Reach
+  Within 90 minutes, most of these major cities become interconnected by rail, enabling easy travel not only between urban centres but also to the natural and rural landscapes along the way.`,
+  `⏱️ 120-minute Full Ring
+  At the 120-minute mark, accessibility extends well beyond inland landscapes—coastal areas and beaches also come within reach, inviting exploration of both forests and seaside escapes.`,
+  `The green dots on the map represent accessible green assets reachable within two hours, most of which can be directly accessed via a combination of train and walking. Hovering over any city reveals its corresponding isochrone rings, highlighting the extent of its green space reachability.`,
+  `The bubble chart shows the number and total area of green assets accessible from each city. London leads in both metrics, highlighting its exceptional green connectivity. Hover over any bubble to explore the types of green spaces available at each time interval.` ,
+  `While Edinburgh itself has relatively limited rail-accessible green resources, it enjoys strong connectivity with Glasgow, allowing for extensive shared access to green assets across the two cities.`,
+  `This map reveals the limitless potential of experiencing nature by train — a journey that is green, effortless, and just one ticket away from a world of rich and diverse landscapes.`
+ ];
+
+const maxStage = textData.length ;  // ✅ scrollStage 从 0 到 9 都允许
+
+
 
  
-
-
-
-  function handleWheel(e) {
-  const now = Date.now();
-  if (now - lastScrollTime < 300) return;  // 节流
-  lastScrollTime = now;
-
-  // ✅ 1. 处理 intro 阶段（淡出动画）
-  if (!introCleared) {
-    introCleared = true;
-    const cover = document.getElementById('intro-cover');
-    cover.style.opacity = '0';
-    document.getElementById('activity-bubbles').style.opacity = '0';
-    setTimeout(() => {
-      cover.style.display = 'none';
-      document.getElementById('activity-bubbles').remove();
-    }, 1000);
-    return;
-  }
-
-  // ✅ 2. 处理卡片滚动
-  if (scrollStage >= maxStage) {
-    window.removeEventListener('wheel', handleWheel);
-    const nextSection = document.querySelector('#section3');
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: 'smooth' });
-    }
-    return;
-  }
-
+window.addEventListener('wheel', function (e) {
   e.preventDefault();
   const direction = e.deltaY > 0 ? 1 : -1;
   scrollDistance += direction * perScrollStep;
+
+  // 防止 scrollDistance < 0，尤其在 stage === 0 时向上滚
   scrollDistance = Math.max(0, scrollDistance);
 
+  // ✅ 只更新“上一张卡片”
+  const allCards = document.querySelectorAll('.card');
+  allCards.forEach((card) => {
+    const cardStage = Number(card.getAttribute('data-stage'));
+    if (scrollDistance > scrollThreshold && scrollStage < maxStage) {
+  scrollStage++;
+  showNewCard(scrollStage);
+  updateMapAndCard(scrollStage);  // 同时更新地图
+  scrollDistance = 0;
+}
+if (cardStage === scrollStage -1 ) {
+      card.style.transform = `translate(-50%, -${scrollDistance}px)`;
+      card.style.opacity = 1 - (scrollDistance / scrollThreshold) * 0.8;
+    }
+  });
+
+  // ✅ 向下滑动：进入下一幕
   if (scrollDistance >= scrollThreshold && scrollStage < maxStage) {
     scrollDistance = 0;
     scrollStage++;
     updateMapAndCard(scrollStage);
     showNewCard(scrollStage);
+    scrollDistance = 0
   }
 
+  // ✅ 向上滑动：回到上一幕
   if (direction < 0 && scrollDistance === 0 && scrollStage > 0) {
     scrollStage--;
-    scrollDistance = scrollThreshold;
+    scrollDistance = scrollThreshold;  // ✅ 模拟上一张卡片还未浮出的状态
     updateMapAndCard(scrollStage);
     showNewCard(scrollStage);
   }
-
-  // 动画同步（上一张卡片浮动）
-  const allCards = document.querySelectorAll('.card');
-  allCards.forEach(card => {
-    const cardStage = Number(card.getAttribute('data-stage'));
-    if (cardStage === scrollStage - 1) {
-      card.style.transform = `translate(-50%, -${scrollDistance}px)`;
-      card.style.opacity = 1 - (scrollDistance / scrollThreshold) * 0.8;
-    }
-  });
-}
-
-
-
-
+}, { passive: false });
 
 function showNewCard(stage) {
+  if (stage === 0) return;  // ✅ 第一幕不显示卡片
+
+  const raw = textData[stage - 1];  // ✅ 正确映射：第 1 幕对应 textData[0]
+  if (!raw) return;
+
+  const [title, body = ''] = raw.split('\n');
   const newCard = document.createElement('div');
   newCard.className = 'card';
-  newCard.innerHTML = textData[stage] || `Stage ${stage}`;
+  newCard.innerHTML = `<strong>${title}</strong><div>${body}</div>`;
+
   newCard.style.transform = 'translate(-50%, 100vh)';
   newCard.style.opacity = 0;
-  newCard.style.visibility = 'hidden'; 
+  newCard.style.visibility = 'hidden';
   newCard.setAttribute('data-stage', stage);
-
   cardContainer.appendChild(newCard);
 
-  // 上浮动画
   setTimeout(() => {
-    newCard.style.visibility = 'visible';   
+    newCard.style.visibility = 'visible';
     newCard.style.transform = 'translate(-50%, 0px)';
     newCard.style.opacity = 1;
   }, 20);
 
-  // 清理旧卡片（保留 2 张以内）
   const all = document.querySelectorAll('.card');
-  if (all.length > 3) {
-    all[0].remove();
-  }
-  scrollDistance = 0;
+  if (all.length > 3) all[0].remove();
 
+  scrollDistance = 0;
 }
+
+
 
 
 function updateMapAndCard(stage) {
   // ✅ 统一清除旧图层
-secondMap.setLayoutProperty('edges-line', 'visibility', 'none');
-  secondMap.setLayoutProperty('stations-circle', 'visibility', 'none');
+map.setLayoutProperty('edges-line', 'visibility', 'none');
+  map.setLayoutProperty('stations-circle', 'visibility', 'none');
   ['30min','60min','90min','120min'].forEach(dur => {
-    secondMap.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'none');
-    secondMap.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'none');
+    map.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'none');
+    map.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'none');
   });
-  secondMap.setLayoutProperty('all-points-layer', 'visibility', 'none');
+  map.setLayoutProperty('all-points-layer', 'visibility', 'none');
   d3.select('#bubble-chart').style('display', 'none');
-  d3.select('#controls-panel').style('display', 'none');
+  d3.select('#controls').style('display', 'none');
   d3.select('#layer-toggle').style('display', 'none');
-//
-  const safeSet = (layerId, visibility = 'visible') => {
-  if (secondMap.getLayer(layerId)) {
-    secondMap.setLayoutProperty(layerId, 'visibility', visibility);
-  }
-};
 
   // ✅ 分幕控制地图和图层
-  if (stage === 0) {
-    secondMap.setLayoutProperty('edges-line', 'visibility', 'visible');
-    secondMap.setLayoutProperty('stations-circle', 'visibility', 'visible');
-    secondMap.jumpTo({  center: [-1.5, 53.1], zoom: 6.2  });
-
-  } else if (stage === 1) {
-    secondMap.setLayoutProperty('iso-fill-30min', 'visibility', 'visible');
-    secondMap.setLayoutProperty('iso-line-30min', 'visibility', 'visible');
-    secondMap.jumpTo({  center: [-1.5, 53.1], zoom: 6.2 });
-
-  } else if (stage === 2) {
-    secondMap.setLayoutProperty('iso-fill-60min', 'visibility', 'visible');
-    secondMap.setLayoutProperty('iso-line-60min', 'visibility', 'visible');
-    secondMap.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
+  if (stage === 2) {
+    map.setLayoutProperty('edges-line', 'visibility', 'visible');
+    map.setLayoutProperty('stations-circle', 'visibility', 'visible');
+    map.jumpTo({  center: [-1.5, 53.1], zoom: 6.2  });
 
   } else if (stage === 3) {
-    secondMap.setLayoutProperty('iso-fill-90min', 'visibility', 'visible');
-    secondMap.setLayoutProperty('iso-line-90min', 'visibility', 'visible');
-    secondMap.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
+    map.setLayoutProperty('iso-fill-30min', 'visibility', 'visible');
+    map.setLayoutProperty('iso-line-30min', 'visibility', 'visible');
+    map.jumpTo({  center: [-1.5, 53.1], zoom: 6.2 });
 
   } else if (stage === 4) {
-    secondMap.setLayoutProperty('iso-fill-120min', 'visibility', 'visible');
-    secondMap.setLayoutProperty('iso-line-120min', 'visibility', 'visible');
-    secondMap.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
+    map.setLayoutProperty('iso-fill-60min', 'visibility', 'visible');
+    map.setLayoutProperty('iso-line-60min', 'visibility', 'visible');
+    map.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
 
   } else if (stage === 5) {
+    map.setLayoutProperty('iso-fill-90min', 'visibility', 'visible');
+    map.setLayoutProperty('iso-line-90min', 'visibility', 'visible');
+    map.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
+
+  } else if (stage === 6) {
+    map.setLayoutProperty('iso-fill-120min', 'visibility', 'visible');
+    map.setLayoutProperty('iso-line-120min', 'visibility', 'visible');
+    map.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
+
+    
+  } else if (stage === 7) {
     ['30min','60min','90min','120min'].forEach(dur => {
-      secondMap.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'visible');
-      secondMap.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
+      map.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'visible');
+      map.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
     });
-    secondMap.setLayoutProperty('all-points-layer', 'visibility', 'visible');
-    secondMap.flyTo({ center: [-0.0076, 51.2072], zoom: 8.1 });
+    map.setLayoutProperty('all-points-layer', 'visibility', 'visible');
+    map.flyTo({ center: [-1.5, 53.1], zoom: 6.2 });
 
     setTimeout(() => {
       d3.select('#bubble-chart').style('display', 'block');
-      d3.select('#controls-panel').style('display', 'block');
+      d3.select('#controls').style('display', 'block');
+      d3.select('#layer-toggle').style('display', 'block');
+
+      setTimeout(() => {
+        drawBubbleChart(recs);
+        d3.selectAll('.city-btn').classed('active', false);
+        d3.select('#controls button').filter(function() {
+          return this.textContent === 'Show All';
+        }).classed('active', true);
+        filterCity(null);
+      }, 100);
+    }, 200);
+
+  } else if (stage === 8) {
+    ['30min','60min','90min','120min'].forEach(dur => {
+      map.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'visible');
+      map.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
+    });
+    map.setLayoutProperty('all-points-layer', 'visibility', 'visible');
+    map.flyTo({ center: [-0.0076, 51.2072], zoom: 8.1 });
+
+    setTimeout(() => {
+      d3.select('#bubble-chart').style('display', 'block');
+      d3.select('#controls').style('display', 'block');
       d3.select('#layer-toggle').style('display', 'block');
 
       setTimeout(() => {
@@ -940,20 +1250,20 @@ secondMap.setLayoutProperty('edges-line', 'visibility', 'none');
 
   
 
-  } else if (stage === 6) {
+  } else if (stage === 9) {
   // ✅ 重新开启所有等时圈
   ['30min','60min','90min','120min'].forEach(dur => {
-    secondMap.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'visible');
-    secondMap.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
+    map.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'visible');
+    map.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
   });
   
-  secondMap.setLayoutProperty('all-points-layer', 'visibility', 'visible');
+  map.setLayoutProperty('all-points-layer', 'visibility', 'visible');
 
-  secondMap.flyTo({ center: [-3.3518, 55.9642], zoom: 8.5 });
+  map.flyTo({ center: [-3.3518, 55.9642], zoom: 8.5 });
 
   setTimeout(() => {
     d3.select('#bubble-chart').style('display', 'block');
-    d3.select('#controls-panel').style('display', 'block');
+    d3.select('#controls').style('display', 'block');
     d3.select('#layer-toggle').style('display', 'block');
 
     setTimeout(() => {
@@ -965,20 +1275,20 @@ secondMap.setLayoutProperty('edges-line', 'visibility', 'none');
       filterCity(null);
     }, 100);
   }, 200);
-}else if (stage === 7) {
+}else if (stage === 10) {
   // ✅ 同样开启所有图层
   ['30min','60min','90min','120min'].forEach(dur => {
-    secondMap.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'visible');
-    secondMap.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
+    map.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'visible');
+    map.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
   });
   
-  secondMap.setLayoutProperty('all-points-layer', 'visibility', 'visible');
+  map.setLayoutProperty('all-points-layer', 'visibility', 'visible');
 
-  secondMap.flyTo({ center: [-1.5, 52.6], zoom: 6.1 });
+  map.flyTo({ center: [-1.5, 52.6], zoom: 6.1 });
 
   setTimeout(() => {
     d3.select('#bubble-chart').style('display', 'block');
-    d3.select('#controls-panel').style('display', 'block');
+    d3.select('#controls').style('display', 'block');
     d3.select('#layer-toggle').style('display', 'block');
 
     setTimeout(() => {
@@ -990,17 +1300,21 @@ secondMap.setLayoutProperty('edges-line', 'visibility', 'none');
       filterCity(null);
     }, 100);
   }, 200);
-  }else if (stage === maxStage) {
-  const nextSection = document.querySelector('#section3');
-  if (nextSection) {
-    setTimeout(() => {
-      nextSection.scrollIntoView({ behavior: 'smooth' });
-    }, 1000);
-  }
+  
 }
   
-window.addEventListener('wheel', handleWheel, { passive: false });
+}
 
-  
-}
-  
+
+
+
+
+
+
+
+
+
+
+  </script>
+</body>
+</html>

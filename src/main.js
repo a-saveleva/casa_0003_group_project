@@ -1142,5 +1142,3 @@ function animateLine(coordinates) {
 //
 
 
-
-
