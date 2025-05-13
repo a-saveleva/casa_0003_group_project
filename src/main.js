@@ -4,27 +4,24 @@ import * as d3 from 'd3';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 
-// ✅ 第一行先声明变量
+import { initSecondMap } from './initSecondMap.js';  // 如果你用了模块化
+
 let hasSecondMapInitialized = false;
 
-window.addEventListener('DOMContentLoaded', () => {
-  const section2 = document.getElementById('section2');
-  if (!section2) return;
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !hasSecondMapInitialized) {
+      hasSecondMapInitialized = true;  // ✅ 保证只执行一次
+      console.log('📍 Section 2 entered — calling initSecondMap()');
+      initSecondMap();                 // ✅ 初始化 section2 地图和动画
+      observer.disconnect();           // 解绑监听器，避免重复执行
+    }
+  });
+}, { threshold: 0.4 }); // 可以调整为 0.2~0.5，根据你页面布局
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting && !hasSecondMapInitialized) {
-        hasSecondMapInitialized = true;
+const section2 = document.getElementById('section2');
+if (section2) observer.observe(section2);
 
-        import('./section2_init.js')
-          .then(() => console.log('✅ section2_init.js loaded'))
-          .catch(err => console.error('❌ Failed to load section2_init.js:', err));
-      }
-    });
-  }, { threshold: 0.3 });
-
-  observer.observe(section2);
-});
 
 const travelTimeKey = import.meta.env.VITE_TRAVEL_TIME_API_KEY;
 mapboxgl.accessToken = 'pk.eyJ1IjoieWFsbGxlMDUwMyIsImEiOiJjbTZpMnpoYWkwNGNlMnFzaGg2OTZ6dWcwIn0.9crGea8A_PZB83mBnq1r2w';

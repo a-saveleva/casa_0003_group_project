@@ -89,13 +89,6 @@
   accent-color: white;  /* ✅ 让 checkbox 是白色勾选 */
 }
 
-/* 图例样式 */
-.legend {
-  width: 22px;
-  height: 12px;
-  display: inline-block;
-  position: relative;
-}
 
 /* 🚆 Rail: 两白点 + 一条白线 */
 .legend.rail::before {
@@ -278,7 +271,7 @@
 
 </div>
 
-  <div id="controls"></div>
+  <div id="controls-panel"></div>
   <div id="bubble-chart"></div>
   <div id="radial-chart"></div>
   
@@ -381,7 +374,7 @@ window.addEventListener('scroll', () => {
   const map = new mapboxgl.Map({
     container:'map',
     style:'mapbox://styles/yallle0503/cmahdvqg000xm01qy0m3v0y55',
-    center:[-1.5,53.1],
+    center:[-1.5,52.8],
     zoom:6.1,
     pitch: 35,     // ⬅️ 倾斜角，0是垂直俯视，最大60
     bearing: -30,  // ⬅️ 顺时针旋转角度，负值表示向左偏转
@@ -1179,27 +1172,27 @@ map.setLayoutProperty('edges-line', 'visibility', 'none');
   if (stage === 2) {
     map.setLayoutProperty('edges-line', 'visibility', 'visible');
     map.setLayoutProperty('stations-circle', 'visibility', 'visible');
-    map.jumpTo({  center: [-1.5, 53.1], zoom: 6.2  });
+    map.jumpTo({  center: [-1.5, 52.8], zoom: 6.1  });
 
   } else if (stage === 3) {
     map.setLayoutProperty('iso-fill-30min', 'visibility', 'visible');
     map.setLayoutProperty('iso-line-30min', 'visibility', 'visible');
-    map.jumpTo({  center: [-1.5, 53.1], zoom: 6.2 });
+    map.jumpTo({  center: [-1.5, 52.8], zoom: 6.1 });
 
   } else if (stage === 4) {
     map.setLayoutProperty('iso-fill-60min', 'visibility', 'visible');
     map.setLayoutProperty('iso-line-60min', 'visibility', 'visible');
-    map.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
+    map.jumpTo({ center: [-1.5, 52.8], zoom: 6.1 });
 
   } else if (stage === 5) {
     map.setLayoutProperty('iso-fill-90min', 'visibility', 'visible');
     map.setLayoutProperty('iso-line-90min', 'visibility', 'visible');
-    map.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
+    map.jumpTo({ center: [-1.5, 52.8], zoom: 6.1 });
 
   } else if (stage === 6) {
     map.setLayoutProperty('iso-fill-120min', 'visibility', 'visible');
     map.setLayoutProperty('iso-line-120min', 'visibility', 'visible');
-    map.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
+    map.jumpTo({ center: [-1.5, 52.8], zoom: 6.1 });
 
     
   } else if (stage === 7) {
@@ -1208,7 +1201,7 @@ map.setLayoutProperty('edges-line', 'visibility', 'none');
       map.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
     });
     map.setLayoutProperty('all-points-layer', 'visibility', 'visible');
-    map.flyTo({ center: [-1.5, 53.1], zoom: 6.2 });
+    map.flyTo({ center: [-1.5, 52.8], zoom: 6.1 });
 
     setTimeout(() => {
       d3.select('#bubble-chart').style('display', 'block');
@@ -1284,7 +1277,7 @@ map.setLayoutProperty('edges-line', 'visibility', 'none');
   
   map.setLayoutProperty('all-points-layer', 'visibility', 'visible');
 
-  map.flyTo({ center: [-1.5, 52.6], zoom: 6.1 });
+  map.flyTo({ center: [-1.5, 52.8], zoom: 6.1 });
 
   setTimeout(() => {
     d3.select('#bubble-chart').style('display', 'block');
