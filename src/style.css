@@ -52,6 +52,7 @@
     --navbar-dark-primary: var(--colour-hiking);
     --navbar-light-primary: #5d5d5d;
     --navbar-highlight-colour: #0070f1;
+    --natural-asset-highlight: #c1ecff;
 
   /* Colours to use with protected landscapes (AONB, national parks, heritage coasts) */
   --colour-protected-landscape: #deeace;

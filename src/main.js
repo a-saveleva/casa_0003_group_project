@@ -460,52 +460,38 @@ map.on('load', async function() {
                 ],
                 'fill-opacity': 0.95,
             },
-            });
-      });
-    // const rootStyles = getComputedStyle(document.documentElement);
-    const highlightColor = rootStyles.getPropertyValue('--navbar-highlight-colour').trim();
-    map.addLayer({
-        id: 'greenspace-zoomedline',
-        type: 'line',
-        source: 'natural_assets',
-        'source-layer': 'natural_assets_2-9ukio1',
-        filter: ['==', 'fid', ''],
-        paint: {
-            "line-width": 5,
-            "line-color": highlightColor,
-            // "line-opacity": 1,
-            "line-offset": -2,
-        },
-    });      
-
-    // hover greenspace (on top of default)
-    map.addLayer({ 
-        id: 'greenspace-fill-hover',
-        type: 'line',
-        source: 'natural_assets',
-        'source-layer': 'natural_assets_2-9ukio1',
-        filter: ['==', 'fid', ''],
-        paint: {
-            "line-width": 5,
-            "line-color": "#5fd2ff",
-            "line-opacity": 0,
-            "line-offset": -2,
-        },
-    }, 'greenspace-fill-default');
-
-    // map.addLayer({ 
-    //     id: 'greenspace-fill-hover',
-    //     type: 'line',
-    //     source: 'natural_assets',
-    //     'source-layer': 'natural_assets_2-9ukio1',
-    //     paint: {
-    //         "line-blur": 0.8,
-    //         "line-width": 5,
-    //         "line-color": "#5fd2ff",
-    //         "line-opacity": 0,
-    //         "line-offset": -2
-    //     },
-    // }, 'greenspace-fill-default');
+        });
+            // const rootStyles = getComputedStyle(document.documentElement);
+        const highlightColor = rootStyles.getPropertyValue('--navbar-highlight-colour').trim();
+        map.addLayer({
+            id: 'greenspace-zoomedline',
+            type: 'line',
+            source: 'natural_assets',
+            'source-layer': 'natural_assets_2-9ukio1',
+            filter: ['==', 'fid', ''],
+            paint: {
+                "line-width": 3,
+                "line-color": highlightColor,
+                // "line-opacity": 1,
+                "line-offset": -2,
+            },
+        });      
+        const highlightAsset = rootStyles.getPropertyValue('--natural-asset-highlight').trim();
+        // hover greenspace (on top of default)
+        map.addLayer({ 
+            id: 'greenspace-fill-hover',
+            type: 'line',
+            source: 'natural_assets',
+            'source-layer': 'natural_assets_2-9ukio1',
+            filter: ['==', 'fid', ''],
+            paint: {
+                "line-width": 4,
+                "line-color": highlightAsset,
+                // "line-opacity": 0,
+                "line-offset": -2,
+            },
+        }, 'greenspace-fill-default');
+    });
 
     // Select the first button (Best Overall) by default
     const firstButton = d3.select(".chart-button");
@@ -609,10 +595,21 @@ map.on('load', async function() {
             const feature = e.features[0]; // Get the clicked feature
             const bounds = turf.bbox(feature);
             map.fitBounds(bounds, {
-                padding: 50, // Add padding around the feature
-                maxZoom: 14, // Set a maximum zoom level
-                duration: 1000 // Animation duration in milliseconds
+                padding: 100,
+                duration: 1000,
+                // center: feature, // Coordinates of the marker-friendly
+                offset: [window.innerWidth / 12, 0]
             });
+            
+            setTimeout(() => {
+                map.setLayoutProperty('greenspace-fill-default', 'visibility', 'none');
+                const zoomLevel = map.getZoom();
+                map.setMinZoom(zoomLevel);
+                if (map.getLayer('isochrone-layer')) {
+                    map.setLayoutProperty('isochrone-layer', 'visibility', 'none');
+                }
+            }, 1000); // Delay matches animation duration
+            
             console.log("Zooming to feature:", feature.properties?.name || "Unnamed Feature");
             map.setFilter('greenspace-zoomedline', ['==', 'fid', feature.properties.fid]);
         }
@@ -966,20 +963,20 @@ map.on('load', async function() {
 
     updateDebugInfo();
 });
-    // 初始化时更新一次
-    const minutes = timeRange.value;
-    const travelTime = parseInt(minutes) * 60;
+// 初始化时更新一次
+const minutes = timeRange.value;
+const travelTime = parseInt(minutes) * 60;
 
-    const closest = await findClosestStation(originCoords);
-    closestStationName = getStationIdentifier(closest);
+const closest = await findClosestStation(originCoords);
+closestStationName = getStationIdentifier(closest);
 
-    // if (closestStationName) {
-    //     map.setFilter('origin-station', ['==', ['get', 'name'], closestStationName]);
-    // }
+// if (closestStationName) {
+//     map.setFilter('origin-station', ['==', ['get', 'name'], closestStationName]);
+// }
 
-    // updateIsochrone(travelTime, originCoords);
-    // updateDebugInfo();
-    // 辅助函数：查找最近车站
+// updateIsochrone(travelTime, originCoords);
+// updateDebugInfo();
+// 辅助函数：查找最近车站
 async function findClosestStation(coords) {
     const features = map.querySourceFeatures('stations', {
         sourceLayer: '505network_nodes-bv54ia'
@@ -1074,71 +1071,71 @@ function animateLine(coordinates) {
 }
 
 
-    async function updateIsochrone(travelTime, coords) {
-        try {
-            const res = await fetch("https://api.traveltimeapp.com/v4/time-map", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Application-Id": "2b79ce8a",
-                    "X-Api-Key": travelTimeKey
-                },
-                body: JSON.stringify({
-                    departure_searches: [{
-                        id: "isochrone_1",
-                        coords: coords,
-                        departure_time: new Date().toISOString(),
-                        travel_time: travelTime,
-                        transportation: { type: "driving+train" },
-                        level_of_detail: { scale_type: "simple", level: "medium" },
-                        remove_water_bodies: true,
-                        render_mode: "approximate_time_filter"
-                    }]
-                })
+async function updateIsochrone(travelTime, coords) {
+    try {
+        const res = await fetch("https://api.traveltimeapp.com/v4/time-map", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Application-Id": "2b79ce8a",
+                "X-Api-Key": travelTimeKey
+            },
+            body: JSON.stringify({
+                departure_searches: [{
+                    id: "isochrone_1",
+                    coords: coords,
+                    departure_time: new Date().toISOString(),
+                    travel_time: travelTime,
+                    transportation: { type: "driving+train" },
+                    level_of_detail: { scale_type: "simple", level: "medium" },
+                    remove_water_bodies: true,
+                    render_mode: "approximate_time_filter"
+                }]
+            })
+        });
+
+        const data = await res.json();
+        const shapes = data.results?.[0]?.shapes || [];
+
+        const features = shapes.map(shape => ({
+            type: "Feature",
+            geometry: {
+                type: "Polygon",
+                coordinates: [shape.shell.map(p => [p.lng, p.lat])]
+            },
+            properties: {}
+        }));
+
+        if (map.getSource("isochrone")) {
+            map.removeLayer("isochrone-layer");
+            map.removeSource("isochrone");
+        }
+
+        if (features.length > 0) {
+            map.addSource("isochrone", {
+                type: "geojson",
+                data: {
+                    type: "FeatureCollection",
+                    features: features
+                }
             });
 
-            const data = await res.json();
-            const shapes = data.results?.[0]?.shapes || [];
-
-            const features = shapes.map(shape => ({
-                type: "Feature",
-                geometry: {
-                    type: "Polygon",
-                    coordinates: [shape.shell.map(p => [p.lng, p.lat])]
-                },
-                properties: {}
-            }));
-
-            if (map.getSource("isochrone")) {
-                map.removeLayer("isochrone-layer");
-                map.removeSource("isochrone");
-            }
-
-            if (features.length > 0) {
-                map.addSource("isochrone", {
-                    type: "geojson",
-                    data: {
-                        type: "FeatureCollection",
-                        features: features
-                    }
-                });
-
-                map.addLayer({
-                    id: "isochrone-layer",
-                    type: "fill",
-                    source: "isochrone",
-                    paint: {
-                        "fill-color": "#007BFF",
-                        "fill-opacity": 0.3,
-                        "fill-outline-color": "#007BFF"
-                    }
-                });
-                highlightStationsWithinIsochrone(features);
-            }
-        } catch (err) {
-            console.error("Isochrone request failed", err);
+            map.addLayer({
+                id: "isochrone-layer",
+                type: "fill",
+                source: "isochrone",
+                paint: {
+                    "fill-color": "#007BFF",
+                    "fill-opacity": 0.3,
+                    "fill-outline-color": "#007BFF"
+                }
+            });
+            highlightStationsWithinIsochrone(features);
         }
+    } catch (err) {
+        console.error("Isochrone request failed", err);
     }
+}
 //
 
 
