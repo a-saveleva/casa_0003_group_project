@@ -1,6 +1,8 @@
 import './style.css'
 import mapboxgl from 'mapbox-gl';
 import * as d3 from 'd3';
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 
 const travelTimeKey = import.meta.env.VITE_TRAVEL_TIME_API_KEY;
 mapboxgl.accessToken = 'pk.eyJ1IjoieWFsbGxlMDUwMyIsImEiOiJjbTZpMnpoYWkwNGNlMnFzaGg2OTZ6dWcwIn0.9crGea8A_PZB83mBnq1r2w';
@@ -687,7 +689,14 @@ map.on('load', async function() {
             startStationId = closest.properties.id;
             updatePathIfReady();  // ✅ 尝试绘制路线（如果 endStationId 已设置）
         }
-    
+
+        map.flyTo({
+            center: originCoords, // Coordinates of the marker
+            zoom: 9, 
+            essential: true, // Ensures the animation is user-friendly
+            offset: [window.innerWidth / 8, 0]
+        });
+
         updateIsochrone(travelTime, originCoords);  // 原有等时线功能保留
         updateDebugInfo();
     });
@@ -733,6 +742,42 @@ map.on('load', async function() {
 
     button.addEventListener('mouseover', function () {this.style.border = '3px solid grey';});
     button.addEventListener('mouseout', function () {this.style.border = '1px solid grey';});
+
+    const geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        marker: false,
+        countries: 'gb',
+        placeholder: 'or search for an origin'
+      });
+      
+    // Append the geocoder to a specific container
+    document.getElementById('geocoder-container').appendChild(geocoder.onAdd(map));
+
+    // Add event listener for geocoder result
+    geocoder.on('result', (event) => {
+        const selectedCoords = event.result.geometry.coordinates;
+        originMarker.setLngLat(selectedCoords);
+        originCoords = { lng: selectedCoords[0], lat: selectedCoords[1] };
+
+        map.flyTo({
+            center: selectedCoords,
+            zoom: 9, // Adjust the zoom level as needed
+            essential: true, // Ensures the animation is user-friendly
+            offset: [window.innerWidth / 8, 0] // Adjust for menus on the left
+        });
+
+        findClosestStation(originCoords).then((closest) => {
+            closestStationName = getStationIdentifier(closest);
+            if (closestStationName) {
+                map.setFilter('origin-station', ['==', ['get', 'name'], closestStationName]);
+                document.getElementById("originStationName").textContent = closestStationName;
+            }
+        });
+
+        const travelTime = parseInt(timeRange.value) * 60; // Convert minutes to seconds
+        updateIsochrone(travelTime, originCoords);
+    });
     
     // 6. 绿地悬停效果
     async function findClosestStationToGreenSpace(greenSpaceId) {
