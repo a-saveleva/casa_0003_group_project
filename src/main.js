@@ -348,31 +348,39 @@ map.on('load', async function() {
                 const categoryColor = getCategoryColor(selectedCategory);
                 // Change the clicked button's background color
                 d3.select(this).style("background-color", categoryColor);
+                document.getElementById('legend-category-text').textContent = `Natural assets classified by their score: ${selectedCategory}`;
 
                 switch (selectedCategory) {
                     case 'Hiking':
                         map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'hiking_score']], ...stops_hiking]);
+                        updateLegendGradient("hiking");
                         break;
                     case 'Cycling':
                         map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'cycling_score']], ...stops_cycling]);
+                        updateLegendGradient("cycling");
                         break;
                     case 'Birdwatching':
                         map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'birdwatching_score']], ...stops_birdwatching]);
+                        updateLegendGradient("birdwatching");
                         break;
                     case 'Seaside':
                         map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'coast_score']], ...stops_coast]);
+                        updateLegendGradient("seaside");
                         break;
                     case 'Camping':
                         map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'camping_score']], ...stops_camping]);
+                        updateLegendGradient("camping");
                         break;
                     case 'Geodiversity':
                         map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'geology_score']], ...stops_geodiversity]);
+                        updateLegendGradient("geodiversity");
                         break;
                     case 'Best Overall':
                     default:
                         map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['to-number', ['get', 'best_overall']], ...stops_bestoverall]);
+                        updateLegendGradient("best-overall");
                         break;
-                }
+                }                
             });
     });
 
