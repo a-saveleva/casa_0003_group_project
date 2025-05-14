@@ -42,6 +42,25 @@ const popup = new mapboxgl.Popup({
     closeButton: false,
     closeOnClick: false
 });
+// Create a popup, but don't add it to the map yet.
+// var place_name_popup = new AnimatedPopup({
+//     closeButton: false,
+//     closeOnClick: false,
+//     offset: 10,
+//     anchor: 'right',
+//     openingAnimation: {
+//         duration: 250,
+//         easing: 'easeInOutBack',
+//         transform: 'scale',
+//     },
+//     closingAnimation: {
+//         duration: 250,
+//         easing: 'easeInBack',
+//         transform: 'scale',
+//     },
+//     className: 'place-name-popup'
+// }); 
+let activePopups = [];
 
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -747,7 +766,7 @@ map.on('load', async function() {
         });
 
         updateIsochrone(travelTime, originCoords);  // 原有等时线功能保留
-        updateDebugInfo();
+        // updateDebugInfo();
     });
 
     const button = document.getElementById('randomizer-button');
@@ -958,7 +977,7 @@ map.on('load', async function() {
         map.setFilter('origin-station', ['==', ['get', 'name'], closestStationName]);
     }
 
-    updateDebugInfo();
+    // updateDebugInfo();
 });
 // 初始化时更新一次
 const minutes = timeRange.value;
@@ -1067,6 +1086,10 @@ function animateLine(coordinates) {
     draw();
 }
 
+async function clearPopups() {
+  activePopups.forEach(popup => popup.remove());
+  activePopups = [];
+}
 
 async function updateIsochrone(travelTime, coords) {
     try {
@@ -1127,7 +1150,117 @@ async function updateIsochrone(travelTime, coords) {
                     "fill-outline-color": "#007BFF"
                 }
             });
-            highlightStationsWithinIsochrone(features);
+
+            // Clear old popups before generating new ones
+            clearPopups();
+
+            // Maintain a set of fids for features with popups
+            const popupFids = new Set();
+
+            // Get all greenspaces from the source
+            const greenAssets = map.querySourceFeatures('natural_assets', {
+                sourceLayer: 'natural_assets_2-9ukio1'
+            });
+
+            greenAssets.forEach(asset => {
+                const fid = asset.properties?.fid; // Use a unique identifier like 'fid'
+
+                // Skip if this feature already has a popup
+                if (popupFids.has(fid)) return;
+
+                // Check intersection with any isochrone polygon
+                const intersects = features.some(iso => turf.booleanIntersects(iso, asset));
+
+            //     if (intersects) {
+            //         const coordinatesPopup = turf.center(asset).geometry.coordinates;
+            //         const name = asset.properties?.name || 'Unnamed asset';
+
+            //         // const popup = new mapboxgl.Popup({
+            //         //     closeOnClick: false,
+            //         //     closeButton: false 
+            //         // })
+            //         // .setLngLat(coordinatesPopup)
+            //         // .setHTML(`<strong>${name}</strong>`)
+            //         // .addTo(map);
+
+            //         var popupContainer = document.createElement("div");
+            //         popupContainer.classList.add("place-name-container");
+            
+            //         var popupText = document.createElement("div");
+            //         popupText.classList.add("place-name-popup");
+            //         popupText.textContent = placeName;
+            
+            //         var popupLine = document.createElement("div");
+            //         popupLine.classList.add("place-name-line");
+            
+            //         popupContainer.appendChild(popupText);
+            //         popupContainer.appendChild(popupLine);
+            
+            //         var categoryContainer = document.createElement("div");
+            //         categoryContainer.classList.add("category-container");
+            //         categoryContainer.innerHTML = category_1 + category_2 + category_3;
+            
+            //         var placeParentContainer = document.createElement("div");
+            //         placeParentContainer.classList.add("place-parent-container");
+            //         placeParentContainer.appendChild(popupContainer);
+            //         placeParentContainer.appendChild(categoryContainer);
+            
+            //         // Add to the popup
+            //         place_name_popup.setLngLat(coordinates)
+            //             .setDOMContent(placeParentContainer)
+            //             .addTo(map);
+            
+            //         // Apply animation delay
+            //         setTimeout(() => document.getElementById('cat1').classList.add('show'), 200);
+            //         setTimeout(() => document.getElementById('cat2').classList.add('show'), 400);
+            //         setTimeout(() => document.getElementById('cat3').classList.add('show'), 600);
+            
+            
+            //         // Change the cursor and apply the highlight filter
+            //         map.getCanvas().style.cursor = 'pointer';
+            //         map.setFilter('places_points_highlight', ['==', 'GAZETTEER_ENTRY.NAME1', place.properties['GAZETTEER_ENTRY.NAME1']]);
+            //         // Set circle-stroke-opacity to 1 for the highlighted features
+            //         map.setPaintProperty('places_points_highlight', 'circle-stroke-opacity', 1);
+            //     }  
+
+
+            //         activePopups.push(popup);
+            //         popupFids.add(fid); // Add the feature's fid to the set
+            //     }
+            // });
+            if (intersects) {
+                const coordinatesPopup = turf.center(asset).geometry.coordinates;
+                const name = asset.properties?.name || 'Unnamed asset';
+            
+                // Create popup DOM structure
+                const popupContainer = document.createElement("div");
+                popupContainer.classList.add("place-name-container");
+            
+                const popupText = document.createElement("div");
+                popupText.classList.add("place-name-popup");
+                popupText.textContent = name;
+            
+                const popupLine = document.createElement("div");
+                popupLine.classList.add("place-name-line");
+            
+                popupContainer.appendChild(popupText);
+                popupContainer.appendChild(popupLine);
+            
+                // Create the popup and add to map
+                const popup = new mapboxgl.Popup({
+                    closeButton: false,
+                    closeOnClick: false
+                })
+                .setLngLat(coordinatesPopup)
+                .setDOMContent(popupContainer)
+                .addTo(map);
+            
+                map.getCanvas().style.cursor = 'pointer';
+            
+                activePopups.push(popup);
+                popupFids.add(fid); // Track the FID to prevent duplicate popups
+            }            
+        });
         }
     } catch (err) {
         console.error("Isochrone request failed", err);
