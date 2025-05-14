@@ -766,7 +766,7 @@ map.on('load', async function() {
         });
 
         updateIsochrone(travelTime, originCoords);  // 原有等时线功能保留
-        // updateDebugInfo();
+        updateDebugInfo();
     });
 
     const button = document.getElementById('randomizer-button');
@@ -977,7 +977,7 @@ map.on('load', async function() {
         map.setFilter('origin-station', ['==', ['get', 'name'], closestStationName]);
     }
 
-    // updateDebugInfo();
+    updateDebugInfo();
 });
 // 初始化时更新一次
 const minutes = timeRange.value;
@@ -991,7 +991,7 @@ closestStationName = getStationIdentifier(closest);
 // }
 
 // updateIsochrone(travelTime, originCoords);
-// updateDebugInfo();
+updateDebugInfo();
 // 辅助函数：查找最近车站
 async function findClosestStation(coords) {
     const features = map.querySourceFeatures('stations', {
@@ -1171,63 +1171,6 @@ async function updateIsochrone(travelTime, coords) {
                 // Check intersection with any isochrone polygon
                 const intersects = features.some(iso => turf.booleanIntersects(iso, asset));
 
-            //     if (intersects) {
-            //         const coordinatesPopup = turf.center(asset).geometry.coordinates;
-            //         const name = asset.properties?.name || 'Unnamed asset';
-
-            //         // const popup = new mapboxgl.Popup({
-            //         //     closeOnClick: false,
-            //         //     closeButton: false 
-            //         // })
-            //         // .setLngLat(coordinatesPopup)
-            //         // .setHTML(`<strong>${name}</strong>`)
-            //         // .addTo(map);
-
-            //         var popupContainer = document.createElement("div");
-            //         popupContainer.classList.add("place-name-container");
-            
-            //         var popupText = document.createElement("div");
-            //         popupText.classList.add("place-name-popup");
-            //         popupText.textContent = placeName;
-            
-            //         var popupLine = document.createElement("div");
-            //         popupLine.classList.add("place-name-line");
-            
-            //         popupContainer.appendChild(popupText);
-            //         popupContainer.appendChild(popupLine);
-            
-            //         var categoryContainer = document.createElement("div");
-            //         categoryContainer.classList.add("category-container");
-            //         categoryContainer.innerHTML = category_1 + category_2 + category_3;
-            
-            //         var placeParentContainer = document.createElement("div");
-            //         placeParentContainer.classList.add("place-parent-container");
-            //         placeParentContainer.appendChild(popupContainer);
-            //         placeParentContainer.appendChild(categoryContainer);
-            
-            //         // Add to the popup
-            //         place_name_popup.setLngLat(coordinates)
-            //             .setDOMContent(placeParentContainer)
-            //             .addTo(map);
-            
-            //         // Apply animation delay
-            //         setTimeout(() => document.getElementById('cat1').classList.add('show'), 200);
-            //         setTimeout(() => document.getElementById('cat2').classList.add('show'), 400);
-            //         setTimeout(() => document.getElementById('cat3').classList.add('show'), 600);
-            
-            
-            //         // Change the cursor and apply the highlight filter
-            //         map.getCanvas().style.cursor = 'pointer';
-            //         map.setFilter('places_points_highlight', ['==', 'GAZETTEER_ENTRY.NAME1', place.properties['GAZETTEER_ENTRY.NAME1']]);
-            //         // Set circle-stroke-opacity to 1 for the highlighted features
-            //         map.setPaintProperty('places_points_highlight', 'circle-stroke-opacity', 1);
-            //     }  
-
-
-            //         activePopups.push(popup);
-            //         popupFids.add(fid); // Add the feature's fid to the set
-            //     }
-            // });
             if (intersects) {
                 const coordinatesPopup = turf.center(asset).geometry.coordinates;
                 const name = asset.properties?.name || 'Unnamed asset';
