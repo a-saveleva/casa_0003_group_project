@@ -42,6 +42,25 @@ const popup = new mapboxgl.Popup({
     closeButton: false,
     closeOnClick: false
 });
+// Create a popup, but don't add it to the map yet.
+// var place_name_popup = new AnimatedPopup({
+//     closeButton: false,
+//     closeOnClick: false,
+//     offset: 10,
+//     anchor: 'right',
+//     openingAnimation: {
+//         duration: 250,
+//         easing: 'easeInOutBack',
+//         transform: 'scale',
+//     },
+//     closingAnimation: {
+//         duration: 250,
+//         easing: 'easeInBack',
+//         transform: 'scale',
+//     },
+//     className: 'place-name-popup'
+// }); 
+let activePopups = [];
 
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -972,7 +991,7 @@ closestStationName = getStationIdentifier(closest);
 // }
 
 // updateIsochrone(travelTime, originCoords);
-// updateDebugInfo();
+updateDebugInfo();
 // 辅助函数：查找最近车站
 async function findClosestStation(coords) {
     const features = map.querySourceFeatures('stations', {
@@ -1067,6 +1086,10 @@ function animateLine(coordinates) {
     draw();
 }
 
+async function clearPopups() {
+  activePopups.forEach(popup => popup.remove());
+  activePopups = [];
+}
 
 async function updateIsochrone(travelTime, coords) {
     try {
@@ -1127,7 +1150,60 @@ async function updateIsochrone(travelTime, coords) {
                     "fill-outline-color": "#007BFF"
                 }
             });
-            highlightStationsWithinIsochrone(features);
+
+            // Clear old popups before generating new ones
+            clearPopups();
+
+            // Maintain a set of fids for features with popups
+            const popupFids = new Set();
+
+            // Get all greenspaces from the source
+            const greenAssets = map.querySourceFeatures('natural_assets', {
+                sourceLayer: 'natural_assets_2-9ukio1'
+            });
+
+            greenAssets.forEach(asset => {
+                const fid = asset.properties?.fid; // Use a unique identifier like 'fid'
+
+                // Skip if this feature already has a popup
+                if (popupFids.has(fid)) return;
+
+                // Check intersection with any isochrone polygon
+                const intersects = features.some(iso => turf.booleanIntersects(iso, asset));
+
+            if (intersects) {
+                const coordinatesPopup = turf.center(asset).geometry.coordinates;
+                const name = asset.properties?.name || 'Unnamed asset';
+            
+                // Create popup DOM structure
+                const popupContainer = document.createElement("div");
+                popupContainer.classList.add("place-name-container");
+            
+                const popupText = document.createElement("div");
+                popupText.classList.add("place-name-popup");
+                popupText.textContent = name;
+            
+                const popupLine = document.createElement("div");
+                popupLine.classList.add("place-name-line");
+            
+                popupContainer.appendChild(popupText);
+                popupContainer.appendChild(popupLine);
+            
+                // Create the popup and add to map
+                const popup = new mapboxgl.Popup({
+                    closeButton: false,
+                    closeOnClick: false
+                })
+                .setLngLat(coordinatesPopup)
+                .setDOMContent(popupContainer)
+                .addTo(map);
+            
+                map.getCanvas().style.cursor = 'pointer';
+            
+                activePopups.push(popup);
+                popupFids.add(fid); // Track the FID to prevent duplicate popups
+            }            
+        });
         }
     } catch (err) {
         console.error("Isochrone request failed", err);

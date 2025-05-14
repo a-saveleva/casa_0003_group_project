@@ -52,7 +52,7 @@
     --navbar-dark-primary: var(--colour-hiking);
     --navbar-light-primary: #5d5d5d;
     --navbar-highlight-colour: #0070f1;
-    --natural-asset-highlight: #c1ecff;
+    --natural-asset-highlight: #3c3c3c;
 
   /* Colours to use with protected landscapes (AONB, national parks, heritage coasts) */
   --colour-protected-landscape: #deeace;
@@ -282,6 +282,71 @@ font-size: 10px;
   background: red;
   z-index: 99;
   padding: 0px;
+}
+/* .mapboxgl-popup-content {
+  background-color: white;
+  font-family: var(--text-normal-font);
+  font-size: var(--text-highlight-size);
+  font-weight: var(--text-highlight-weight);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+} */
+
+.place-name-container {
+  /* background-color: transparent; */
+  display: flex;
+  align-items: flex-end;
+  /* gap: 18px; Space between popup and line */
+}
+
+.place-name-popup {
+  background-color: red !important;
+  max-height: 18px;
+  border-radius: 0px;
+  font-family: 'Calibri', sans-serif;
+  font-size: 12px !important;
+  color: white !important;
+  padding-left: 5px;
+  padding-right: 5px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+}
+
+.place-name-line {
+  width: 20px;
+  height: 18px;
+  background: black !important;
+}
+
+.mapboxgl-popup-tip {
+  display: none; /* Hide the default tip */
+}
+
+.mapboxgl-popup-content {
+  background: transparent; /* Remove default background */
+  box-shadow: none; /* Remove box shadow */
+  padding: 0; /* Remove default padding */
+  border: none;
+  font-family: var(--text-normal-font);
+  font-size: var(--text-highlight-size);
+  font-weight: var(--text-highlight-weight);
+}
+.category_popup.show {
+  opacity: 1;
+  transform: translateY(0); /* Move into place */
+}
+
+@keyframes slide {
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 
 /* .front-page {
@@ -658,27 +723,27 @@ font-size: 10px;
   border: 2px solid #4ea4cf;
 }
 
-    #bubble-chart {
-      position:absolute; bottom:0; left:0;
-      width:100%; height:38%; z-index:10;
-      background:transparent;
-    }
-    #radial-chart {
-      position:absolute;
-      bottom:65%;
-      left:25px;
-      width:320px;
-      height:320px;
-      background:transparent;
-      z-index:12;
-    }
-    #tooltip {
-      position:absolute; pointer-events:none;
-      padding:4px 6px; background:rgba(0,0,0,0.7);
-      color:#fff; border-radius:4px; font-size:12px;
-      visibility:secondmap; z-index:9999;
-    }
-    #layer-toggle {
+#bubble-chart {
+  position:absolute; bottom:0; left:0;
+  width:100%; height:38%; z-index:10;
+  background:transparent;
+}
+#radial-chart {
+  position:absolute;
+  bottom:65%;
+  left:25px;
+  width:320px;
+  height:320px;
+  background:transparent;
+  z-index:12;
+}
+#tooltip {
+  position:absolute; pointer-events:none;
+  padding:4px 6px; background:rgba(0,0,0,0.7);
+  color:#fff; border-radius:4px; font-size:12px;
+  visibility:secondmap; z-index:9999;
+}
+#layer-toggle {
   position: absolute;
   top: 30px;
   right: 30px;
