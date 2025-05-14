@@ -823,12 +823,8 @@ font-size: 10px;
 .iso-90  { background-color: #ca6104; }
 .iso-120 { background-color: #af023c; }
 
-#map {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 100%;
-    }
+
+
     #card-container {
       position: absolute;
       bottom: 5%;
