@@ -59,7 +59,8 @@
                     <div class="arrow">&#8595;</div>
                 </div>
             </section>
-            <section id="section1" class="landing-slide">
+
+            <section id="section1" class="landing-slide" style="overflow-y: auto; scroll-snap-align: start; scroll-snap-stop: always; box-sizing: border-box;">
                 <div class="landing-textbox" style="margin-top: 100px;">
                     <h1 class="text-title">Problem overview</h1>
                     <!-- <h2>Visiting nature: travel modes</h2> -->
@@ -141,7 +142,7 @@
   </div>
 </section>
 
-            <section id="section3" class="landing-slide">
+            <section id="section3" class="landing-slide" style="overflow-y: auto; scroll-snap-align: start; scroll-snap-stop: always; box-sizing: border-box;">
                 <div class="landing-textbox">
                     <h1 class="text-title">Behavioral change</h1>
                     <p class="text-normal">In recent years, there has been a noticeable willingness among the public to adopt more sustainable travel behaviors, particularly in response to climate change.
@@ -216,9 +217,12 @@
                   <div id="map" style="width:100%; height:100%;"></div>      
                 <div class="left-bar">
                     <div class="controls-internal" style="height: 10px">
-                        <h1 class="text-title" style="margin-top: 0px; margin-bottom: 0px;">Map of natural assets</h1>
+                        <button id="back-button" class="back-btn" style="display: none">
+                            <i class="fas fa-arrow-left"></i> Back to main map
+                        </button>
+                        <h1 id="map-title" class="text-title" style="margin-top: 0px; margin-bottom: 0px;">Map of natural assets</h1>
                     </div>
-                    <div id="controls" class="text-normal">
+                    <div class="controls" class="text-normal" id="controls-instructions">
                         <div class="controls-internal" style="padding-top: 13px;">
                             <div class="legend-item" style="margin-bottom: 5px; font-weight: 800;">Follow instructions</div>
                             <p class="legend-item" style="margin-top: 0px;">Follow the prompts below and explore accessible natural assets in Great Britain.
@@ -257,7 +261,7 @@
                         </div>
                     </div>
 
-                    <div id="controls" class="text-normal">
+                    <div id="controls-instructions2" class="controls" class="text-normal">
                         <div class="controls-internal" style = "flex: 0.6;">
                             <div style="font-weight: 700; line-height: 22px;">1. Select the time you wish to travel</div>
                             <input type="range" id="timeRange" min="5" max="240" step="5" value="60">
@@ -357,7 +361,7 @@
                     </div>
               </section>
               
-            <section id="section9" class="landing-slide">
+            <section id="section9" class="landing-slide" style="overflow-y: auto; scroll-snap-align: start; scroll-snap-stop: always; box-sizing: border-box;">
                 <h1 class="text-title" style="margin-top: 5%; margin-left: 10%;">Limitations and discussion</h1>
                 <div class="methodology-columns" style="margin-left: 10%; display: flex; flex-direction: row; justify-content: left; width: 80%; gap: 30px;">
                     <div style="flex: 1; min-width: 0;">

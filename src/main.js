@@ -34,6 +34,9 @@ const map = new mapboxgl.Map({
 });
 
 let originCoords = null;
+let originIsSetByUser = false;
+let isochroneAbortController = null;
+let previousMapState = null;
 let reachableStationNames = [];
 let closestStationName = null;
 let startStationId = null;
@@ -177,11 +180,26 @@ function showAlert(message, duration = 3000) {
     }, duration);
 }
 
+// // Slider control
+// const timeRange = document.getElementById('timeRange');
+// timeRange.addEventListener('input', function() {
+//     document.getElementById('timeValue').textContent = `${this.value} minutes`;
+//     if (originCoords) {
+//         const travelTime = parseInt(this.value) * 60;
+//         updateIsochrone(travelTime, originCoords);
+//     }
+// });
+
 // Slider control
 const timeRange = document.getElementById('timeRange');
-timeRange.addEventListener('input', function() {
+timeRange.addEventListener('input', function () {
     document.getElementById('timeValue').textContent = `${this.value} minutes`;
-    if (originCoords) {
+    if (
+        originIsSetByUser &&
+        originCoords &&
+        typeof originCoords.lng === 'number' &&
+        typeof originCoords.lat === 'number'
+    ) {
         const travelTime = parseInt(this.value) * 60;
         updateIsochrone(travelTime, originCoords);
     }
@@ -607,7 +625,29 @@ map.on('load', async function() {
     });
 
     map.on('click', 'greenspace-fill-default', (e) => {
+        // save previous map state
+        previousMapState = {
+            center: map.getCenter(),
+            zoom: map.getZoom(),
+            minZoom: map.getMinZoom(),
+            layers: {
+                'greenspace-fill-default': map.getLayoutProperty('greenspace-fill-default', 'visibility'),
+                'isochrone-layer': map.getLayer('isochrone-layer')
+                    ? map.getLayoutProperty('isochrone-layer', 'visibility')
+                    : null
+            },
+            filters: {
+                'greenspace-zoomedline': map.getFilter('greenspace-zoomedline')
+            },
+            controls: {
+                instructions: document.getElementById('controls-instructions').style.display,
+                instructions2: document.getElementById('controls-instructions2').style.display,
+                mapTitle: document.getElementById('map-title').style.display
+            }
+        };
+
         if (e.features.length > 0) {
+
             const feature = e.features[0]; // Get the clicked feature
             const bounds = turf.bbox(feature);
             map.fitBounds(bounds, {
@@ -619,6 +659,11 @@ map.on('load', async function() {
             
             setTimeout(() => {
                 map.setLayoutProperty('greenspace-fill-default', 'visibility', 'none');
+                activePopups.forEach(popup => { //hide popups
+                    if (popup._container) {
+                        popup._container.style.display = 'none';
+                    }
+                });
                 const zoomLevel = map.getZoom();
                 map.setMinZoom(zoomLevel);
                 if (map.getLayer('isochrone-layer')) {
@@ -628,6 +673,59 @@ map.on('load', async function() {
             
             console.log("Zooming to feature:", feature.properties?.name || "Unnamed Feature");
             map.setFilter('greenspace-zoomedline', ['==', 'fid', feature.properties.fid]);
+
+            document.getElementById('controls-instructions').style.display = 'none'; //hide control containers that we dont need
+            document.getElementById('controls-instructions2').style.display = 'none';
+            document.getElementById("map-title").style.display = 'none';
+            document.getElementById('back-button').style.display = 'flex'
+            const backButton = document.getElementById('back-button');
+            if (backButton) {
+                backButton.addEventListener('mouseenter', () => {
+                    const hoverColor = rootStyles.getPropertyValue('--navbar-highlight-colour').trim();
+                    backButton.style.color = hoverColor;
+                });
+
+                backButton.addEventListener('mouseleave', () => {
+                    backButton.style.color = ''; // Resets to original color from CSS
+                });
+
+                backButton.addEventListener('click', () => {
+                    if (previousMapState) {
+                        // Restore map view
+                        map.setMinZoom(previousMapState.minZoom);
+                        map.flyTo({
+                            center: previousMapState.center,
+                            zoom: previousMapState.zoom
+                        });
+
+                        // Restore layer visibility
+                        map.setLayoutProperty('greenspace-fill-default', 'visibility', previousMapState.layers['greenspace-fill-default']);
+                        if (previousMapState.layers['isochrone-layer'] !== null && map.getLayer('isochrone-layer')) {
+                            map.setLayoutProperty('isochrone-layer', 'visibility', previousMapState.layers['isochrone-layer']);
+                        }
+
+                        // Restore filters
+                        if (previousMapState.filters['greenspace-zoomedline']) {
+                            map.setFilter('greenspace-zoomedline', previousMapState.filters['greenspace-zoomedline']);
+                        }
+
+                        // Restore controls
+                        document.getElementById('controls-instructions').style.display = previousMapState.controls.instructions;
+                        document.getElementById('controls-instructions2').style.display = previousMapState.controls.instructions2;
+                        document.getElementById('map-title').style.display = previousMapState.controls.mapTitle;
+
+                        // Show popups again if you hid them
+                        activePopups.forEach(popup => {
+                            if (popup._container) {
+                                popup._container.style.display = '';
+                            }
+                        });
+
+                        // Hide the back button again
+                        backButton.style.display = 'none';
+                    }
+                });
+            }
         }
     });
 
@@ -740,6 +838,7 @@ map.on('load', async function() {
 
     originMarker.on('dragend', async () => {
         originCoords = originMarker.getLngLat();
+        originIsSetByUser = true;
         const minutes = timeRange.value;
         const travelTime = parseInt(minutes) * 60;
     
@@ -771,6 +870,7 @@ map.on('load', async function() {
 
     const button = document.getElementById('randomizer-button');
     document.getElementById('randomizer-button').addEventListener('click', () => {
+        originIsSetByUser = true;
         // Generate a random travel time between 5 and 240 minutes
         const randomTime = Math.floor(Math.random() * (240 - 15 + 1)) + 15;
     
@@ -825,6 +925,7 @@ map.on('load', async function() {
     // Add event listener for geocoder result
     geocoder.on('result', (event) => {
         const selectedCoords = event.result.geometry.coordinates;
+        originIsSetByUser = true;
         originMarker.setLngLat(selectedCoords);
         originCoords = { lng: selectedCoords[0], lat: selectedCoords[1] };
 
@@ -1092,6 +1193,17 @@ async function clearPopups() {
 }
 
 async function updateIsochrone(travelTime, coords) {
+    if (!coords) return;
+
+    // Cancel previous request
+    if (isochroneAbortController) {
+        isochroneAbortController.abort();
+    }
+
+    // Create new controller for this request
+    isochroneAbortController = new AbortController();
+    const { signal } = isochroneAbortController;
+
     try {
         const res = await fetch("https://api.traveltimeapp.com/v4/time-map", {
             method: "POST",
@@ -1111,8 +1223,13 @@ async function updateIsochrone(travelTime, coords) {
                     remove_water_bodies: true,
                     render_mode: "approximate_time_filter"
                 }]
-            })
+            }),
+            signal  // ✅ pass the signal to enable aborting
         });
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
 
         const data = await res.json();
         const shapes = data.results?.[0]?.shapes || [];
@@ -1151,64 +1268,60 @@ async function updateIsochrone(travelTime, coords) {
                 }
             });
 
-            // Clear old popups before generating new ones
             clearPopups();
 
-            // Maintain a set of fids for features with popups
             const popupFids = new Set();
-
-            // Get all greenspaces from the source
             const greenAssets = map.querySourceFeatures('natural_assets', {
                 sourceLayer: 'natural_assets_2-9ukio1'
             });
 
             greenAssets.forEach(asset => {
-                const fid = asset.properties?.fid; // Use a unique identifier like 'fid'
-
-                // Skip if this feature already has a popup
+                const fid = asset.properties?.fid;
                 if (popupFids.has(fid)) return;
 
-                // Check intersection with any isochrone polygon
                 const intersects = features.some(iso => turf.booleanIntersects(iso, asset));
+                if (intersects) {
+                    const coordinatesPopup = turf.center(asset).geometry.coordinates;
+                    const name = asset.properties?.name || 'Unnamed asset';
 
-            if (intersects) {
-                const coordinatesPopup = turf.center(asset).geometry.coordinates;
-                const name = asset.properties?.name || 'Unnamed asset';
-            
-                // Create popup DOM structure
-                const popupContainer = document.createElement("div");
-                popupContainer.classList.add("place-name-container");
-            
-                const popupText = document.createElement("div");
-                popupText.classList.add("place-name-popup");
-                popupText.textContent = name;
-            
-                const popupLine = document.createElement("div");
-                popupLine.classList.add("place-name-line");
-            
-                popupContainer.appendChild(popupText);
-                popupContainer.appendChild(popupLine);
-            
-                // Create the popup and add to map
-                const popup = new mapboxgl.Popup({
-                    closeButton: false,
-                    closeOnClick: false
-                })
-                .setLngLat(coordinatesPopup)
-                .setDOMContent(popupContainer)
-                .addTo(map);
-            
-                map.getCanvas().style.cursor = 'pointer';
-            
-                activePopups.push(popup);
-                popupFids.add(fid); // Track the FID to prevent duplicate popups
-            }            
-        });
+                    const popupContainer = document.createElement("div");
+                    popupContainer.classList.add("place-name-container");
+
+                    const popupText = document.createElement("div");
+                    popupText.classList.add("place-name-popup");
+                    popupText.textContent = name;
+
+                    const popupLine = document.createElement("div");
+                    popupLine.classList.add("place-name-line");
+
+                    popupContainer.appendChild(popupText);
+                    popupContainer.appendChild(popupLine);
+
+                    const popup = new mapboxgl.Popup({
+                        closeButton: false,
+                        closeOnClick: false
+                    })
+                        .setLngLat(coordinatesPopup)
+                        .setDOMContent(popupContainer)
+                        .addTo(map);
+
+                    map.getCanvas().style.cursor = 'pointer';
+
+                    activePopups.push(popup);
+                    popupFids.add(fid);
+                }
+            });
         }
+
     } catch (err) {
-        console.error("Isochrone request failed", err);
+        if (err.name === 'AbortError') {
+            console.log("⛔ Isochrone fetch aborted.");
+        } else {
+            console.error("Isochrone request failed", err);
+        }
     }
 }
+
 //
 
 
