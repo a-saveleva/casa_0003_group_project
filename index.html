@@ -144,7 +144,7 @@
 
             <section id="section3" class="landing-slide" style="overflow-y: auto; scroll-snap-align: start; scroll-snap-stop: always; box-sizing: border-box;">
                 <div class="landing-textbox">
-                    <h1 class="text-title">Behavioral change</h1>
+                    <h1 class="text-title">Urgency</h1>
                     <p class="text-normal">In recent years, there has been a noticeable willingness among the public to adopt more sustainable travel behaviors, particularly in response to climate change.
                     According to a 
                         <a href="https://assets.publishing.service.gov.uk/media/66d87e76561701fa1c214e04/our-changing-travel-2023.pdf">
@@ -159,7 +159,7 @@
                     <p class="text-normal">However, the same report notes a decline in this willingness compared to the previous year, suggesting that without sustained support and improved infrastructure, the initial momentum for behavioral change may be waning. For instance, enthusiasm for driving less was lower in November 2023 than in November 2022.</p>
                     <p class="text-normal"><strong>This highlights the urgency of action: if the current barriers to sustainable travel are not addressed, the UK risks losing public goodwill and sliding back into more car-dependent patterns of leisure travel.</strong></p>
                     <div class="controls-internal" style="width: 100%; margin-bottom: 50px;">
-                        <p class="text-normal" style="margin-top: 0px;">Behavioral change: Sources</p>
+                        <p class="text-normal" style="margin-top: 0px;">Urgency: Sources</p>
                         <p class="legend-item" style="display: block; overflow-wrap: anywhere;">Department for Transport, 2024. Our Changing Travel: 2023. [pdf] London: Department for Transport. Available at: <a href="https://assets.publishing.service.gov.uk/media/66d87e76561701fa1c214e04/our-changing-travel-2023.pdf " target="_blank" rel="noopener noreferrer">https://assets.publishing.service.gov.uk/media/66d87e76561701fa1c214e04/our-changing-travel-2023.pdf</a> [Accessed 13 May 2025].</p>
                         </div>
                 </div>
@@ -214,7 +214,15 @@
                 </div>
             </section>
             <section id="section7" class="landing-slide">
-                  <div id="map" style="width:100%; height:100%;"></div>      
+                <div id="map" style="width:100%; height:100%;">
+                    <!-- Overlay for processing -->
+                    <div id="processing-overlay" style="display:none;">
+                        <div class="processing-content">
+                            <div class="spinner"></div>
+                            <div class="text-normal">Processing</div>
+                        </div>
+                    </div>
+                </div> 
                 <div class="left-bar">
                     <div class="controls-internal" style="height: 10px">
                         <button id="back-button" class="back-btn" style="display: none">

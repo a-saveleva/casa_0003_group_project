@@ -38,6 +38,7 @@ let originIsSetByUser = false;
 let isochroneAbortController = null;
 let previousMapState = null;
 let reachableStationNames = [];
+let activeMarkers = [];
 let closestStationName = null;
 let startStationId = null;
 let endStationId = null;
@@ -191,19 +192,25 @@ function showAlert(message, duration = 3000) {
 // });
 
 // Slider control
-const timeRange = document.getElementById('timeRange');
+let isochroneDebounce;
 timeRange.addEventListener('input', function () {
     document.getElementById('timeValue').textContent = `${this.value} minutes`;
-    if (
-        originIsSetByUser &&
-        originCoords &&
-        typeof originCoords.lng === 'number' &&
-        typeof originCoords.lat === 'number'
-    ) {
-        const travelTime = parseInt(this.value) * 60;
-        updateIsochrone(travelTime, originCoords);
-    }
+
+    clearTimeout(isochroneDebounce);
+
+    isochroneDebounce = setTimeout(() => {
+        if (
+            originIsSetByUser &&
+            originCoords &&
+            typeof originCoords.lng === 'number' &&
+            typeof originCoords.lat === 'number'
+        ) {
+            const travelTime = parseInt(this.value) * 60;
+            updateIsochrone(travelTime, originCoords);
+        }
+    }, 300);  // Adjust delay as needed
 });
+
 
 map.on('load', async function() {
     // Add data sources from mapbox
@@ -537,15 +544,71 @@ map.on('load', async function() {
     map.setPaintProperty('greenspace-fill-default', 'fill-color', ['interpolate', ['linear'], ['get', 'best_overall'], ...stops_bestoverall]);
     console.log("Chart axis loaded");
 
-
     // 绿地 hover 效果
     let hoveredGreenspaceId = null;
+
+    async function handleGreenspaceHover(feature) {
+        if (!feature) return;
+
+        map.getCanvas().style.cursor = 'pointer';
+        const fid = feature.properties?.fid;
+
+        // Highlight the hovered green space
+        if (typeof hoveredGreenspaceId !== 'undefined' && hoveredGreenspaceId !== null) {
+            map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
+        }
+        if (fid !== undefined && fid !== null) {
+            hoveredGreenspaceId = fid;
+            map.setFilter('greenspace-fill-hover', ['==', 'fid', hoveredGreenspaceId]);
+            map.setPaintProperty('greenspace-fill-hover', 'line-opacity', 1);
+        }
+
+        // Hide the chart prompt text on mousemove
+        if (chartTextElement) { chartTextElement.style("opacity", 0); }
+        // Change place name in chart
+        if (chartPlaceName) { chartPlaceName.text(feature.properties?.name); }
+
+        // On hover display category scores
+        const chart_data = [
+            feature.properties.hiking_score, 
+            feature.properties.hiking_score,
+            feature.properties.cycling_score,
+            feature.properties.birdwatching_score,
+            feature.properties.coast_score,
+            feature.properties.camping_score,
+            feature.properties.geology_score
+        ];
+
+        const bars = svg.selectAll(".bar")
+            .data(chart_data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", (d, i) => x(labels[i]))
+            .attr("y", y(0))  // start from y=0
+            .attr("height", 0) // start from height=0
+            .attr("width", x.bandwidth())
+            .attr("fill", d => d >= 0 ? "#42A5F5" : "#E57373")
+            .attr("fill", (d, i) => colorScale(labels[i])); // Assign color based on the label
+
+        bars.transition()
+            .ease(d3.easeCubic)
+            .duration(110)
+            .attr("y", d => y(d))
+            .attr("height", d => Math.abs(y(d) - y(0)));
+    }
+
     map.on('mousemove', 'greenspace-fill-default', (e) => {
         if (e.features.length > 0) {
-            map.getCanvas().style.cursor = 'pointer';
-            const feature = e.features[0];
-            console.log("Feature properties:", feature.properties);
-            const fid = feature.properties?.fid;
+            handleGreenspaceHover(e.features[0]);
+        }
+    });
+    // map.on('mousemove', 'greenspace-fill-default', (e) => {
+    //     if (e.features.length > 0) {
+    //         map.getCanvas().style.cursor = 'pointer';
+    //         const feature = e.features[0];
+    //         console.log("Feature properties:", feature.properties);
+    //         const fid = feature.properties?.fid;
 
             // // Use centroid for popup placement (safer than raw coordinates)
             // const coordinates = turf.center(feature).geometry.coordinates;
@@ -556,62 +619,63 @@ map.on('load', async function() {
             //     .setHTML(`<text-highlight>${name}</text-highlight>`)
             //     .addTo(map);
 
-            if (hoveredGreenspaceId !== null) {
-                map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
-            }
-            if (fid !== undefined && fid !== null) {
-                hoveredGreenspaceId = fid;
-                map.setFilter('greenspace-fill-hover', ['==', 'fid', hoveredGreenspaceId]);
-                map.setPaintProperty('greenspace-fill-hover', 'line-opacity', 1); // Highlight the hovered green space    
-        }
-            // Hide the chart prompt text on mousemove
-            if (chartTextElement) {chartTextElement.style("opacity", 0);}
-            // Change place name in chart
-            if (chartPlaceName) {chartPlaceName.text(feature.properties?.name);}
-            // On hover display category scores
-            const chart_data = [
-                // first is placeholder for best overall
-                feature.properties.hiking_score, 
-                feature.properties.hiking_score,
-                feature.properties.cycling_score,
-                feature.properties.birdwatching_score,
-                feature.properties.coast_score,
-                feature.properties.camping_score,
-                feature.properties.geology_score];
+    //         if (hoveredGreenspaceId !== null) {
+    //             map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
+    //         }
+    //         if (fid !== undefined && fid !== null) {
+    //             hoveredGreenspaceId = fid;
+    //             map.setFilter('greenspace-fill-hover', ['==', 'fid', hoveredGreenspaceId]);
+    //             map.setPaintProperty('greenspace-fill-hover', 'line-opacity', 1); // Highlight the hovered green space    
+    //     }
+    //         // Hide the chart prompt text on mousemove
+    //         if (chartTextElement) {chartTextElement.style("opacity", 0);}
+    //         // Change place name in chart
+    //         if (chartPlaceName) {chartPlaceName.text(feature.properties?.name);}
+    //         // On hover display category scores
+    //         const chart_data = [
+    //             // first is placeholder for best overall
+    //             feature.properties.hiking_score, 
+    //             feature.properties.hiking_score,
+    //             feature.properties.cycling_score,
+    //             feature.properties.birdwatching_score,
+    //             feature.properties.coast_score,
+    //             feature.properties.camping_score,
+    //             feature.properties.geology_score];
 
-            const bars = svg.selectAll(".bar")
-                .data(chart_data)
-                .enter()
-                .append("rect")
-                .attr("class", "bar")
-                .attr("x", (d, i) => x(labels[i]))
-                .attr("y", y(0))  // start from y=0
-                .attr("height", 0) // start from height=0
-                .attr("width", x.bandwidth())
-                .attr("fill", d => d >= 0 ? "#42A5F5" : "#E57373")
-                .attr("fill", (d, i) => colorScale(labels[i])); // Assign color based on the label
+    //         const bars = svg.selectAll(".bar")
+    //             .data(chart_data)
+    //             .enter()
+    //             .append("rect")
+    //             .attr("class", "bar")
+    //             .attr("x", (d, i) => x(labels[i]))
+    //             .attr("y", y(0))  // start from y=0
+    //             .attr("height", 0) // start from height=0
+    //             .attr("width", x.bandwidth())
+    //             .attr("fill", d => d >= 0 ? "#42A5F5" : "#E57373")
+    //             .attr("fill", (d, i) => colorScale(labels[i])); // Assign color based on the label
         
-            bars.transition()
-                .ease(d3.easeCubic)
-                .duration(110)
-                .attr("y", d => y(d))
-                .attr("height", d => Math.abs(y(d) - y(0)));
+    //         bars.transition()
+    //             .ease(d3.easeCubic)
+    //             .duration(110)
+    //             .attr("y", d => y(d))
+    //             .attr("height", d => Math.abs(y(d) - y(0)));
 
-        }
-    });
-    map.on('mouseleave', 'greenspace-fill-default', () => {
-        // popup.remove();
+    //     }
+    // });
+    async function handleGreenspaceMouseleave(feature) {
+        // Remove highlight from the hovered green space
         map.getCanvas().style.cursor = '';
         map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
         map.setPaintProperty('greenspace-fill-hover', 'line-opacity', 0);
-        
+
         // Set back visibility of the chart prompt text on mouseleave
-        if (chartTextElement) {chartTextElement.style("opacity", 1);}
+        if (chartTextElement) { chartTextElement.style("opacity", 1); }
         // Reset the chart place name
-        if (chartPlaceName) {chartPlaceName.text("No green space selected");}
+        if (chartPlaceName) { chartPlaceName.text("No green space selected"); }
 
         hoveredGreenspaceId = null;
         map.getCanvas().style.cursor = ''; // Reset cursor to default
+
         // Reset the chart container
         const bars = svg.selectAll(".bar");
         bars.transition()
@@ -621,9 +685,38 @@ map.on('load', async function() {
             .attr("height", 0)
             .on("end", function() {
                 d3.select(this).remove(); // Remove each bar after animation
-        });
+            });
+    }
+    map.on('mouseleave', 'greenspace-fill-default', (e) => {
+        handleGreenspaceMouseleave();
     });
 
+    window.handleGreenspaceHover = handleGreenspaceHover;
+    window.handleGreenspaceMouseleave = handleGreenspaceMouseleave;     
+    // map.on('mouseleave', 'greenspace-fill-default', () => {
+    //     // popup.remove();
+    //     map.getCanvas().style.cursor = '';
+    //     map.setFilter('greenspace-fill-hover', ['==', 'fid', '']);
+    //     map.setPaintProperty('greenspace-fill-hover', 'line-opacity', 0);
+        
+    //     // Set back visibility of the chart prompt text on mouseleave
+    //     if (chartTextElement) {chartTextElement.style("opacity", 1);}
+    //     // Reset the chart place name
+    //     if (chartPlaceName) {chartPlaceName.text("No green space selected");}
+
+    //     hoveredGreenspaceId = null;
+    //     map.getCanvas().style.cursor = ''; // Reset cursor to default
+    //     // Reset the chart container
+    //     const bars = svg.selectAll(".bar");
+    //     bars.transition()
+    //         .ease(d3.easeCubic)
+    //         .duration(90)
+    //         .attr("y", y(0))
+    //         .attr("height", 0)
+    //         .on("end", function() {
+    //             d3.select(this).remove(); // Remove each bar after animation
+    //     });
+    // });
     map.on('click', 'greenspace-fill-default', (e) => {
         // save previous map state
         previousMapState = {
@@ -644,6 +737,7 @@ map.on('load', async function() {
                 instructions2: document.getElementById('controls-instructions2').style.display,
                 mapTitle: document.getElementById('map-title').style.display
             }
+            
         };
 
         if (e.features.length > 0) {
@@ -850,6 +944,15 @@ map.on('load', async function() {
             console.log("Closest station:", closestStationName);
             document.getElementById("originStationName").textContent = closestStationName;
         }
+            // 2. Use closest station's coordinates for isochrone
+        let isochroneCoords = originCoords;
+        if (closest && closest.geometry && Array.isArray(closest.geometry.coordinates)) {
+            isochroneCoords = {
+                lng: closest.geometry.coordinates[0],
+                lat: closest.geometry.coordinates[1]
+            };
+        }
+        originMarker.setLngLat(isochroneCoords);
     
         // ✅ 新增：设置起点 ID 并尝试绘制路径
         if (closest && closest.properties && closest.properties.id !== undefined) {
@@ -857,56 +960,63 @@ map.on('load', async function() {
             updatePathIfReady();  // ✅ 尝试绘制路线（如果 endStationId 已设置）
         }
 
-        map.flyTo({
-            center: originCoords, // Coordinates of the marker
-            zoom: 9, 
-            essential: true, // Ensures the animation is user-friendly
-            offset: [window.innerWidth / 8, 0]
-        });
+        // map.flyTo({
+        //     center: originCoords, // Coordinates of the marker
+        //     zoom: 9, 
+        //     essential: true, // Ensures the animation is user-friendly
+        //     offset: [window.innerWidth / 8, 0]
+        // });
 
-        updateIsochrone(travelTime, originCoords);  // 原有等时线功能保留
+        updateIsochrone(travelTime, isochroneCoords);  // 原有等时线功能保留
         updateDebugInfo();
     });
 
     const button = document.getElementById('randomizer-button');
     document.getElementById('randomizer-button').addEventListener('click', () => {
         originIsSetByUser = true;
-        // Generate a random travel time between 5 and 240 minutes
-        const randomTime = Math.floor(Math.random() * (240 - 15 + 1)) + 15;
-    
-        // Update the slider value and the displayed time
+        const randomTime = Math.floor(Math.random() * (140 - 15 + 1)) + 15;
+
         timeRange.value = randomTime;
         document.getElementById('timeValue').textContent = `${randomTime} minutes`;
 
         const stationFeatures = map.querySourceFeatures('stations', { 
             sourceLayer: '505network_nodes-bv54ia'
         });
-    
+
         if (stationFeatures.length > 0) {
             const randomStation = stationFeatures[Math.floor(Math.random() * stationFeatures.length)];
-            
             const randomCoords = randomStation.geometry.coordinates;
-            originMarker.setLngLat(randomCoords); // Move the marker to the random station
+
+            originMarker.setLngLat(randomCoords);
             originCoords = originMarker.getLngLat();
-            map.flyTo({
-                center: randomCoords, // Coordinates of the marker
-                zoom: 9, 
-                essential: true, // Ensures the animation is user-friendly
-                offset: [window.innerWidth / 8, 0]
-            });
-    
+
             closestStationName = getStationIdentifier(randomStation);
             document.getElementById("originStationName").textContent = closestStationName;
-    
-            // Update the isochrone with the new travel time and coordinates
+
             const travelTime = randomTime * 60;
-            updateIsochrone(travelTime, originCoords);
-    
+
+            // Now wait for the isochrone to finish before fitting bounds
+            updateIsochrone(travelTime, originCoords).then((features) => {
+                if (features && features.length > 0) {
+                    const boundsIsochrone = turf.bbox({
+                        type: "FeatureCollection",
+                        features: features
+                    });
+
+                    map.fitBounds(boundsIsochrone, {
+                        padding: 10,
+                        duration: 1000,
+                        offset: [window.innerWidth / 12, 0]
+                    });
+                }
+            });
+
             console.log(`Random station selected: ${closestStationName}`);
         } else {
             console.warn("No stations found in the source layer.");
         }
     });
+
 
     button.addEventListener('mouseover', function () {this.style.border = '3px solid grey';});
     button.addEventListener('mouseout', function () {this.style.border = '1px solid grey';});
@@ -916,7 +1026,8 @@ map.on('load', async function() {
         mapboxgl: mapboxgl,
         marker: false,
         countries: 'gb',
-        placeholder: 'or search for an origin'
+        placeholder: 'or search for an origin',
+        flyTo: false,
       });
       
     // Append the geocoder to a specific container
@@ -926,27 +1037,32 @@ map.on('load', async function() {
     geocoder.on('result', (event) => {
         const selectedCoords = event.result.geometry.coordinates;
         originIsSetByUser = true;
-        originMarker.setLngLat(selectedCoords);
         originCoords = { lng: selectedCoords[0], lat: selectedCoords[1] };
 
-        map.flyTo({
-            center: selectedCoords,
-            zoom: 9, // Adjust the zoom level as needed
-            essential: true, // Ensures the animation is user-friendly
-            offset: [window.innerWidth / 8, 0] // Adjust for menus on the left
-        });
-
         findClosestStation(originCoords).then((closest) => {
+            if (!closest || !closest.geometry || !Array.isArray(closest.geometry.coordinates)) {
+                console.warn("No closest station found or invalid geometry");
+                return;
+            }
+
+            const isochroneCoords = {
+                lng: closest.geometry.coordinates[0],
+                lat: closest.geometry.coordinates[1]
+            };
+
+            originMarker.setLngLat(isochroneCoords);
             closestStationName = getStationIdentifier(closest);
+
             if (closestStationName) {
                 map.setFilter('origin-station', ['==', ['get', 'name'], closestStationName]);
                 document.getElementById("originStationName").textContent = closestStationName;
             }
-        });
 
-        const travelTime = parseInt(timeRange.value) * 60; // Convert minutes to seconds
-        updateIsochrone(travelTime, originCoords);
+            const travelTime = parseInt(timeRange.value) * 60; // Convert minutes to seconds
+            updateIsochrone(travelTime, isochroneCoords);
+        });
     });
+
     
     // 6. 绿地悬停效果
     async function findClosestStationToGreenSpace(greenSpaceId) {
@@ -1187,13 +1303,22 @@ function animateLine(coordinates) {
     draw();
 }
 
-async function clearPopups() {
-  activePopups.forEach(popup => popup.remove());
-  activePopups = [];
+async function clearMarkers() {
+    activeMarkers.forEach(marker => marker.remove());
+    activeMarkers.length = 0;
+}
+
+
+function showProcessingOverlay() {
+    document.getElementById('processing-overlay').style.display = 'flex';
+}
+function hideProcessingOverlay() {
+    document.getElementById('processing-overlay').style.display = 'none';
 }
 
 async function updateIsochrone(travelTime, coords) {
     if (!coords) return;
+    showProcessingOverlay(); // Show overlay
 
     // Cancel previous request
     if (isochroneAbortController) {
@@ -1224,7 +1349,7 @@ async function updateIsochrone(travelTime, coords) {
                     render_mode: "approximate_time_filter"
                 }]
             }),
-            signal  // ✅ pass the signal to enable aborting
+            signal  // pass the signal to enable aborting
         });
 
         if (!res.ok) {
@@ -1267,60 +1392,114 @@ async function updateIsochrone(travelTime, coords) {
                     "fill-outline-color": "#007BFF"
                 }
             });
+            const boundsIsochrone = turf.bbox({
+                type: "FeatureCollection",
+                features: features
+            });
+            const sw = map.project([boundsIsochrone[0], boundsIsochrone[1]]); // [lng, lat] → bottom-left
+            const ne = map.project([boundsIsochrone[2], boundsIsochrone[3]]); // [lng, lat] → top-right
+            const screenBbox = [ [sw.x, ne.y], [ne.x, sw.y] ]; // [topLeft, bottomRight]
 
-            clearPopups();
-
-            const popupFids = new Set();
-            const greenAssets = map.querySourceFeatures('natural_assets', {
-                sourceLayer: 'natural_assets_2-9ukio1'
+            map.fitBounds(boundsIsochrone, {
+                padding: 80,
+                duration: 1000,
+                offset: [window.innerWidth / 11, 0] // Adjust for menus on the left
             });
 
-            greenAssets.forEach(asset => {
+            const renderedAssets = map.queryRenderedFeatures(screenBbox, {
+                layers: ['greenspace-fill-default'],
+                filter: ['==', '$type', 'Polygon']
+            });
+
+            const candidateAssets = renderedAssets.filter(asset => {
+                try {
+                    const type = asset.geometry?.type;
+                    if (type !== 'Polygon' && type !== 'MultiPolygon') return false;
+                    return features.some(iso => turf.booleanIntersects(iso, asset));
+                } catch (e) {
+                    console.warn("Invalid geometry in asset:", asset, e);
+                    return false;
+                }
+            });
+
+            clearMarkers();
+            
+            const popupFids = new Set();
+            let activeMarkers = []; // If you want to track/remove markers later
+
+            candidateAssets.forEach(asset => {
                 const fid = asset.properties?.fid;
                 if (popupFids.has(fid)) return;
 
                 const intersects = features.some(iso => turf.booleanIntersects(iso, asset));
-                if (intersects) {
-                    const coordinatesPopup = turf.center(asset).geometry.coordinates;
-                    const name = asset.properties?.name || 'Unnamed asset';
+                if (!intersects) return;
 
-                    const popupContainer = document.createElement("div");
-                    popupContainer.classList.add("place-name-container");
+                const coordinates = turf.centerOfMass(asset).geometry.coordinates;
+                const name = asset.properties?.name || 'Unnamed asset';
 
-                    const popupText = document.createElement("div");
-                    popupText.classList.add("place-name-popup");
-                    popupText.textContent = name;
+                // Create popup for hover
+                const popupContent = document.createElement('div');
+                popupContent.classList.add('place-name-popup');
+                popupContent.textContent = name;
 
-                    const popupLine = document.createElement("div");
-                    popupLine.classList.add("place-name-line");
+                const popup = new mapboxgl.Popup({
+                    closeButton: false,
+                    closeOnClick: false,
+                    offset: [-5, -9],
+                    anchor: 'top-right'
+                }).setDOMContent(popupContent);
 
-                    popupContainer.appendChild(popupText);
-                    popupContainer.appendChild(popupLine);
 
-                    const popup = new mapboxgl.Popup({
-                        closeButton: false,
-                        closeOnClick: false
-                    })
-                        .setLngLat(coordinatesPopup)
-                        .setDOMContent(popupContainer)
-                        .addTo(map);
+                // Create a custom HTML element for the marker (or use default)
+                const el = document.createElement('div');
+                el.className = 'custom-marker';
 
-                    map.getCanvas().style.cursor = 'pointer';
+                // Create the marker
+                const marker = new mapboxgl.Marker(el)
+                    .setLngLat(coordinates)
+                    .addTo(map);
 
-                    activePopups.push(popup);
-                    popupFids.add(fid);
-                }
+                // Show popup on hover
+                el.addEventListener('mouseenter', () => {
+                    popup.addTo(map).setLngLat(coordinates);
+                    // Wait for the popup to be in the DOM and positioned
+                    setTimeout(() => {
+                        const popupEl = document.querySelector('.place-name-popup');
+                        if (popupEl) {
+                            popupEl.classList.add('animate-in');
+                        }
+                    }, 100); // 10ms is usually enough, adjust if needed
+                    handleGreenspaceHover(asset);
+                });
+               el.addEventListener('mouseleave', () => {
+                    popup.remove();
+                    const popupEl = document.querySelector('.place-name-popup');
+                    if (popupEl) {
+                        popupEl.classList.remove('animate-in');
+                    }
+                    handleGreenspaceMouseleave(asset);
+                });
+                activeMarkers.push(marker);
+                popupFids.add(fid);
             });
-        }
 
+                return features; // Return features if everything went well
+        } else {
+            return []; //Return empty array if no features
+        }
     } catch (err) {
         if (err.name === 'AbortError') {
-            console.log("⛔ Isochrone fetch aborted.");
+            console.log("Isochrone fetch aborted.");
         } else {
             console.error("Isochrone request failed", err);
         }
+        return []; //Return empty array on error as well
+    } finally {
+        hideProcessingOverlay(); // Always hide overlay when done
     }
 }
+
+
 
 //
 
