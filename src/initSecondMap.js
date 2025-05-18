@@ -5,9 +5,19 @@
 export function  initSecondMap() {
   let scrollStage = 0;
   let scrollDistance = 0;
-  const scrollThreshold = 2000;
-  const perScrollStep = 200;
+  let lastScrollTime = 0
+  let introCleared = false;  // ✅ 加上这句
+const scrollThreshold = 600; 
+const cardLiftThreshold = 600;
 
+// 每张卡片完全上浮所需的总距离（例如 8次×20）
+const perScrollStep = 200;    // 每次滚轮滑动卡片移动距离）
+
+  const maxShiftPercent = 90;  // 总共上浮百分比
+  const maxLift = 10; // 卡片最多上浮 120px
+  
+
+  const maxStage =10;
   const durations = ['30min','60min','90min','120min'];
   const cityCoords = {
     London: [-0.02, 51.30], Manchester: [-2.24, 53.48],
@@ -18,7 +28,6 @@ export function  initSecondMap() {
 
   let sortedFeatures = [];
   let recs;
-  let lastScrollTime = 0;
   let scrollCount = 0;
   
   
@@ -40,7 +49,7 @@ const textData = [
   `This map reveals the limitless potential of experiencing nature by train — a journey that is green, effortless, and just one ticket away from a world of rich and diverse landscapes.`
  ];
 
-const maxStage = textData.length ;  // ✅ scrollStage 从 0 到 9 都允许
+
 
 const activityData = [
       { rank: 1, activity: "Hiking" },
@@ -69,6 +78,75 @@ const activityData = [
     bearing: -30,  // ⬅️ 顺时针旋转角度，负值表示向左偏转
     scrollZoom: false  // ⛔ 禁止默认滚轮缩放
   });
+
+  //
+    
+  function restoreAllLayers() {
+  secondMap.getCanvas().style.cursor = '';
+  durations.forEach(dur => {
+    const ids = sortedFeatures
+      .filter(f => f.properties.id.endsWith(dur))
+      .map(f => f.properties.id);
+    secondMap.setFilter(`iso-fill-${dur}`, ['match', ['get', 'id'], ids, true, false]);
+    secondMap.setFilter(`iso-line-${dur}`, ['match', ['get', 'id'], ids, true, false]);
+  });
+}
+
+function handleWheel(e) {
+
+    console.log('📦 wheel triggered', scrollStage, scrollDistance);
+ const liftY = Math.min(scrollDistance, cardLiftThreshold);  // ✅ 用新的变量
+  if (scrollStage < maxStage) e.preventDefault();
+
+  const now = Date.now();
+  if (now - lastScrollTime < 300) return;
+  lastScrollTime = now;
+
+  if (!introCleared) {
+    introCleared = true;
+    const cover = document.getElementById('intro-cover');
+    cover.style.opacity = '0';
+    document.getElementById('activity-bubbles').style.opacity = '0';
+    setTimeout(() => {
+      cover.style.display = 'none';
+      document.getElementById('activity-bubbles').remove();
+    }, 1000);
+    return;
+  }
+
+  if (scrollStage < maxStage) {
+    scrollDistance += e.deltaY;
+    const liftY = Math.min(scrollDistance, scrollThreshold);
+
+    const allCards = document.querySelectorAll('.card');
+    allCards.forEach(card => {
+      const cardStage = Number(card.getAttribute('data-stage'));
+      if (cardStage === scrollStage - 1) {
+        const startBottom = 5;
+        const newBottom = startBottom + (liftY / scrollThreshold) * maxShiftPercent;
+        card.style.bottom = `${newBottom}%`;
+        card.style.opacity = 1 - (liftY / scrollThreshold) * 0.4;
+      }
+    });
+
+    if (scrollDistance > scrollThreshold&& scrollStage < maxStage) {
+      scrollStage++;
+      scrollDistance = 0;
+      showNewCard(scrollStage);
+      updateMapAndCard(scrollStage);
+    }
+  }
+
+  if (scrollStage >= maxStage) {
+    window.removeEventListener('wheel', handleWheel);
+    const nextSection = document.querySelector('#section3');
+    if (nextSection) {
+      setTimeout(() => {
+        nextSection.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+    }
+  }
+}
 
   const colorMap = {
     30:'#c3b602',
@@ -195,8 +273,7 @@ secondMap.addLayer({
       secondMap.setLayoutProperty('all-points-layer', 'visibility', visible);
     }
   });
-// ✅ 这才是真正完整的 .on('load') 结束位置
-
+// updateMapAndCard(0);
   //开关
   // 铁路图层开关
 document.getElementById('rail-toggle').addEventListener('change', function(e) {
@@ -261,161 +338,25 @@ ctrl.append('button')
         const vis = cb.checked ? 'visible' : 'none';
         if (secondMap.getLayer(fillId)) secondMap.setLayoutProperty(fillId,'visibility',vis);
         if (secondMap.getLayer(lineId)) secondMap.setLayoutProperty(lineId,'visibility',vis);
+      
       });
+   
     });
+  
+
+  // ✅ 正确位置（放 initSecondMap() 内部，window.addEventListener 之后）
+scrollStage = 1;
+scrollDistance = 0;
+cardContainer.innerHTML = '';
+showNewCard(0);  // ✅ 只显示第一张卡片（对应 data-stage=0）
+updateMapAndCard(0);  // ✅ 只初始化一次地图
+      // ✅ 所有函数（包括 handleWheel）也放在 initSecondMap 里面
+  window.addEventListener('wheel', handleWheel, { passive: false });
+
+
+
   })                    //结束**************************************
-
-  
-    
-  // 在这里添加
-  d3.select('#controls-panel').style('display', 'none');      // 城市按钮
-  d3.select('#layer-toggle').style('display', 'none'); // 图层选择框
-
-
-
-  
-  drawActivityBubbles();  // ⬅️ 页面一加载就执行
-  //柱形图
-  const activities = [
-    { type: "Urban green space", percent: 52, activity: "Walking & Relaxing" },
-    { type: "Forest", percent: 32, activity: "Hiking" },
-    { type: "Fields / Farmland", percent: 32, activity: "Picnicking" },
-    { type: "River/Lake/Canal", percent: 30, activity: "Swimming" },
-    { type: "Beach/Coast/Sea", percent: 28, activity: "Coastal Walk" }
-  ];
-  
-  const svg = d3.select("#activity-chart");
-  const width = document.getElementById("activity-lines").clientWidth;
-  const height = document.getElementById("activity-lines").clientHeight;
-  const margin = { top: 250, right: 40, bottom: 20, left: 60 };
-  const lineLen = width * 0.6;
-  const rowH = 90;
-  svg.append("text")
-    .attr("x", width * 0.34)  // ⬅️ 控制水平方向
-    .attr("y", margin.top * 0.55)  // ⬅️ 控制垂直位置
-    .attr("fill", "white")
-    .attr("font-size", "25px")
-    .attr("font-weight", "bold")
-    .attr("text-anchor", "middle")
-    .style("pointer-events", "all")
-    .selectAll("tspan")
-    .data([
-      "What are the most frequently visited",
-      "nature destinations ?"
-    ])
-    .enter()
-    .append("tspan")
-    // ⬇️ 删除 .attr("x")，只设置相对垂直偏移
-    .attr("x", width * 0.34)         // 每行保持相同 x
-    .attr("dy", (d, i) => i === 0 ? "0em" : "1.3em")  // 垂直间距
-    .text(d => d);
-  
-  
-  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-  
-  const color = "#af023c";
-  activities.forEach((d, i) => {
-    const y = i * rowH;
-    const group = g.append("g");
-    const targetX = lineLen * (d.percent / 100);
-    // 1. 白线
-    group.append("line")
-      .attr("x1", 0).attr("x2", lineLen)
-      .attr("y1", y).attr("y2", y)
-      .attr("stroke", "white")
-      .attr("stroke-width", 2);
-  
-    // 2. 红色泡泡 + 动画 + hover
-    const circle = group.append("circle")
-      .datum(d)
-      .attr("cx", 0)
-      .attr("cy", y)
-      .attr("r", 9)
-      .attr("fill", color)
-      .style("cursor", "pointer")
-      .style("opacity", 0.7);
-  
-    // 🚀 执行动画
-    circle.transition()
-    .duration(2500)
-    .attr("cx", targetX)
-    .on("end", function(_, i) {
-      d3.select(this)
-        .on("mouseover", function(event, d) {
-          tooltip.style("visibility", "visible")
-            .style("left", `${event.pageX + 10}px`)
-            .style("top", `${event.pageY - 20}px`)
-            .html(`<b>${d.type}</b><br>${d.activity}`);
-        })
-        .on("mouseout", () => {
-          tooltip.style("visibility", "hidden");
-        });
-    });
-  
-  
-    
-  
-    // 3. 上方文字（类型）✅ 白色
-    group.append("text")
-      .text(d.type)
-      .attr("x", targetX)
-      .attr("y", y - 15)
-      .attr("fill", "white")
-      .attr("text-anchor", "middle")
-      .style("font-size", "12px")
-      .style("opacity", 0)
-      .transition()
-      .delay(1500)
-      .style("opacity", 1);
-  
-    // 4. 下方文字（百分比）✅ 白色
-    group.append("text")
-      .text(d.percent + "%")
-      .attr("x", targetX)
-      .attr("y", y + 25)
-      .attr("fill", "white")
-      .attr("text-anchor", "middle")
-      .style("font-size", "18px")
-      .style("opacity", 0)
-      .transition()
-      .delay(1200)
-      .style("opacity", 1);
-  });
-  
-  
-
-  
-
-  // 填入完整函数逻辑（略）
-  //新卡
-  function showNewCard(stage) {
-  const newCard = document.createElement('div');
-  newCard.className = 'card';
-  newCard.innerHTML = textData[stage] || `Stage ${stage}`;
-  newCard.style.transform = 'translate(-50%, 100vh)';
-  newCard.style.opacity = 0;
-  newCard.style.visibility = 'hidden'; 
-  newCard.setAttribute('data-stage', stage);
-
-  cardContainer.appendChild(newCard);
-
-  // 上浮动画
-  setTimeout(() => {
-    newCard.style.visibility = 'visible';   
-    newCard.style.transform = 'translate(-50%, 0px)';
-    newCard.style.opacity = 1;
-  }, 20);
-
-  // 清理旧卡片（保留 2 张以内）
-  const all = document.querySelectorAll('.card');
-  if (all.length > 3) {
-    all[0].remove();
-  }
-  scrollDistance = 0;
-
-}
-
-    //卡片
+     //卡片
   function updateMapAndCard(stage) {
     // ✅ 统一清除旧图层
   secondMap.setLayoutProperty('edges-line', 'visibility', 'none');
@@ -544,21 +485,165 @@ ctrl.append('button')
       }, 1000);
     }
   }
-    
-  window.addEventListener('wheel', handleWheel, { passive: false });
+
   
     
   }
    
+    
   
-  scrollStage = 0;
-  scrollDistance = 0;
-  
-  cardContainer.innerHTML = '';
-  updateMapAndCard(scrollStage);
-  showNewCard(scrollStage);
-  setupScrollHandler(secondMap);//
+    
+  // 在这里添加
+  d3.select('#controls-panel').style('display', 'none');      // 城市按钮
+  d3.select('#layer-toggle').style('display', 'none'); // 图层选择框
 
+
+
+  
+  drawActivityBubbles();  // ⬅️ 页面一加载就执行
+  //柱形图
+  const activities = [
+    { type: "Urban green space", percent: 52, activity: "Walking & Relaxing" },
+    { type: "Forest", percent: 32, activity: "Hiking" },
+    { type: "Fields / Farmland", percent: 32, activity: "Picnicking" },
+    { type: "River/Lake/Canal", percent: 30, activity: "Swimming" },
+    { type: "Beach/Coast/Sea", percent: 28, activity: "Coastal Walk" }
+  ];
+  
+  const svg = d3.select("#activity-chart");
+  const width = document.getElementById("activity-lines").clientWidth;
+  const height = document.getElementById("activity-lines").clientHeight;
+  const margin = { top: 250, right: 40, bottom: 20, left: 60 };
+  const lineLen = width * 0.6;
+  const rowH = 90;
+  svg.append("text")
+    .attr("x", width * 0.34)  // ⬅️ 控制水平方向
+    .attr("y", margin.top * 0.55)  // ⬅️ 控制垂直位置
+    .attr("fill", "white")
+    .attr("font-size", "25px")
+    .attr("font-weight", "bold")
+    .attr("text-anchor", "middle")
+    .style("pointer-events", "all")
+    .selectAll("tspan")
+    .data([
+      "What are the most frequently visited",
+      "nature destinations ?"
+    ])
+    .enter()
+    .append("tspan")
+    // ⬇️ 删除 .attr("x")，只设置相对垂直偏移
+    .attr("x", width * 0.34)         // 每行保持相同 x
+    .attr("dy", (d, i) => i === 0 ? "0em" : "1.3em")  // 垂直间距
+    .text(d => d);
+  
+  
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+  
+  const color = "#af023c";
+  activities.forEach((d, i) => {
+    const y = i * rowH;
+    const group = g.append("g");
+    const targetX = lineLen * (d.percent / 100);
+    // 1. 白线
+    group.append("line")
+      .attr("x1", 0).attr("x2", lineLen)
+      .attr("y1", y).attr("y2", y)
+      .attr("stroke", "white")
+      .attr("stroke-width", 2);
+  
+    // 2. 红色泡泡 + 动画 + hover
+    const circle = group.append("circle")
+      .datum(d)
+      .attr("cx", 0)
+      .attr("cy", y)
+      .attr("r", 9)
+      .attr("fill", color)
+      .style("cursor", "pointer")
+      .style("opacity", 0.7);
+  
+    // 🚀 执行动画
+    circle.transition()
+    .duration(2500)
+    .attr("cx", targetX)
+    .on("end", function(_, i) {
+      d3.select(this)
+        .on("mouseover", function(event, d) {
+          tooltip.style("visibility", "visible")
+            .style("left", `${event.pageX + 10}px`)
+            .style("top", `${event.pageY - 20}px`)
+            .html(`<b>${d.type}</b><br>${d.activity}`);
+        })
+        .on("mouseout", () => {
+          tooltip.style("visibility", "hidden");
+        });
+    });
+  
+  
+    
+  
+    // 3. 上方文字（类型）✅ 白色
+    group.append("text")
+      .text(d.type)
+      .attr("x", targetX)
+      .attr("y", y - 15)
+      .attr("fill", "white")
+      .attr("text-anchor", "middle")
+      .style("font-size", "12px")
+      .style("opacity", 0)
+      .transition()
+      .delay(1500)
+      .style("opacity", 1);
+  
+    // 4. 下方文字（百分比）✅ 白色
+    group.append("text")
+      .text(d.percent + "%")
+      .attr("x", targetX)
+      .attr("y", y + 25)
+      .attr("fill", "white")
+      .attr("text-anchor", "middle")
+      .style("font-size", "18px")
+      .style("opacity", 0)
+      .transition()
+      .delay(1200)
+      .style("opacity", 1);
+  });
+  
+  
+
+  
+
+  // 填入完整函数逻辑（略）
+function showNewCard(stage) {
+  const newCard = document.createElement('div');
+  newCard.className = 'card';
+  newCard.innerHTML = textData[stage] || `Stage ${stage}`;
+  newCard.setAttribute('data-stage', stage);
+
+  // ✅ 设置初始样式（从底部开始）
+  newCard.style.position = 'absolute';
+  newCard.style.left = '50%';
+  newCard.style.transform = 'translateX(-50%)';
+  newCard.style.bottom = '5%';  // 起始位置
+  newCard.style.opacity = 1;    // 初始透明度
+  newCard.style.transition = 'none';  // 初始无动画
+
+  cardContainer.appendChild(newCard);
+
+  // ✅ 重新启用动画过渡
+  setTimeout(() => {
+    newCard.style.transition = 'bottom 0.4s ease-out, opacity 0.4s ease-out';
+  }, 20);
+
+  // ✅ 清理旧卡片（保留 2 张以内）
+  const all = document.querySelectorAll('.card');
+  if (all.length > 3) all[0].remove();
+
+  scrollDistance = 0;
+  console.log('🚀 card created for stage', stage);
+}
+
+
+  
   
     // ============================
     // drawBubbleChart 完整版本
@@ -945,84 +1030,7 @@ texts.each(function(d) {
     }
   }
 
-    function handleWheel(e) {
-  const now = Date.now();
-  if (now - lastScrollTime < 300) return;  // 节流
-  lastScrollTime = now;
 
-  // ✅ 1. 处理 intro 阶段（淡出动画）
-  if (!introCleared) {
-    introCleared = true;
-    const cover = document.getElementById('intro-cover');
-    cover.style.opacity = '0';
-    document.getElementById('activity-bubbles').style.opacity = '0';
-    setTimeout(() => {
-      cover.style.display = 'none';
-      document.getElementById('activity-bubbles').remove();
-    }, 1000);
-    return;
-  }
-
-  // ✅ 2. 处理卡片滚动
-  if (scrollStage >= maxStage) {
-    window.removeEventListener('wheel', handleWheel);
-    const nextSection = document.querySelector('#section3');
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: 'smooth' });
-    }
-    return;
-  }
-
-  e.preventDefault();
-  const direction = e.deltaY > 0 ? 1 : -1;
-  scrollDistance += direction * perScrollStep;
-  scrollDistance = Math.max(0, scrollDistance);
-
-  if (scrollDistance >= scrollThreshold && scrollStage < maxStage) {
-    scrollDistance = 0;
-    scrollStage++;
-    updateMapAndCard(scrollStage);
-    showNewCard(scrollStage);
-  }
-
-  if (direction < 0 && scrollDistance === 0 && scrollStage > 0) {
-    scrollStage--;
-    scrollDistance = scrollThreshold;
-    updateMapAndCard(scrollStage);
-    showNewCard(scrollStage);
-  }
-
-  // 动画同步（上一张卡片浮动）
-  const allCards = document.querySelectorAll('.card');
-  allCards.forEach(card => {
-    const cardStage = Number(card.getAttribute('data-stage'));
-    if (cardStage === scrollStage - 1) {
-      card.style.transform = `translate(-50%, -${scrollDistance}px)`;
-      card.style.opacity = 1 - (scrollDistance / scrollThreshold) * 0.8;
-    }
-  });// 示例事件逻辑（粘贴完整逻辑替换）
-  window.addEventListener('wheel', function (e) {
-    scrollDistance += e.deltaY;
-    if (scrollDistance > scrollThreshold && scrollStage < 9) {
-      scrollStage++;
-      showNewCard(scrollStage);
-      updateMapAndCard(scrollStage);
-      scrollDistance = 0;
-    }
-  }, { passive: true });
-  window.addEventListener('wheel', function () {
-    if (!introCleared) {
-      introCleared = true;
-      const cover = document.getElementById('intro-cover');
-      cover.style.opacity = '0';
-      document.getElementById('activity-bubbles').style.opacity = '0';  // 淡出泡泡图
-  setTimeout(() => {
-    cover.style.display = 'none';
-    document.getElementById('activity-bubbles').remove();  // 完全移除
-  }, 1000);
-    }
-  }, { once: true });
-}
 function handleHover(e) {
   secondMap.getCanvas().style.cursor = 'pointer';
   if (!e.features || !e.features.length) return;
@@ -1038,22 +1046,10 @@ function handleHover(e) {
     secondMap.setFilter(`iso-fill-${dur}`, ['match', ['get', 'id'], idsToShow, true, false]);
     secondMap.setFilter(`iso-line-${dur}`, ['match', ['get', 'id'], idsToShow, true, false]);
   });
+  // ✅ 放在这里（initSecondMap 函数末尾、on(load) 外部）
+
+
+
+}//+++++
+
 }
-
-function restoreAllLayers() {
-  secondMap.getCanvas().style.cursor = '';
-  durations.forEach(dur => {
-    const ids = sortedFeatures
-      .filter(f => f.properties.id.endsWith(dur))
-      .map(f => f.properties.id);
-    secondMap.setFilter(`iso-fill-${dur}`, ['match', ['get', 'id'], ids, true, false]);
-    secondMap.setFilter(`iso-line-${dur}`, ['match', ['get', 'id'], ids, true, false]);
-  });
-}
-}
-
-
-  //function handleHover(e) { /* ... */ }
- // function restoreAllLayers() { /* ... */ }
-
-

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>火车等时线可视化</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
+        #map { width: 100%; height: 100vh; }
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-family: sans-serif;
+            width: 250px;
+        }
+        #timeValue {
+            font-weight: bold;
+            margin-left: 5px;
+            color: #007BFF;
+        }
+        .control-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 16px;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .legend {
+            margin-top: 15px;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 50%;
+        }
+        .mapboxgl-popup {
+            max-width: 200px;
+            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        }
+        .debug-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.8);
+            padding: 5px;
+            font-size: 11px;
+            border-radius: 3px;
+        }
+        .alert-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 10;
+            display: none;
+            font-family: sans-serif;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<!-- 控制面板 -->
+<div id="controls">
+    <div class="control-title">🚆Train Isochrone</div>
+    <label for="timeRange">Time on Travel:</label>
+    <input type="range" id="timeRange" min="5" max="240" step="5" value="60">
+    <div><span id="timeValue">60 min</span></div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #FF5722;"></div>
+            <span>Origin</span>
+        </div>
+        <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #1659e0;"></div>
+            <span>Destination</span>
+        </div>
+        
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #eb5c5c; width: 15px; height: 4px;"></div>
+            <span>Connection </span>
+        </div>
+    </div>
+</div>
+
+<!-- 调试信息 -->
+<div class="debug-info" id="debugInfo"></div>
+
+<!-- 警告信息 -->
+<div class="alert-message" id="alertMessage"></div>
+
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoieWFsbGxlMDUwMyIsImEiOiJjbTZpMnpoYWkwNGNlMnFzaGg2OTZ6dWcwIn0.9crGea8A_PZB83mBnq1r2w';
+
+const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/yallle0503/cm99w4avp000c01sahtj70ith',
+    center: [-0.1276, 51.5072],
+    zoom: 10
+});
+
+let originCoords = null;
+let reachableStationNames = [];
+let closestStationName = null;
+let startStationId = null;
+let endStationId = null;
+
+const popup = new mapboxgl.Popup({
+    closeButton: false,
+    closeOnClick: false
+});
+document.getElementById('debugInfo').style.display = 'none';
+
+
+// 获取车站标识
+function getStationIdentifier(station) {
+    if (!station) {
+        console.warn("传入的车站为空");
+        return '无效车站';
+    }
+    return station.properties?.name || 
+           `未命名_${station.id || Math.random().toString(36).slice(2, 8)}`;
+}
+
+// 显示警告信息
+function showAlert(message, duration = 3000) {
+    const alert = document.getElementById('alertMessage');
+    alert.textContent = message;
+    alert.style.display = 'block';
+    if (duration > 0) {
+        setTimeout(() => {
+            alert.style.display = 'none';
+        }, duration);
+    }
+}
+function showAlert(message) {
+    alert(message);  // 简单实现，你也可以自定义弹窗样式
+}
+
+
+// 更新调试信息
+function updateDebugInfo() {
+    document.getElementById('debugInfo').innerHTML = `
+        <div>最近车站: ${closestStationName || '未选择'}</div>
+        <div>可达车站: ${reachableStationNames.length}</div>
+    `;
+}
+
+map.on('load', async function() {
+    // 1. 添加数据源
+    map.addSource('stations', {
+        type: 'vector',
+        url: 'mapbox://yallle0503.9g0hkfgi'
+    });
+    map.addSource('edges', {
+        type: 'vector',
+        url: 'mapbox://yallle0503.9bgonzwv'
+    });
+    map.addSource('natural_assets', {
+        type: 'vector',
+        url: 'mapbox://yallle0503.4lbkc4fp'
+    });
+
+    // 2. 添加基础图层
+    // (1) 灰色绿地(底层)
+    map.addLayer({
+        id: 'greenspace-fill-default',
+        type: 'fill',
+        source: 'natural_assets',
+        'source-layer': 'natural_assets-2q506d',
+        paint: {
+            'fill-color': '#D6D6D6',
+            'fill-opacity': 0.4,
+            'fill-outline-color': '#999'
+        },
+        minzoom: 5
+    });
+    
+    // (2) 悬停绿地(上层)
+    map.addLayer({
+        id: 'greenspace-fill-hover',
+        type: 'fill',
+        source: 'natural_assets',
+        'source-layer': 'natural_assets-2q506d',
+        paint: {
+            'fill-color': '#D6D6D0',
+            'fill-opacity': 0.7,
+            'fill-outline-color': '#2E7D32'
+        },
+        minzoom: 5
+    }, 'greenspace-fill-default');
+
+    // 3. 添加车站和线路图层
+    // (1) 所有车站(默认灰色)
+    map.addLayer({
+        id: 'stations-circle',
+        type: 'circle',
+        source: 'stations',
+        'source-layer': '505network_nodes-bv54ia',
+        paint: {
+            'circle-color': '#888',
+            'circle-radius': 1,
+            'circle-opacity': 0.8,
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#fff'
+        }
+    });
+
+    // (2) 起始车站(橙色)
+    map.addLayer({
+        id: 'origin-station',
+        type: 'circle',
+        source: 'stations',
+        'source-layer': '505network_nodes-bv54ia',
+        paint: {
+            'circle-color': '#FF5722',
+            'circle-radius': 6,
+            'circle-opacity': 1,
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#fff'
+        },
+        filter: ['==', ['get', 'name'], '']
+    });
+
+    // (3) 所有线路
+    map.addLayer({
+        id: 'edges-line',
+        type: 'line',
+        source: 'edges',
+        'source-layer': '505network_edges-8juinw',
+        paint: {
+            'line-color': '#ccc',
+            'line-opacity': 0.3,
+            'line-width': 0.8
+        }
+    });
+
+
+
+    // (5) 高亮车站
+    map.addLayer({
+        id: 'highlighted-station',
+        type: 'circle',
+        source: 'stations',
+        'source-layer': '505network_nodes-bv54ia',
+        paint: {
+            'circle-color': '#FF5722',
+            'circle-radius': 4,
+            'circle-opacity': 1,
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#fff'
+        },
+        filter: ['==', 'name', '']
+    });
+
+    // (6) 绿地关联的高亮车站(蓝色)
+    map.addLayer({
+        id: 'highlighted-station2',
+        type: 'circle',
+        source: 'stations',
+        'source-layer': '505network_nodes-bv54ia',
+        paint: {
+            'circle-color': '#42A5F5',
+            'circle-radius': 6,
+            'circle-opacity': 1,
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#fff'
+        },
+        filter: ['==', 'name', '']
+    });
+
+    // 4. 车站悬停弹窗
+    function setupStationHover(layerId) {
+        map.on('mouseenter', layerId, (e) => {
+            map.getCanvas().style.cursor = 'pointer';
+            const feature = e.features[0];
+            const coordinates = feature.geometry.coordinates.slice();
+            const name = getStationIdentifier(feature);
+            popup.setLngLat(coordinates)
+                 .setHTML(`<strong>${name}</strong>`)
+                 .addTo(map);
+        });
+
+        map.on('mouseleave', layerId, () => {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+    }
+    setupStationHover('stations-circle');
+    setupStationHover('origin-station');
+    setupStationHover('highlighted-station');
+    setupStationHover('highlighted-station2');
+
+
+    document.getElementById('timeRange').addEventListener('input', function () {
+    document.getElementById('timeValue').textContent = `${this.value} 分钟`;
+    const minutes = parseInt(this.value);
+    const seconds = minutes * 60;
+
+    if (originCoords) {
+        updateIsochrone(seconds, {
+            lat: originCoords.lat,
+            lng: originCoords.lng
+        });
+    }
+});
+
+
+    // 5. 可拖动的起始标记
+    const originMarker = new mapboxgl.Marker({
+        draggable: true,
+        color: "#E57373"
+    })
+    .setLngLat(map.getCenter())
+    .addTo(map);
+
+    originCoords = originMarker.getLngLat();
+
+    originMarker.on('dragend', async () => {
+        originCoords = originMarker.getLngLat();
+        const closest = await findClosestStation(originCoords);
+        closestStationName = getStationIdentifier(closest);
+
+        if (closestStationName) {
+            map.setFilter('origin-station', ['==', ['get', 'name'], closestStationName]);
+        }
+        // ✅ 新增：设置 startStationId，确保悬停绿地后能立即绘制路径
+    if (closest && closest.properties && closest.properties.id !== undefined) {
+    startStationId = closest.properties.id;
+    }
+        updateDebugInfo();
+        if (closest && closest.properties && closest.properties.id !== undefined) {
+            startStationId = closest.properties.id;
+            updatePathIfReady();
+        
+        }
+    const travelTime = parseInt(document.getElementById('timeRange').value) * 60; // 转换为秒
+updateIsochrone(travelTime, {
+    lat: originCoords.lat,
+    lng: originCoords.lng
+});
+
+
+    });
+
+    // 6. 绿地悬停效果
+    async function findClosestStationToGreenSpace(greenSpaceId) {
+        try {
+            // 获取绿地特征
+            const greenSpaceFeatures = map.querySourceFeatures('natural_assets', {
+                sourceLayer: 'natural_assets-2q506d',
+                filter: ['==', 'fid', greenSpaceId]
+            });
+            
+            if (!greenSpaceFeatures || greenSpaceFeatures.length === 0) {
+                console.warn("未找到ID为", greenSpaceId, "的绿地");
+                return null;
+            }
+
+            const greenSpace = greenSpaceFeatures[0];
+            
+            // 验证几何数据
+            if (!greenSpace.geometry || !greenSpace.geometry.coordinates) {
+                console.warn("绿地几何数据无效:", greenSpace);
+                return null;
+            }
+
+            // 计算中心点坐标
+            let centerCoords;
+            try {
+                const center = turf.centroid(greenSpace.geometry);
+                centerCoords = center.geometry.coordinates;
+            } catch (e) {
+                console.warn("使用第一个坐标作为后备中心点");
+                // 如果计算中心点失败，使用第一个坐标作为近似中心
+                if (Array.isArray(greenSpace.geometry.coordinates[0][0])) {
+                    centerCoords = greenSpace.geometry.coordinates[0][0];
+                } else {
+                    centerCoords = greenSpace.geometry.coordinates[0];
+                }
+            }
+
+            // 获取所有车站
+            const stationFeatures = map.querySourceFeatures('stations', {
+                sourceLayer: '505network_nodes-bv54ia'
+            });
+
+            if (!stationFeatures || stationFeatures.length === 0) {
+                console.warn("未找到车站数据");
+                return null;
+            }
+
+            // 查找最近车站
+            let closestStation = null;
+            let minDistance = Infinity;
+
+            stationFeatures.forEach(station => {
+                try {
+                    if (!station.geometry || !station.geometry.coordinates) {
+                        console.warn("车站坐标缺失:", station);
+                        return;
+                    }
+                    
+                    const distance = turf.distance(
+                        turf.point(station.geometry.coordinates),
+                        turf.point(centerCoords)
+                    );
+                    
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestStation = station;
+                    }
+                } catch (e) {
+                    console.warn("处理车站时出错:", station, e);
+                }
+            });
+
+            return closestStation;
+        } catch (error) {
+            console.error("查找离绿地最近车站时出错:", error);
+            return null;
+        }
+    }
+
+    async function highlightStationOnHover(greenSpaceId) {
+        try {
+            const closestStation = await findClosestStationToGreenSpace(greenSpaceId);
+            
+            if (!closestStation) {
+                console.warn("未找到绿地", greenSpaceId, "附近的车站");
+                return;
+            }
+
+            const stationName = getStationIdentifier(closestStation);
+            if (closestStation && closestStation.properties && closestStation.properties.id !== undefined) {
+                endStationId = closestStation.properties.id;
+                updatePathIfReady();
+            }
+
+            // 设置过滤器来高亮显示车站
+            map.setFilter('highlighted-station2', ['==', 'name', stationName]);
+
+            console.log("高亮车站:", stationName, "对应绿地:", greenSpaceId);
+            
+        } catch (error) {
+            console.error("高亮车站时出错:", error);
+            showAlert("高亮车站时出错");
+        }
+    }
+
+    // 绿地悬停事件
+    map.on('mousemove', 'greenspace-fill-default', async (e) => {
+        if (e.features.length > 0) {
+            const feature = e.features[0];
+            const greenSpaceId = feature.properties?.fid;
+
+            if (greenSpaceId !== undefined && greenSpaceId !== null) {
+                await highlightStationOnHover(greenSpaceId);
+            }
+        }
+    });
+
+    // 鼠标离开绿地时清除高亮
+    map.on('mouseleave', 'greenspace-fill-default', () => {
+        map.setFilter('highlighted-station2', ['==', 'name', '']);
+    });
+
+    // 7. 初始化
+    const closest = await findClosestStation(originCoords);
+    closestStationName = getStationIdentifier(closest);
+
+    if (closestStationName) {
+        map.setFilter('origin-station', ['==', ['get', 'name'], closestStationName]);
+    }
+
+    updateDebugInfo();
+});
+
+// 辅助函数：查找最近车站
+async function findClosestStation(coords) {
+    const features = map.querySourceFeatures('stations', {
+        sourceLayer: '505network_nodes-bv54ia'
+    });
+
+    let closestStation = null;
+    let minDistance = Infinity;
+
+    features.forEach(function(station) {
+        const stationCoords = turf.point(station.geometry.coordinates);
+        const distance = turf.distance(stationCoords, turf.point([coords.lng, coords.lat]));
+
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestStation = station;
+        }
+    });
+
+    return closestStation;
+}
+map.on('load', async function() {
+    // === 原始源与图层加载代码保留 ===
+
+    // ✅ 添加最短路径数据源与图层（一次性加载）
+    map.addSource('shortest-path', {
+    type: 'geojson',
+    data: {
+        type: 'FeatureCollection',
+        features: []
+    }
+});
+
+    map.addLayer({
+        id: 'shortest-path-line',
+        type: 'line',
+        source: 'shortest-path',
+        layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        paint: {
+            'line-color': '#eb5c5c',
+            'line-width': 3,
+            'line-opacity': 0.9
+        }
+    });
+});
+async function updateIsochrone(travelTime, coords) {
+    try {
+        const res = await fetch("https://api.traveltimeapp.com/v4/time-map", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Application-Id": "2b79ce8a",
+                "X-Api-Key": "ed689b7f33087e3e548a2fd3e7872ca1"
+            },
+            body: JSON.stringify({
+                departure_searches: [{
+                    id: "isochrone_1",
+                    coords: coords,
+                    departure_time: new Date().toISOString(),
+                    travel_time: travelTime,
+                    transportation: { type: "driving+train" },
+                    level_of_detail: { scale_type: "simple", level: "medium" },
+                    remove_water_bodies: true,
+                    render_mode: "approximate_time_filter"
+                }]
+            })
+        });
+
+        const data = await res.json();
+        const shapes = data.results?.[0]?.shapes || [];
+
+        const features = shapes.map(shape => ({
+            type: "Feature",
+            geometry: {
+                type: "Polygon",
+                coordinates: [shape.shell.map(p => [p.lng, p.lat])]
+            },
+            properties: {}
+        }));
+
+        if (map.getSource("isochrone")) {
+            map.removeLayer("isochrone-layer");
+            map.removeSource("isochrone");
+        }
+
+        if (features.length > 0) {
+            map.addSource("isochrone", {
+                type: "geojson",
+                data: {
+                    type: "FeatureCollection",
+                    features: features
+                }
+            });
+
+            map.addLayer({
+                id: "isochrone-layer",
+                type: "fill",
+                source: "isochrone",
+                paint: {
+                    "fill-color": "#007BFF",
+                    "fill-opacity": 0.3,
+                    "fill-outline-color": "#007BFF"
+                }
+            });
+
+            highlightStationsWithinIsochrone(features); // 如果你实现了这个函数
+        }
+    } catch (err) {
+        console.error("Isochrone request failed", err);
+    }
+}
+
+
+async function updatePathIfReady() {
+    if (startStationId !== null && endStationId !== null) {
+        try {
+            const res = await fetch(`http://127.0.0.1:5000/shortest-path?start_id=${startStationId}&end_id=${endStationId}`);
+            const geojson = await res.json();
+
+            if (geojson.error) {
+                console.warn("路径计算失败：", geojson.error);
+                showAlert("路径加载失败");
+                return;
+            }
+
+            // 动画效果绘线
+            animateLine(geojson.geometry.coordinates);
+
+        } catch (err) {
+            console.error("请求路径出错：", err);
+            showAlert("路径加载失败");
+        }
+    }
+}
+//动画
+function animateLine(coordinates) {
+    let i = 0;
+    let frameCounter = 0;
+    const total = coordinates.length;
+
+    const line = {
+        type: "Feature",
+        geometry: {
+            type: "LineString",
+            coordinates: []
+        },
+        properties: {}
+    };
+
+    function draw() {
+        if (i < total) {
+            if (frameCounter % 3 === 0) {  // 每 3 帧推进一次
+                line.geometry.coordinates.push(coordinates[i]);
+                map.getSource('shortest-path').setData({
+                    type: "FeatureCollection",
+                    features: [line]
+                });
+                i++;
+            }
+            frameCounter++;
+            requestAnimationFrame(draw);
+        }
+    }
+
+    draw();
+}
+
+</script>
+</body>
+</html>
