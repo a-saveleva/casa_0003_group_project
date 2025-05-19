@@ -927,40 +927,32 @@ font-size: 10px;
 
 
 
-    #card-container {
-      position: relative;
-      bottom: 5%;
-      left: 50%;
-      
-      transform: translateX(-50%);
-      width: 100%;
-      z-index: 9999;
-      pointer-events: none;
-    }
-    .card {
-      
-      position: absolute;
-      left: 75%;
-      transform: translateX(-50%);
-      font-family: 'Segoe UI', sans-serif;
-      color: #f0f0f0;  
-      width: 600px;
-      height: 130px;
-      background: #96b7c8;
-      border-radius: 10px;
-      padding: 16px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-      text-align:left;
-        line-height: 1.3;             /* ✅ 增大行距 */
-       
-      font-size: 18px;
-      opacity: 0.8;
-      transition: transform 0.6s ease, opacity 0.6s ease, visibility 0s linear 1s;
-      border-radius: 0; 
-        border-top: 3px solid rgb(18, 90, 163);       /* ✅ 上白边 */
-        border-bottom: 1px solid rgb(18, 90, 163);    /* ✅ 下白边 */
-      pointer-events: auto;
-    }
+#card-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.card {
+  position: absolute;
+  left: 50%;
+  max-width: 600px;
+  background: white;
+  color: black;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  font-size: 16px;
+  line-height: 1.5;
+  transform: translate(-50%, 0);
+  transition: transform 0.2s ease-out;
+}
+
+
     .card strong {
   display: block;
   font-size: 18px;

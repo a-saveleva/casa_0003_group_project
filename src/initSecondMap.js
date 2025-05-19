@@ -7,17 +7,16 @@ export function  initSecondMap() {
   let scrollDistance = 0;
   let lastScrollTime = 0
   let introCleared = false;  // ✅ 加上这句
-const scrollThreshold = 600; 
+const scrollThreshold = 900; 
 const cardLiftThreshold = 600;
 
 // 每张卡片完全上浮所需的总距离（例如 8次×20）
 const perScrollStep = 200;    // 每次滚轮滑动卡片移动距离）
 
   const maxShiftPercent = 90;  // 总共上浮百分比
-  const maxLift = 10; // 卡片最多上浮 120px
-  
+  const maxLift = 600;
 
-  const maxStage =10;
+  const maxStage =9;
   const durations = ['30min','60min','90min','120min'];
   const cityCoords = {
     London: [-0.02, 51.30], Manchester: [-2.24, 53.48],
@@ -81,25 +80,21 @@ const activityData = [
 
   //
     
-  function restoreAllLayers() {
+function restoreAllLayers() {
   secondMap.getCanvas().style.cursor = '';
   durations.forEach(dur => {
-    const ids = sortedFeatures
-      .filter(f => f.properties.id.endsWith(dur))
-      .map(f => f.properties.id);
-    secondMap.setFilter(`iso-fill-${dur}`, ['match', ['get', 'id'], ids, true, false]);
-    secondMap.setFilter(`iso-line-${dur}`, ['match', ['get', 'id'], ids, true, false]);
+    secondMap.setPaintProperty(`iso-fill-${dur}`, 'fill-opacity', 0.2);
+    secondMap.setPaintProperty(`iso-line-${dur}`, 'line-opacity', 0.8);
   });
 }
 
-function handleWheel(e) {
 
-    console.log('📦 wheel triggered', scrollStage, scrollDistance);
- const liftY = Math.min(scrollDistance, cardLiftThreshold);  // ✅ 用新的变量
+
+function handleWheel(e) {
   if (scrollStage < maxStage) e.preventDefault();
 
   const now = Date.now();
-  if (now - lastScrollTime < 300) return;
+  if (now - lastScrollTime < 100) return;
   lastScrollTime = now;
 
   if (!introCleared) {
@@ -114,28 +109,36 @@ function handleWheel(e) {
     return;
   }
 
-  if (scrollStage < maxStage) {
-    scrollDistance += e.deltaY;
-    const liftY = Math.min(scrollDistance, scrollThreshold);
+  if (scrollStage >= maxStage) return;
 
-    const allCards = document.querySelectorAll('.card');
-    allCards.forEach(card => {
-      const cardStage = Number(card.getAttribute('data-stage'));
-      if (cardStage === scrollStage - 1) {
-        const startBottom = 5;
-        const newBottom = startBottom + (liftY / scrollThreshold) * maxShiftPercent;
-        card.style.bottom = `${newBottom}%`;
-        card.style.opacity = 1 - (liftY / scrollThreshold) * 0.4;
-      }
-    });
+  scrollDistance += e.deltaY * 2;
 
-    if (scrollDistance > scrollThreshold&& scrollStage < maxStage) {
-      scrollStage++;
-      scrollDistance = 0;
-      showNewCard(scrollStage);
-      updateMapAndCard(scrollStage);
-    }
+  const allCards = document.querySelectorAll('.card');
+  allCards.forEach(card => {
+    const cardStage = Number(card.getAttribute('data-stage'));
+    const shift = (scrollStage - cardStage) * scrollThreshold + scrollDistance;
+    card.style.transform = `translate(calc(-50% + 400px), -${shift}px)`;
+  });
+
+  // ✅ 检查上一张是否彻底出画（rect.bottom < 0）
+  const prevCard = document.querySelector(`.card[data-stage="${scrollStage - 1}"]`);
+  const prevCardGone = !prevCard || prevCard.getBoundingClientRect().bottom < 0;
+
+  // ✅ 仅当上一张彻底出画 + 滚动量超限，才加载新卡片
+  if (scrollDistance > scrollThreshold && scrollStage < maxStage && prevCardGone) {
+    scrollStage++;
+    scrollDistance = 0;
+    showNewCard(scrollStage);
+    updateMapAndCard(scrollStage);
   }
+
+  // ✅ 清理离开视野的卡片（如果仍残留）
+  allCards.forEach(card => {
+    const rect = card.getBoundingClientRect();
+    if (rect.bottom < -100) {
+      card.remove();
+    }
+  });
 
   if (scrollStage >= maxStage) {
     window.removeEventListener('wheel', handleWheel);
@@ -147,6 +150,9 @@ function handleWheel(e) {
     }
   }
 }
+
+
+
 
   const colorMap = {
     30:'#c3b602',
@@ -173,6 +179,39 @@ recs = sortedFeatures.map(f => {
   };
 });
 drawBubbleChart(recs);  // 加在 recs 构造完成后
+  // ✅ 再生成城市按钮（必须在 recs 初始化后）
+const ctrl = d3.select('#controls-panel');
+const cities = Array.from(new Set(recs.map(r => r.city)));
+cities.forEach(c => {
+  ctrl.append('button')
+    .text(c)
+    .attr('class', 'city-btn')
+    .on('click', function () {
+      d3.selectAll('.city-btn').classed('active', false);
+      d3.select(this).classed('active', true);
+      filterCity(c);
+      if (cityCoords[c]) {
+        secondMap.flyTo({
+          center: cityCoords[c],
+          zoom: 8.5,
+          speed: 0.8,
+          curve: 1.5,
+          essential: true
+        });
+      }
+    });
+});
+
+// ✅ 添加 Show All 按钮
+ctrl.append('button')
+  .text('Show All')
+  .attr('class', 'city-btn')
+  .on('click', function () {
+    d3.selectAll('.city-btn').classed('active', false);
+    d3.select(this).classed('active', true);
+    filterCity(null);
+  });
+
 
     // 2. 加载 GeoJSON 并绘制等时圈 / edges / stations
 secondMap.addSource('iso', {
@@ -288,38 +327,6 @@ document.getElementById('green-toggle').addEventListener('change', function(e) {
   if (secondMap.getLayer('all-points-layer')) {
     secondMap.setLayoutProperty('all-points-layer', 'visibility', visible);
   }
-  // ✅ 再生成城市按钮（必须在 recs 初始化后）
-const ctrl = d3.select('#controls-panel');
-const cities = Array.from(new Set(recs.map(r => r.city)));
-cities.forEach(c => {
-  ctrl.append('button')
-    .text(c)
-    .attr('class', 'city-btn')
-    .on('click', function () {
-      d3.selectAll('.city-btn').classed('active', false);
-      d3.select(this).classed('active', true);
-      filterCity(c);
-      if (cityCoords[c]) {
-        secondMap.flyTo({
-          center: cityCoords[c],
-          zoom: 8.5,
-          speed: 0.8,
-          curve: 1.5,
-          essential: true
-        });
-      }
-    });
-});
-
-// ✅ 添加 Show All 按钮
-ctrl.append('button')
-  .text('Show All')
-  .attr('class', 'city-btn')
-  .on('click', function () {
-    d3.selectAll('.city-btn').classed('active', false);
-    d3.select(this).classed('active', true);
-    filterCity(null);
-  });
 
 });
 
@@ -345,7 +352,7 @@ ctrl.append('button')
   
 
   // ✅ 正确位置（放 initSecondMap() 内部，window.addEventListener 之后）
-scrollStage = 1;
+scrollStage = 0;
 scrollDistance = 0;
 cardContainer.innerHTML = '';
 showNewCard(0);  // ✅ 只显示第一张卡片（对应 data-stage=0）
@@ -358,6 +365,7 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
   })                    //结束**************************************
      //卡片
   function updateMapAndCard(stage) {
+    if (stage > 8) return;  // ✅ 防止 maxStage + 1 时执行清除动作
     // ✅ 统一清除旧图层
   secondMap.setLayoutProperty('edges-line', 'visibility', 'none');
     secondMap.setLayoutProperty('stations-circle', 'visibility', 'none');
@@ -408,6 +416,29 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
         secondMap.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
       });
       secondMap.setLayoutProperty('all-points-layer', 'visibility', 'visible');
+      secondMap.flyTo({ center: [-1.5, 53.1], zoom: 6.2});
+  
+      setTimeout(() => {
+        d3.select('#bubble-chart').style('display', 'block');
+        d3.select('#controls-panel').style('display', 'block');
+        d3.select('#layer-toggle').style('display', 'block');
+  
+        setTimeout(() => {
+          drawBubbleChart(recs);
+          d3.selectAll('.city-btn').classed('active', false);
+          d3.select('#controls button').filter(function() {
+            return this.textContent === 'Show All';
+          }).classed('active', true);
+          filterCity(null);
+        }, 100);
+      }, 200);
+    
+        } else if (stage === 6) {
+      ['30min','60min','90min','120min'].forEach(dur => {
+        secondMap.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'visible');
+        secondMap.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
+      });
+      secondMap.setLayoutProperty('all-points-layer', 'visibility', 'visible');
       secondMap.flyTo({ center: [-0.0076, 51.2072], zoom: 8.1 });
   
       setTimeout(() => {
@@ -427,7 +458,7 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
   
     
   
-    } else if (stage === 6) {
+    } else if (stage === 7) {
     // ✅ 重新开启所有等时圈
     ['30min','60min','90min','120min'].forEach(dur => {
       secondMap.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'visible');
@@ -452,7 +483,7 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
         filterCity(null);
       }, 100);
     }, 200);
-  }else if (stage === 7) {
+  }else if (stage === 8) {
     // ✅ 同样开启所有图层
     ['30min','60min','90min','120min'].forEach(dur => {
       secondMap.setLayoutProperty(`iso-fill-${dur}`, 'visibility', 'visible');
@@ -609,38 +640,24 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
   });
   
   
-
-  
-
-  // 填入完整函数逻辑（略）
 function showNewCard(stage) {
   const newCard = document.createElement('div');
   newCard.className = 'card';
-  newCard.innerHTML = textData[stage] || `Stage ${stage}`;
   newCard.setAttribute('data-stage', stage);
+  newCard.innerHTML = textData[stage] || `Stage ${stage}`;
 
-  // ✅ 设置初始样式（从底部开始）
+  // 初始完全位于屏幕底部外
   newCard.style.position = 'absolute';
   newCard.style.left = '50%';
-  newCard.style.transform = 'translateX(-50%)';
-  newCard.style.bottom = '5%';  // 起始位置
-  newCard.style.opacity = 1;    // 初始透明度
-  newCard.style.transition = 'none';  // 初始无动画
+  newCard.style.top = '100%';
+  newCard.style.transform = 'translate(-50%, 0)';
+  newCard.style.transition = 'none';
 
   cardContainer.appendChild(newCard);
-
-  // ✅ 重新启用动画过渡
-  setTimeout(() => {
-    newCard.style.transition = 'bottom 0.4s ease-out, opacity 0.4s ease-out';
-  }, 20);
-
-  // ✅ 清理旧卡片（保留 2 张以内）
-  const all = document.querySelectorAll('.card');
-  if (all.length > 3) all[0].remove();
-
-  scrollDistance = 0;
-  console.log('🚀 card created for stage', stage);
 }
+
+
+
 
 
   
@@ -1038,18 +1055,30 @@ function handleHover(e) {
   const hoveredId = e.features[0].properties.id;
   const cityPrefix = hoveredId.split('_')[0];
 
-  const idsToShow = sortedFeatures
-    .filter(f => f.properties.id.startsWith(cityPrefix))
-    .map(f => f.properties.id);
-
   durations.forEach(dur => {
-    secondMap.setFilter(`iso-fill-${dur}`, ['match', ['get', 'id'], idsToShow, true, false]);
-    secondMap.setFilter(`iso-line-${dur}`, ['match', ['get', 'id'], idsToShow, true, false]);
+    const layerId = `iso-fill-${dur}`;
+    const lineId = `iso-line-${dur}`;
+
+    // 设置 fill 图层透明度
+    secondMap.setPaintProperty(layerId, 'fill-opacity', [
+      'case',
+      ['==', ['slice', ['get', 'id'], 0, cityPrefix.length], cityPrefix],
+      0.2,   // 当前 hover 城市保持正常透明度
+      0.03   // 其他城市虚化
+    ]);
+
+    // 设置线图层透明度（可选）
+    secondMap.setPaintProperty(lineId, 'line-opacity', [
+      'case',
+      ['==', ['slice', ['get', 'id'], 0, cityPrefix.length], cityPrefix],
+      0.8,
+      0.05
+    ]);
   });
+}
+}
+
+
+
   // ✅ 放在这里（initSecondMap 函数末尾、on(load) 外部）
 
-
-
-}//+++++
-
-}
