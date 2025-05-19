@@ -285,8 +285,23 @@ font-size: 10px;
   background: #007BFF;
   border: 2px solid #fff;
   box-shadow: 0 0 4px rgba(0,0,0,0.3);
+  pointer-events: none;
+  z-index: 500;
+}
+.custom-marker.active {
+  z-index: 4000;
+}
+.custom-marker::before { 
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: -12px;
+  width: 42px;  /* 18 + 12*2 */
+  height: 42px; /* 18 + 12*2 */
+  border-radius: 50%;
+  background: transparent;
+  pointer-events: auto;
   cursor: pointer;
-  z-index: 1000;
 }
 
 #chart {
@@ -341,21 +356,23 @@ font-size: 10px;
   background: red;
   z-index: 99;
   padding: 0px;
+  /* z-index: 1200 !important;
+  position: relative; */
 }
 .place-name-popup {
   overflow: visible;
   text-overflow: unset; 
-  width: auto;
+  width: 100%;
   white-space: nowrap;
-  max-width: none !important;
-  background-color: var(--navbar-highlight-colour) !important;
+  /* max-width: none !important; */
+  /* background-color: var(--navbar-highlight-colour) !important; */
   border-radius: 0px;
   font-family: var(--text-normal-font);
   font-size: 14px;
   font-weight: var(--text-highlight-weight);
   color: white !important;
-  padding-left: 5px;
-  padding-right: 50px;
+  /* padding-left: 5px; */
+  /* padding-right: 50px; */
   text-align: left;
   display: flex;
   align-items: left;
@@ -374,7 +391,7 @@ font-size: 10px;
 @keyframes popup-roll-in {
   0% {
     opacity: 0;
-    transform: translateX(25px); /* Comes from right */
+    transform: translateX(25px);
   }
   100% {
     opacity: 1;
@@ -392,7 +409,13 @@ font-size: 10px;
     transform: translateX(25px); /* Disappears to right */
   }
 }
-
+.mapboxgl-popup {
+  z-index: 1200 !important;
+  max-width: auto !important;
+  padding-right: 30px;
+  padding-left: 5px;
+  background-color: var(--navbar-highlight-colour) !important;
+}
 
 .mapboxgl-popup-tip {
   display: none;

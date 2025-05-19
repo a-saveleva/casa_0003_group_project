@@ -44,7 +44,10 @@ let startStationId = null;
 let endStationId = null;
 const popup = new mapboxgl.Popup({
     closeButton: false,
-    closeOnClick: false
+    closeOnClick: false,
+    // setLayoutProperty: {
+    //     'background-color': 'var(--navbar-highlight-colour) !important'
+    // }
 });
 // Create a popup, but don't add it to the map yet.
 // var place_name_popup = new AnimatedPopup({
@@ -548,6 +551,7 @@ map.on('load', async function() {
     let hoveredGreenspaceId = null;
 
     async function handleGreenspaceHover(feature) {
+        if (isChartFrozen) return;
         if (!feature) return;
 
         map.getCanvas().style.cursor = 'pointer';
@@ -717,8 +721,52 @@ map.on('load', async function() {
     //             d3.select(this).remove(); // Remove each bar after animation
     //     });
     // });
+    let previousChartState = null;
+    let isChartFrozen = false;
+
+    function recordChartState() {
+        previousChartState = {
+            placeName: chartPlaceName ? chartPlaceName.text() : null,
+            chartText: chartTextElement ? chartTextElement.text() : null,
+            barsData: svg.selectAll(".bar").data()
+        };
+    }
+
+    function resetChartState() {
+        // Reset chart text
+        isChartFrozen = false;
+        if (chartTextElement) {
+            chartTextElement.style("opacity", 1);
+            chartTextElement.text(""); // Clear previous text
+            chartTextElement.selectAll("tspan").remove();
+            chartTextElement.append("tspan")
+                .attr("x", width / 2)
+                .attr("dy", -25)
+                .text("3. Hover over a natural asset to see")
+                .attr("class", "text-normal")
+                .style("font-weight", 700);
+            chartTextElement.append("tspan")
+                .attr("x", width / 2)
+                .attr("dy", "1.2em")
+                .text(" how well it serves various activities")
+                .attr("class", "text-normal")
+                .style("font-weight", 700);
+            chartTextElement.append("tspan")
+                .attr("x", width / 2)
+                .attr("dy", "1.2em")
+                .text("and/or select category of interest")
+                .attr("class", "text-normal")
+                .style("font-weight", 700);
+        }
+        // Reset place name
+        if (chartPlaceName) chartPlaceName.text("No asset selected");
+        // Remove bars
+        svg.selectAll(".bar").remove();
+    }
     map.on('click', 'greenspace-fill-default', (e) => {
         // save previous map state
+        recordChartState();
+        isChartFrozen = true;
         previousMapState = {
             center: map.getCenter(),
             zoom: map.getZoom(),
@@ -737,8 +785,8 @@ map.on('load', async function() {
                 instructions2: document.getElementById('controls-instructions2').style.display,
                 mapTitle: document.getElementById('map-title').style.display
             }
-            
         };
+
 
         if (e.features.length > 0) {
 
@@ -784,6 +832,7 @@ map.on('load', async function() {
                 });
 
                 backButton.addEventListener('click', () => {
+                    resetChartState();
                     if (previousMapState) {
                         // Restore map view
                         map.setMinZoom(previousMapState.minZoom);
@@ -998,16 +1047,18 @@ map.on('load', async function() {
             // Now wait for the isochrone to finish before fitting bounds
             updateIsochrone(travelTime, originCoords).then((features) => {
                 if (features && features.length > 0) {
-                    const boundsIsochrone = turf.bbox({
-                        type: "FeatureCollection",
-                        features: features
-                    });
+                    console.log("Building isochrone with features:", features);
 
-                    map.fitBounds(boundsIsochrone, {
-                        padding: 10,
-                        duration: 1000,
-                        offset: [window.innerWidth / 12, 0]
-                    });
+                    // const boundsIsochrone = turf.bbox({
+                    //     type: "FeatureCollection",
+                    //     features: features
+                    // });
+
+                    // map.fitBounds(boundsIsochrone, {
+                    //     padding: 10,
+                    //     duration: 1000,
+                    //     offset: [window.innerWidth / 12, 0]
+                    // });
                 }
             });
 
@@ -1064,93 +1115,92 @@ map.on('load', async function() {
     });
 
     
-    // 6. 绿地悬停效果
-    async function findClosestStationToGreenSpace(greenSpaceId) {
-        try {
-            // 获取绿地特征
-            const greenSpaceFeatures = map.querySourceFeatures('natural_assets', {
-                sourceLayer: 'natural_assets-2q506d',
-                filter: ['==', 'fid', greenSpaceId]
-            });
-            
-            if (!greenSpaceFeatures || greenSpaceFeatures.length === 0) {
-                console.warn("未找到ID为", greenSpaceId, "的绿地");
-                return null;
-            }
-
-            const greenSpace = greenSpaceFeatures[0];
-            
-            // 验证几何数据
-            if (!greenSpace.geometry || !greenSpace.geometry.coordinates) {
-                console.warn("绿地几何数据无效:", greenSpace);
-                return null;
-            }
-
-            // 计算中心点坐标
-            let centerCoords;
-            try {
-                const center = turf.centroid(greenSpace.geometry);
-                centerCoords = center.geometry.coordinates;
-            } catch (e) {
-                console.warn("使用第一个坐标作为后备中心点");
-                // 如果计算中心点失败，使用第一个坐标作为近似中心
-                if (Array.isArray(greenSpace.geometry.coordinates[0][0])) {
-                    centerCoords = greenSpace.geometry.coordinates[0][0];
-                } else {
-                    centerCoords = greenSpace.geometry.coordinates[0];
-                }
-            }
-
-            // 获取所有车站
-            const stationFeatures = map.querySourceFeatures('stations', {
-                sourceLayer: '505network_nodes-bv54ia'
-            });
-
-            if (!stationFeatures || stationFeatures.length === 0) {
-                console.warn("未找到车站数据");
-                return null;
-            }
-
-            // 查找最近车站
-            let closestStation = null;
-            let minDistance = Infinity;
-
-            stationFeatures.forEach(station => {
-                try {
-                    if (!station.geometry || !station.geometry.coordinates) {
-                        console.warn("车站坐标缺失:", station);
-                        return;
-                    }
-                    
-                    const distance = turf.distance(
-                        turf.point(station.geometry.coordinates),
-                        turf.point(centerCoords)
-                    );
-                    
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        closestStation = station;
-                    }
-                } catch (e) {
-                    console.warn("处理车站时出错:", station, e);
-                }
-            });
-
-            return closestStation;
-        } catch (error) {
-            console.error("查找离绿地最近车站时出错:", error);
+async function findClosestStationToGreenSpace(greenSpaceId) {
+    try {
+        // Get green space feature
+        const greenSpaceFeatures = map.querySourceFeatures('natural_assets', {
+            sourceLayer: 'natural_assets-2q506d',
+            filter: ['==', 'fid', greenSpaceId]
+        });
+        
+        if (!greenSpaceFeatures || greenSpaceFeatures.length === 0) {
+            // console.warn("No green space found with ID", greenSpaceId);
             return null;
         }
+
+        const greenSpace = greenSpaceFeatures[0];
+        
+        // Validate geometry data
+        if (!greenSpace.geometry || !greenSpace.geometry.coordinates) {
+            console.warn("Invalid green space geometry:", greenSpace);
+            return null;
+        }
+
+        // Calculate centroid coordinates
+        let centerCoords;
+        try {
+            const center = turf.centroid(greenSpace.geometry);
+            centerCoords = center.geometry.coordinates;
+        } catch (e) {
+            console.warn("Using first coordinate as fallback centroid");
+            // If centroid calculation fails, use the first coordinate as an approximate center
+            if (Array.isArray(greenSpace.geometry.coordinates[0][0])) {
+                centerCoords = greenSpace.geometry.coordinates[0][0];
+            } else {
+                centerCoords = greenSpace.geometry.coordinates[0];
+            }
+        }
+
+        // Get all stations
+        const stationFeatures = map.querySourceFeatures('stations', {
+            sourceLayer: '505network_nodes-bv54ia'
+        });
+
+        if (!stationFeatures || stationFeatures.length === 0) {
+            console.warn("No station data found");
+            return null;
+        }
+
+        // Find the closest station
+        let closestStation = null;
+        let minDistance = Infinity;
+
+        stationFeatures.forEach(station => {
+            try {
+                if (!station.geometry || !station.geometry.coordinates) {
+                    console.warn("Station coordinates missing:", station);
+                    return;
+                }
+                
+                const distance = turf.distance(
+                    turf.point(station.geometry.coordinates),
+                    turf.point(centerCoords)
+                );
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestStation = station;
+                }
+            } catch (e) {
+                console.warn("Error processing station:", station, e);
+            }
+        });
+
+        return closestStation;
+    } catch (error) {
+        console.error("Error finding closest station to green space:", error);
+        return null;
     }
+}
 
     async function highlightStationOnHover(greenSpaceId) {
         try {
             const closestStation = await findClosestStationToGreenSpace(greenSpaceId);
             
-            if (!closestStation) {
-                console.warn("未找到绿地", greenSpaceId, "附近的车站");
-                return;
-            }
+            // if (!closestStation) {
+            //     console.warn("No station found near green space", greenSpaceId);
+            //     return;
+            // }
 
             const stationName = getStationIdentifier(closestStation);
             if (closestStation && closestStation.properties && closestStation.properties.id !== undefined) {
@@ -1158,17 +1208,16 @@ map.on('load', async function() {
                 updatePathIfReady();
             }
 
-            // 设置过滤器来高亮显示车站
+            // Set filter to highlight the station
             map.setFilter('highlighted-station2', ['==', 'name', stationName]);
 
-            console.log("高亮车站:", stationName, "对应绿地:", greenSpaceId);
+            console.log("Highlighted station:", stationName, "for green space:", greenSpaceId);
             
         } catch (error) {
-            console.error("高亮车站时出错:", error);
-            showAlert("高亮车站时出错");
+            console.error("Error highlighting station:", error);
+            // showAlert("Error highlighting station");
         }
     }
-
     // 绿地悬停事件
     map.on('mousemove', 'greenspace-fill-default', async (e) => {
         if (e.features.length > 0) {
@@ -1305,9 +1354,8 @@ function animateLine(coordinates) {
 
 async function clearMarkers() {
     activeMarkers.forEach(marker => marker.remove());
-    activeMarkers.length = 0;
+    activeMarkers = [];
 }
-
 
 function showProcessingOverlay() {
     document.getElementById('processing-overlay').style.display = 'flex';
@@ -1396,20 +1444,40 @@ async function updateIsochrone(travelTime, coords) {
                 type: "FeatureCollection",
                 features: features
             });
-            const sw = map.project([boundsIsochrone[0], boundsIsochrone[1]]); // [lng, lat] → bottom-left
-            const ne = map.project([boundsIsochrone[2], boundsIsochrone[3]]); // [lng, lat] → top-right
-            const screenBbox = [ [sw.x, ne.y], [ne.x, sw.y] ]; // [topLeft, bottomRight]
 
-            map.fitBounds(boundsIsochrone, {
-                padding: 80,
-                duration: 1000,
-                offset: [window.innerWidth / 11, 0] // Adjust for menus on the left
-            });
+            // map.fitBounds(boundsIsochrone, {
+            //     padding: {
+            //         top: 500,
+            //         bottom: 500,
+            //         left: 300,
+            //         right: 200
+            //     },
+            //     duration: 1000,
+            //     offset: [0, 0]
+            // });
+            // console.log("Map size after:", map.getCanvas().width, map.getCanvas().height);
 
-            const renderedAssets = map.queryRenderedFeatures(screenBbox, {
-                layers: ['greenspace-fill-default'],
-                filter: ['==', '$type', 'Polygon']
+            const sourceAssets = map.querySourceFeatures('natural_assets', {
+                sourceLayer: 'natural_assets_2-9ukio1'
             });
+            const bboxPolygon = turf.bboxPolygon(boundsIsochrone);
+
+            const renderedAssets = sourceAssets.filter(asset => {
+                try {
+                    const valid =
+                    asset.geometry &&
+                    (asset.geometry.type === 'Polygon' || asset.geometry.type === 'MultiPolygon') &&
+                    asset.geometry.coordinates?.length;
+
+                    if (!valid) return false;
+
+                    return turf.booleanIntersects(bboxPolygon, asset);
+                } catch (e) {
+                    console.warn("Error checking bbox intersect:", e, asset);
+                    return false;
+                }
+                });
+
 
             const candidateAssets = renderedAssets.filter(asset => {
                 try {
@@ -1421,20 +1489,32 @@ async function updateIsochrone(travelTime, coords) {
                     return false;
                 }
             });
+            var bounds = new mapboxgl.LngLatBounds();
+            bounds.extend(coords);
+            // const bbox = turf.bbox({
+            //     type: "FeatureCollection",
+            //     features: candidateAssets
+            // });
+
+            // map.fitBounds(bbox, {
+            //     padding: { top: 200, bottom: 200, left: 300, right: 100 },
+            //     duration: 1000
+            // });
 
             clearMarkers();
             
             const popupFids = new Set();
-            let activeMarkers = []; // If you want to track/remove markers later
 
             candidateAssets.forEach(asset => {
                 const fid = asset.properties?.fid;
+
                 if (popupFids.has(fid)) return;
 
                 const intersects = features.some(iso => turf.booleanIntersects(iso, asset));
                 if (!intersects) return;
 
                 const coordinates = turf.centerOfMass(asset).geometry.coordinates;
+                bounds.extend(coordinates);
                 const name = asset.properties?.name || 'Unnamed asset';
 
                 // Create popup for hover
@@ -1461,6 +1541,7 @@ async function updateIsochrone(travelTime, coords) {
 
                 // Show popup on hover
                 el.addEventListener('mouseenter', () => {
+                    el.classList.add('active');
                     popup.addTo(map).setLngLat(coordinates);
                     // Wait for the popup to be in the DOM and positioned
                     setTimeout(() => {
@@ -1468,14 +1549,15 @@ async function updateIsochrone(travelTime, coords) {
                         if (popupEl) {
                             popupEl.classList.add('animate-in');
                         }
-                    }, 100); // 10ms is usually enough, adjust if needed
+                    }, 10);
                     handleGreenspaceHover(asset);
                 });
                el.addEventListener('mouseleave', () => {
+                    el.classList.remove('active');
                     popup.remove();
                     const popupEl = document.querySelector('.place-name-popup');
                     if (popupEl) {
-                        popupEl.classList.remove('animate-in');
+                        popupEl.classList.remove('animate-out');
                     }
                     handleGreenspaceMouseleave(asset);
                 });
@@ -1495,6 +1577,15 @@ async function updateIsochrone(travelTime, coords) {
         }
         return []; //Return empty array on error as well
     } finally {
+        map.fitBounds(bounds, {
+            padding: {
+                top: window.innerHeight * 0.20,
+                bottom: window.innerHeight * 0.20,
+                left: window.innerWidth * 0.30,
+                right: window.innerWidth * 0.20
+            },
+            duration: 1000
+        });
         hideProcessingOverlay(); // Always hide overlay when done
     }
 }
