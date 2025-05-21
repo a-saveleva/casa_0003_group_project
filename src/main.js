@@ -36,6 +36,7 @@ const map = new mapboxgl.Map({
 let originCoords = null;
 let originIsSetByUser = false;
 let isochroneAbortController = null;
+let latestIsochroneRequestId = 0;
 let previousMapState = null;
 let reachableStationNames = [];
 let activeMarkers = [];
@@ -1366,6 +1367,7 @@ function hideProcessingOverlay() {
 
 async function updateIsochrone(travelTime, coords) {
     if (!coords) return;
+    const requestId = ++latestIsochroneRequestId; // unique ID for this request
     showProcessingOverlay(); // Show overlay
 
     // Cancel previous request
@@ -1565,6 +1567,28 @@ async function updateIsochrone(travelTime, coords) {
                 popupFids.add(fid);
             });
 
+            if (activeMarkers.length > 0) {
+                map.fitBounds(bounds, {
+                    padding: {
+                        top: window.innerHeight * 0.20,
+                        bottom: window.innerHeight * 0.20,
+                        left: window.innerWidth * 0.30,
+                        right: window.innerWidth * 0.20
+                    },
+                    duration: 1000
+                });
+                } else {
+                    map.fitBounds(boundsIsochrone, {
+                        padding: {
+                            top: window.innerHeight * 0.20,
+                            bottom: window.innerHeight * 0.20,
+                            left: window.innerWidth * 0.30,
+                            right: window.innerWidth * 0.20
+                        },
+                        duration: 1000
+                    });
+            }
+
                 return features; // Return features if everything went well
         } else {
             return []; //Return empty array if no features
@@ -1577,16 +1601,9 @@ async function updateIsochrone(travelTime, coords) {
         }
         return []; //Return empty array on error as well
     } finally {
-        map.fitBounds(bounds, {
-            padding: {
-                top: window.innerHeight * 0.20,
-                bottom: window.innerHeight * 0.20,
-                left: window.innerWidth * 0.30,
-                right: window.innerWidth * 0.20
-            },
-            duration: 1000
-        });
-        hideProcessingOverlay(); // Always hide overlay when done
+        if (requestId === latestIsochroneRequestId) {
+            hideProcessingOverlay();
+        }
     }
 }
 
