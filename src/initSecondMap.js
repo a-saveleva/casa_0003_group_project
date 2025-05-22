@@ -21,13 +21,14 @@ const perScrollStep = 200;    // 每次滚轮滑动卡片移动距离）
   const cityCoords = {
     London: [-0.02, 51.30], Manchester: [-2.24, 53.48],
     Birmingham: [-1.90, 52.48], Bristol: [-2.59, 51.45],
-    Sheffield: [-1.47, 53.38], Nottingham: [-1.15, 52.95],
+    Sheffield: [-1.47, 53.38], Leeds: [-1.5491, 53.8008],
     Glasgow: [-4.25, 55.86], Edinburgh: [-3.19, 55.95]
   };
 
   let sortedFeatures = [];
   let recs;
   let scrollCount = 0;
+  
   
   
   // ✅ 放在你的 main.js 或 <script> 上部
@@ -97,17 +98,20 @@ function handleWheel(e) {
   if (now - lastScrollTime < 100) return;
   lastScrollTime = now;
 
-  if (!introCleared) {
-    introCleared = true;
-    const cover = document.getElementById('intro-cover');
-    cover.style.opacity = '0';
-    document.getElementById('activity-bubbles').style.opacity = '0';
-    setTimeout(() => {
-      cover.style.display = 'none';
-      document.getElementById('activity-bubbles').remove();
-    }, 1000);
-    return;
-  }
+if (!introCleared) {
+  introCleared = true;
+  const cover = document.getElementById('intro-cover');
+  cover.style.opacity = '0';
+  document.getElementById('activity-bubbles').style.opacity = '0';
+  setTimeout(() => {
+    cover.style.display = 'none';
+    // ✅ 只隐藏，不删除
+    // document.getElementById('activity-bubbles').remove();  <-- ❌ 注释掉这一行
+    document.getElementById('activity-bubbles').style.display = 'none';  // ✅ 改为隐藏
+  }, 1000);
+  return;
+}
+
 
   if (scrollStage >= maxStage) return;
 
@@ -155,10 +159,10 @@ function handleWheel(e) {
 
 
   const colorMap = {
-    30:'#c3b602',
-    60:'#d49c03',
-    90:'#ca6104',
-    120:'#af023c'
+  30: '#bc3c66',
+  60: '#EA7A57',
+  90: '#EEAA44',
+  120: '#9DB94A'
   };
     secondMap.on('load', async () => {
    
@@ -179,6 +183,10 @@ recs = sortedFeatures.map(f => {
   };
 });
 drawBubbleChart(recs);  // 加在 recs 构造完成后
+// ✅ 加载 London 的 radial chart（避免初始为空）
+const defaultFeature = recs.find(d => d.city === 'London');
+if (defaultFeature) drawRadialChart(defaultFeature.props);
+
   // ✅ 再生成城市按钮（必须在 recs 初始化后）
 const ctrl = d3.select('#controls-panel');
 const cities = Array.from(new Set(recs.map(r => r.city)));
@@ -219,7 +227,7 @@ secondMap.addSource('iso', {
   url: 'mapbox://yallle0503.cwpwadpm'
 });
 
-['30min', '60min', '90min', '120min'].forEach(dur => {
+['120min', '90min', '60min', '30min'].forEach(dur => {
   const validIds = sortedFeatures
     .filter(f => typeof f?.properties?.id === 'string' && f.properties.id.endsWith(dur))
     .map(f => f.properties.id);
@@ -232,7 +240,7 @@ secondMap.addSource('iso', {
     filter: ['match', ['get', 'id'], validIds, true, false],  // ✅ 只传纯字符串
     paint: {
       'fill-color': colorMap[+dur.replace('min','')],
-      'fill-opacity': 0.2
+      'fill-opacity': 0.4
     }
   }, 'waterway-label');
 
@@ -245,7 +253,7 @@ secondMap.addSource('iso', {
     paint: {
       'line-color': colorMap[+dur.replace('min','')],
       'line-width': 1.2,
-      'line-opacity': 0.8
+      'line-opacity': 0.9
     }
   }, 'waterway-label');
 });
@@ -374,8 +382,7 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
       secondMap.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'none');
     });
     secondMap.setLayoutProperty('all-points-layer', 'visibility', 'none');
-    d3.select('#bubble-chart').style('display', 'none');
-    d3.select('#controls-panel').style('display', 'none');
+   
     d3.select('#layer-toggle').style('display', 'none');
   //
     const safeSet = (layerId, visibility = 'visible') => {
@@ -388,27 +395,27 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
     if (stage === 0) {
       secondMap.setLayoutProperty('edges-line', 'visibility', 'visible');
       secondMap.setLayoutProperty('stations-circle', 'visibility', 'visible');
-      secondMap.jumpTo({  center: [-1.5, 53.1], zoom: 6.2  });
+      secondMap.jumpTo({  center: [-1.8, 53.03], zoom: 6.1  });
   
     } else if (stage === 1) {
       secondMap.setLayoutProperty('iso-fill-30min', 'visibility', 'visible');
       secondMap.setLayoutProperty('iso-line-30min', 'visibility', 'visible');
-      secondMap.jumpTo({  center: [-1.5, 53.1], zoom: 6.2 });
+      secondMap.jumpTo({  center: [-1.8, 53.03], zoom: 6.1 });
   
     } else if (stage === 2) {
       secondMap.setLayoutProperty('iso-fill-60min', 'visibility', 'visible');
       secondMap.setLayoutProperty('iso-line-60min', 'visibility', 'visible');
-      secondMap.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
+      secondMap.jumpTo({ center: [-1.8, 53.03], zoom: 6.1 });
   
     } else if (stage === 3) {
       secondMap.setLayoutProperty('iso-fill-90min', 'visibility', 'visible');
       secondMap.setLayoutProperty('iso-line-90min', 'visibility', 'visible');
-      secondMap.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
+      secondMap.jumpTo({ center: [-1.8, 53.03], zoom: 6.1 });
   
     } else if (stage === 4) {
       secondMap.setLayoutProperty('iso-fill-120min', 'visibility', 'visible');
       secondMap.setLayoutProperty('iso-line-120min', 'visibility', 'visible');
-      secondMap.jumpTo({ center: [-1.5, 53.1], zoom: 6.2 });
+      secondMap.jumpTo({ center: [-1.8, 53.03], zoom: 6.1 });
   
     } else if (stage === 5) {
       ['30min','60min','90min','120min'].forEach(dur => {
@@ -416,11 +423,10 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
         secondMap.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
       });
       secondMap.setLayoutProperty('all-points-layer', 'visibility', 'visible');
-      secondMap.flyTo({ center: [-1.5, 53.1], zoom: 6.2});
+      secondMap.flyTo({ center: [-1.8, 53.03], zoom: 6.1});
   
       setTimeout(() => {
-        d3.select('#bubble-chart').style('display', 'block');
-        d3.select('#controls-panel').style('display', 'block');
+ 
         d3.select('#layer-toggle').style('display', 'block');
   
         setTimeout(() => {
@@ -439,11 +445,10 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
         secondMap.setLayoutProperty(`iso-line-${dur}`, 'visibility', 'visible');
       });
       secondMap.setLayoutProperty('all-points-layer', 'visibility', 'visible');
-      secondMap.flyTo({ center: [-0.0076, 51.2072], zoom: 8.1 });
+      secondMap.flyTo({ center: [-0.0076, 51.3072], zoom: 8.1 });
   
       setTimeout(() => {
-        d3.select('#bubble-chart').style('display', 'block');
-        d3.select('#controls-panel').style('display', 'block');
+
         d3.select('#layer-toggle').style('display', 'block');
   
         setTimeout(() => {
@@ -467,11 +472,9 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
     
     secondMap.setLayoutProperty('all-points-layer', 'visibility', 'visible');
   
-    secondMap.flyTo({ center: [-3.3518, 55.9642], zoom: 8.5 });
+    secondMap.flyTo({ center: [-3.6518, 55.9642], zoom: 8.4 });
   
     setTimeout(() => {
-      d3.select('#bubble-chart').style('display', 'block');
-      d3.select('#controls-panel').style('display', 'block');
       d3.select('#layer-toggle').style('display', 'block');
   
       setTimeout(() => {
@@ -492,11 +495,10 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
     
     secondMap.setLayoutProperty('all-points-layer', 'visibility', 'visible');
   
-    secondMap.flyTo({ center: [-1.5, 52.6], zoom: 6.1 });
+    secondMap.flyTo({ center: [-1.8, 52.8], zoom: 6.1 });
   
     setTimeout(() => {
-      d3.select('#bubble-chart').style('display', 'block');
-      d3.select('#controls-panel').style('display', 'block');
+
       d3.select('#layer-toggle').style('display', 'block');
   
       setTimeout(() => {
@@ -521,14 +523,7 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
     
   }
    
-    
-  
-    
-  // 在这里添加
-  d3.select('#controls-panel').style('display', 'none');      // 城市按钮
-  d3.select('#layer-toggle').style('display', 'none'); // 图层选择框
-
-
+ 
 
   
   drawActivityBubbles();  // ⬅️ 页面一加载就执行
@@ -544,33 +539,33 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
   const svg = d3.select("#activity-chart");
   const width = document.getElementById("activity-lines").clientWidth;
   const height = document.getElementById("activity-lines").clientHeight;
-  const margin = { top: 250, right: 40, bottom: 20, left: 60 };
+ const margin = { top: 100, right: 10, bottom: 40, left: 80 };  // ✅ 减少顶部间距
+d3.select("#activity-lines").style("border", "1px dashed red");
+
   const lineLen = width * 0.6;
-  const rowH = 90;
+  const rowH = 56;
   svg.append("text")
-    .attr("x", width * 0.34)  // ⬅️ 控制水平方向
+    .attr("x", width * 0.08)  // ⬅️ 控制水平方向
     .attr("y", margin.top * 0.55)  // ⬅️ 控制垂直位置
-    .attr("fill", "white")
-    .attr("font-size", "25px")
+    .attr("fill", "#5583c3")
+    .attr("font-size", "18px")
     .attr("font-weight", "bold")
-    .attr("text-anchor", "middle")
+    .attr("text-anchor", "start")
     .style("pointer-events", "all")
     .selectAll("tspan")
     .data([
-      "What are the most frequently visited",
-      "nature destinations ?"
+      "What are the most frequently visited nature destinations ?"
     ])
     .enter()
     .append("tspan")
     // ⬇️ 删除 .attr("x")，只设置相对垂直偏移
-    .attr("x", width * 0.34)         // 每行保持相同 x
     .attr("dy", (d, i) => i === 0 ? "0em" : "1.3em")  // 垂直间距
     .text(d => d);
   
   
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
   
-  const color = "#af023c";
+  const color = "#B62957";
   activities.forEach((d, i) => {
     const y = i * rowH;
     const group = g.append("g");
@@ -579,7 +574,7 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
     group.append("line")
       .attr("x1", 0).attr("x2", lineLen)
       .attr("y1", y).attr("y2", y)
-      .attr("stroke", "white")
+      .attr("stroke", "#4c7ec4")
       .attr("stroke-width", 2);
   
     // 2. 红色泡泡 + 动画 + hover
@@ -594,7 +589,7 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
   
     // 🚀 执行动画
     circle.transition()
-    .duration(2500)
+    .duration(3500)
     .attr("cx", targetX)
     .on("end", function(_, i) {
       d3.select(this)
@@ -617,10 +612,9 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
       .text(d.type)
       .attr("x", targetX)
       .attr("y", y - 15)
-      .attr("fill", "white")
+      .attr("fill", "#4c7ec4")
       .attr("text-anchor", "middle")
-      .style("font-size", "12px")
-      .style("opacity", 0)
+      .style("font-size", "13px")
       .transition()
       .delay(1500)
       .style("opacity", 1);
@@ -630,10 +624,10 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
       .text(d.percent + "%")
       .attr("x", targetX)
       .attr("y", y + 25)
-      .attr("fill", "white")
+      .attr("fill", "#4c7ec4")
+      .style("font-weight", "bold")  // ✅ 加粗
       .attr("text-anchor", "middle")
-      .style("font-size", "18px")
-      .style("opacity", 0)
+      .style("font-size", "13px")
       .transition()
       .delay(1200)
       .style("opacity", 1);
@@ -667,9 +661,9 @@ function showNewCard(stage) {
     function drawBubbleChart(data) {
       // 清空
       d3.select('#bubble-chart').selectAll('*').remove();
-      const margin = {l:50, r:20, t:10, b:30};
-      const totalW = document.getElementById('bubble-chart').clientWidth;
-      const totalH = document.getElementById('bubble-chart').clientHeight;
+      const margin = {l:50, r:20, t:40, b:20};
+      const totalW = document.getElementById('bubble-chart').clientWidth* 0.4;
+      const totalH = document.getElementById('bubble-chart').clientHeight* 0.4;
       const W = totalW - margin.l - margin.r;
       const H = totalH - margin.t - margin.b;
   
@@ -728,10 +722,11 @@ function showNewCard(stage) {
                    .style('top',(event.pageY+10)+'px');
           })
           .on('mouseout', function(event, d) {
-            d3.select(this).transition().duration(200).attr('r', d.r);
-            tooltip.style('visibility','hidden');
-            d3.select('#radial-chart svg').remove();
-          });
+  d3.select(this).transition().duration(200).attr('r', d.r);
+  tooltip.style('visibility','hidden');
+  // 不清除 radial 图，让上一个图继续留着
+});
+
   
       // 文本标签
       const labels = svg.selectAll('text.label').data(nodes).join('text')
@@ -802,7 +797,12 @@ function showNewCard(stage) {
       window._nodes  = nodes;
       window._labels = labels;
     }
+
+
     //
+
+
+
    function drawRadialChart(props) {
     const keys = [
       'parks','nature_reserves','protected_areas',
@@ -816,10 +816,10 @@ function showNewCard(stage) {
     })).filter(d => d.value > 0)
       .sort((a, b) => a.value - b.value);
   
-    const barH = 12;
-    const pad = 10;
-    const innerR = 25;
-    const margin = 65;
+    const barH = 9
+    const pad = 3;
+    const innerR = 16;
+    const margin = 34;
     const labelX = -100;
     const labelFont = 12;
     const maxAngle = 1.5 * Math.PI; // ⬅️ 最多 3/4 圆
@@ -832,7 +832,7 @@ function showNewCard(stage) {
   
     const colorScale = d3.scaleLinear()
       .domain([4, 6, 12, 22])
-      .range(['#c3b602','#d49c03','#ca6104','#af023c'])
+      .range(['#ea7a57','#eda25b','#e4b947','#9db94a'])
       .clamp(true);
   
     const sel = d3.select('#radial-chart').html('');
@@ -860,7 +860,7 @@ function showNewCard(stage) {
           .cornerRadius(barH / 2)
         )
         .attr('fill', colorScale(d.value))
-        .attr('fill-opacity', 0.7);
+        .attr('fill-opacity', 0.9);
       });
   
       // 左上角文字
@@ -892,9 +892,11 @@ function showNewCard(stage) {
     
 
       function drawActivityBubbles() {
-    const container = document.getElementById('activity-bubbles');
-  const width = container.clientWidth;
-  const height = container.clientHeight;
+        const container = document.getElementById('activity-bubbles');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+
 
   const svg = d3.select('#activity-bubbles')
   .append('svg')
@@ -902,19 +904,35 @@ function showNewCard(stage) {
   .attr('height', height);
     
 
-    const radiusScale = d3.scaleLinear().domain([1, 10]).range([80, 30]);
+    const radiusScale = d3.scaleLinear().domain([1, 10]).range([64, 34]);
     const colorScale = d3.scaleSequential()
   .domain([10, 1])
-  .interpolator(d3.interpolateRgb("#c3b602", "#af023c")); // 红 → 黄
+  .interpolator(d3.interpolateRgb("#1eaca1", "#FC7B4E")); // 红 → 黄
 
     const fontSizeScale = d3.scaleLinear()
     .domain([1, 10])     // rank 从 1 到 10
-    .range([15, 8]);    // 字体从大到小（可以调整）
+    .range([15, 9]);    // 字体从大到小（可以调整）
     const simulation = d3.forceSimulation(activityData)
-      .force("x", d3.forceX(window.innerWidth / 2).strength(0.05))
-      .force("y", d3.forceY(window.innerHeight / 2).strength(0.05))
-      .force("collide", d3.forceCollide(d => radiusScale(d.rank) + 10))
+      .force("x", d3.forceX(width / 5).strength(0.35))
+      .force("y", d3.forceY(height / 2).strength(0.6))
+
+      .force("collide", d3.forceCollide(d => radiusScale(d.rank) + 2))
       .on("tick", ticked);
+const colorInterpolator = d3.interpolateRgbBasis([
+  "#B62957",  // 起始色：玫红
+  "#EA7A57",  // 中间色：橘红
+  "#EEAA44"   // 结束色：金黄
+]);
+
+
+
+activityData.forEach(d => {
+  const t = (d.rank - 1) / 9;
+  d.color = colorInterpolator(t);
+});
+
+
+
 
     const nodes = svg.selectAll('g')
       .data(activityData)
@@ -930,20 +948,25 @@ function showNewCard(stage) {
 
     group.append('circle')
        .attr('r', 0)  // 从半径 0 开始
-  .attr('fill', d => colorScale(d.rank))
+  .attr('fill', d => d.color)
   .attr('stroke', '#fff')
   .attr('stroke-width', 2)
   .transition()
   .duration(800)
   .ease(d3.easeBounceOut)  // 弹跳感效果
   .attr('r', d => radiusScale(d.rank))  // 最终大小
-      .attr('fill-opacity', 0.7);
+      .attr('fill-opacity', 0.8);
     
 
     const texts = group.append('text')
   .attr('text-anchor', 'middle')
   .style('fill', '#fff')
   .style('font-size', d => fontSizeScale(d.rank) + 'px');
+console.log("🎈 bubble SVG appended:", document.querySelector("#activity-bubbles svg"));
+d3.select("#activity-bubbles").style("border", "1px dashed blue");
+
+
+
 
 texts.each(function(d) {
   const lines = d.activity.split('\n');
@@ -952,15 +975,16 @@ texts.each(function(d) {
       .text(line)
       .attr('x', 0)
       .attr('dy', i === 0 ? '0.35em' : '1.2em');
+    
   });
 });
 
 
    function drawRadialChart(props) {
     const keys = [
-      'parks','nature_reserves','protected_areas',
-      'wood','scrub','wetlands','gardens',
-      'forests','grassland','beaches','heaths'
+      'Parks','Nature Reserves','Protected Areas',
+      'Wood','Scrub','Wetlands','Gardens',
+      'Forests','Grassland','Beaches','Heaths'
     ];
   
     const data = keys.map(k => ({
