@@ -20,8 +20,8 @@
   --text-highlight-weight: 500;
 
     /* Project colours */
-  --colour-hiking: #C22938;
-  --colour-cycling: #FC7B4E;
+ --colour-hiking: #C22938;
+  --colour-cycling: #FC7B4E ;
   --colour-birdwatching: #1eaca1;
   --colour-seaside: #1A63AB;
 
@@ -39,7 +39,7 @@
     --colour-best-overall-bot: #f9aae986;
     --colour-hiking-top: #a10010;
     --colour-hiking-bot: #fca3836f;
-    --colour-cycling-top: #db3a00;
+    --colour-cycling-top: #845e51;
     --colour-cycling-bot: #fbd86e75;
     --colour-birdwatching-top: #03666a;
     --colour-birdwatching-bot: #7eece879;
@@ -69,8 +69,16 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+ /* Colours*/
+--color30: #dc7753;
+--color60: #e6a93e;
+--color90: #9dc645;
+--color120: #4baea6;
+
 }
 /* ________________________________________________________________________ */
+
+
 
 html, body {
   height: 100%;
@@ -759,20 +767,55 @@ font-size: 10px;
   text-align: center;
 }
 
-    html, body { margin:0; padding:0;  font-family:sans-serif; }
-    #secondMap { position:absolute; top:0; bottom:0; width:100%; }
-    #controls-panel {
-      position:absolute; bottom:38%; left:10px; z-index:11;
-      background:transparent; padding:6px; border-radius:6px;
-      display:flex; flex-wrap:wrap; gap:4px;
-    }
+  html, body {
+    margin: 0; padding: 0; font-family: sans-serif; height: 100%;
+  }
+  #section2 {
+    display: flex;
+    flex-direction: row;
+    height: 100vh; /* 视口高度 */
+  }
+.secondmap-container {
+  width: 66.66%;
+  height: 100%;
+  box-sizing: border-box;
+  position: relative;
+  background: rgb(255, 255, 255);
+  /* ❌ 删除 padding:60px; */
+}
+
+ 
+#secondMap {
+  position: absolute;
+  top: 90px;
+  left: 0px;
+  right: 80px;
+  bottom: 90px;
+  background: white;
+  
+}
+
+
+#controls-panel {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+  /* 不要 position:absolute/left */
+}
+
     .city-btn {
-  padding: 4px 10px;
+   padding: 4px 6px;   
+     height: 24px;              /* 明确写死高度 */
+  line-height: 10px;         /* 行高不要太大 */
   font-size: 12px;
-  border: 2px solid #458fb8;
+  border: 2px solid #6690C9;
+         /* 可选：设定最小高度 */
   background: transparent;
-  color: #4185a9;
-  border-radius: 20px;
+  color: #6690C9;
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -782,20 +825,21 @@ font-size: 10px;
 }
 
 .city-btn.active {
-  background: #4ea4cf;
+  background: #6690C9;
   color: white;
-  border: 2px solid #4ea4cf;
+  border: 2px solid #6690C9;
 }
 
 #bubble-chart {
-  position:absolute; bottom:0; left:0;
-  width:100%; height:38%; z-index:10;
-  background:transparent;
+    display: flex;
+  align-items: center;
+    width: 1050px;         /* 宽度更大 */
+  height: 380px;        /* 高度更矮 */
 }
 #radial-chart {
   position:absolute;
-  bottom:65%;
-  left:25px;
+  bottom:25%;
+  left:200px;
   width:320px;
   height:320px;
   background:transparent;
@@ -809,9 +853,9 @@ font-size: 10px;
 }
 #layer-toggle {
   position: absolute;
-  top: 30px;
-  right: 30px;
-  background: #89b6cf;
+  top: 120px;
+  right: 90px;
+  background: #89b0d4;
   color: white;
   border-radius: 12px;
   padding: 10px 12px;
@@ -886,14 +930,13 @@ font-size: 10px;
 }
 #intro-cover {
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(121, 167, 199, 0.7);
-  z-index: 9998;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 1s ease;
+  inset: 90px 80px 90px 0px; /* ✅ 完全匹配地图 */
+  background-color: rgba(168, 194, 220, 0.6);
+  opacity: 1;
+  z-index: 10;
 }
+
+
 
 .intro-text {
   font-size: 20px;
@@ -902,36 +945,44 @@ font-size: 10px;
   padding: 20px 30px;
   border-radius: 10px;
 }
-#activity-bubbles {
-  position: absolute;
-  top: 8%; left: -25%;
-  width: 100%;
-  height: 100%;
-  z-index: 9999;
-  pointer-events: none; /* 保证下方地图仍可交互 */
+
+#activity-bubbles {  
+    position: absolute;           
+  bottom: 390px;
+ left: 190px;
+  width: 1500px;
+  height: 400px;
+  z-index: 20000;
+  pointer-events: none;
 }
+
+
 #bubble-title {
   position: absolute;
-  top: 10%; left: 3;
-  width: 100%;
+  top: 0%;
+  left: 20%;
+  transform: translateX(-50%);
+  width: auto;
   text-align: center;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: bold;
-  color: white;
-  opacity: 0;
+  color: #4c7ec4;
+  opacity: 1;
   animation: fadein 2s ease forwards;
+  z-index: 10000;
 }
+
 
 @keyframes fadein {
   to { opacity: 1; }
 }
 #activity-lines {
   position: absolute;
-  top: 40px;
-  right: 0;
-  width: 50%;
-  height: 100%;
-  z-index: 9999;
+  bottom: -10px;     /* ✅ 从底部起算，而不是 top */
+  right:100px;      /* ✅ 右侧对齐一点 */
+  width: 780px;     /* ✅ 固定宽度，更协调 */
+  height: 390px;    /* ✅ 固定高度，别铺满地图 */
+  z-index: 999;
   pointer-events: none;
 }
 

@@ -84,23 +84,119 @@
                 </div>
                 <img src="/data/assets/Problem overview.jpg" style="margin-left:15%; margin-top: 100px; height:auto; max-width: 600px; object-fit: contain;">
             </section>
-<section id="section2" class="landing-slide" style="position: relative; height: 100vh;">
-  <div class="secondmap-container" style="position: relative; width: 100%; height: 100%;">
-    <div id="secondMap" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;"></div>
+<section id="section2" class="landing-slide" style="display: flex; flex-direction: row; height: 100vh; position: relative; ">
+<!-- ✅ 原始有效的容器：放 anywhere 都能跑 -->
+<!-- ✅ 固定在 section2 的右半边中下位置 -->
+<!-- ✅ 圆环图容器，右半边中下方 -->
+<!-- ✅ 放在 section2 内部 -->
+<!-- ✅ 文本框：在圆环图左边并排显示 -->
+<div style="
+  position: absolute;
+  top: 67%;
+  left: 63%;
+  transform: translateY(-50%);
+  width: 280px;
+  background: white;
+  padding: 14px 16px;
+  font-size: 18px;
+  line-height: 1.5;
+  border-radius: 12px;
+  border: 2px solid #5785c5;         /* ✅ 蓝色边框 */
+  z-index: 99;
+  color: #4372b5;
+">
+  <b>What types of natural assets ?</b><br>
+  On hover, the bubbles in different isochrones and cities reveal the types of accessible natural assets.
+</div>
 
-    <div id="activity-bubbles">
-      <div id="bubble-title">Top 10 Outdoor Adventures Brits Love</div>
+<!-- ✅ 原样保留你已有的圆环图 -->
+<div id="radial-chart" style="
+  position: absolute;
+  top: 76%;
+  left: 79%;
+  transform: translateY(-50%);
+  width: 340px;
+  height: 320px;
+  background: white;
+  border-radius: 12px;
+  z-index: 12;
+  padding: 10px;
+">
+</div>
+<section id="section2" style="display: flex; flex-direction: row; height: 100vh;">
+  <div class="secondmap-container" style="width: 66.66%; height: 100%;">
+    <!-- 这里是地图 -->
+  </div>
+  <div id="controls-panel"
+     style="
+       position: absolute;
+       top: 30.4%;
+       left: 61.7%;
+       transform: translateY(-100%); /* 让按钮恰好顶在下面卡片正上方 */
+       width: 650px;
+       display: flex;
+       flex-wrap: wrap;
+       gap: 3px;
+       justify-content: center;
+       z-index: 100;
+     ">
+</div>
+  <div id="bubble-panel-wrapper" style="
+    width: 550px;
+    height: 180px;
+      position: absolute;
+  top: 44%;
+  left: 62%;
+  transform: translateY(-50%);
+    background: #fff;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+     z-index: 99;
+    align-items: center;
+    padding: 24px 18px 18px 18px;
+    margin-left: 24px;
+  ">
+    <div id="bubble-chart" style="width: 900px; height: 420px;"></div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+<div class="secondmap-container"
+     style="
+       width: 66.66%;
+       height: 100%;
+       margin: 0;                /* 外边距清零，留白交由内部处理 */
+       box-sizing: border-box;
+       position: relative;
+     ">
+
+    <div id="secondMap"></div>
+
+
+
+
+ <!-- 蓝色遮罩+柱状图 -->
+  <div id="intro-cover" >
+    <div id="activity-lines">
+      <svg id="activity-chart" width="100%" height="100%"></svg>
     </div>
+  </div>
 
-    <div id="intro-cover">
-      <div id="activity-lines">
-        <svg id="activity-chart" width="100%" height="100%"></svg>
-      </div>
-    </div>
+  <!-- ✅ 泡泡图容器：必须在 intro-cover 之外 -->
+<div id="activity-bubbles">
+  <div id="bubble-title">Top 10 Outdoor Adventures British People Love</div>
+  
+</div>
 
-    <div id="controls-panel"></div>
-    <div id="bubble-chart"></div>
-    <div id="radial-chart"></div>
 
     <div id="layer-toggle">
   <div class="layer-item">
@@ -133,16 +229,28 @@
     <div id="card-container"></div>
   </div>
 
-            <div class="landing-textbox">
-                <h1 class="text-title">Opportunity</h1>
-                <p class="text-normal">
-                Uk has this much coverage with rail. Maybe statistics on train usage for leisure. How % of journeys for leisure?
-                Of green spaces mentioned in this study, this many are accessible by train which shows the potential to access them by rail more often.
-                For example, London has this many green assets within 60min journey. Another example, Edinburgh has this many.
-                And if you are willing to travel longer, the quantity of green increases - one plot with bubbles.
-                </p>
-            </div>
-            </section>
+<div class="landing-textbox" style="
+  position: absolute;
+  top: -120px;
+  left: 900px;
+  width: 35%;
+  max-width: 550px;
+    padding: 0.6rem 1.2rem;
+  background: rgba(255,255,255,0.95);
+  border: 2px solid #5785c5;        /* ✅ 添加蓝色边框 */
+  border-radius: 10px;
+  z-index: 999;
+  color: #4372b5;                      /* ✅ 可选统一字体颜色 */
+  font-family: 'Segoe UI', sans-serif; /* ✅ 统一字体风格 */
+">
+<h1 class="text-title" style="margin: 0 0 0.4rem 0; font-size: 28px; color: #4372b5;">
+    Understanding the user needs
+  </h1>
+  <p class="text-normal" style="margin: 0; color: #4372b5;">
+    In order to provide the most tailored experience using this tool and ensure the users are truly willing to take the train, we have studied what people are looking for when selecting a nature destination.
+  </p>
+  </div>
+</section>
 
             <section id="section3" class="landing-slide" style="overflow-y: auto; scroll-snap-align: start; scroll-snap-stop: always; box-sizing: border-box; display: flex; flex-direction: row;">
                 <div class="landing-textbox">
