@@ -1,5 +1,9 @@
+
 :root {
- --text-normal-font: system-ui, Avenir, Helvetica, Arial, sans-serif;
+ /* --text-normal-font: system-ui, Avenir, Helvetica, Arial, sans-serif; */
+  @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;900&display=swap');
+  /* @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Text:wght@400;700&display=swap'); */
+  --text-normal-font: "Merriweather";
   --text-normal-size: 18px;
   --text-normal-color: #000;
   --text-normal-line-height: 1.5;
@@ -7,13 +11,13 @@
 
   /* Title Text */
   --text-title-size: 30px;
-  --text-title-weight: 700;
+  --text-title-weight: 900;
   --text-title-color: #222;
 
   /* Highlight Text */
   --text-highlight-size: 11px;
   --text-highlight-color: #000;
-  --text-highlight-weight: 600;
+  --text-highlight-weight: 500;
 
     /* Project colours */
   --colour-hiking: #C22938;
