@@ -90,7 +90,7 @@
 <!-- ✅ 文本框：在圆环图左边并排显示 -->
 <div style="
   position: absolute;
-  top: 67%;
+  top: 69%;
   left: 63%;
   transform: translateY(-50%);
   width: 280px;
@@ -111,7 +111,7 @@
 <div id="radial-chart" style="
   position: absolute;
   top: 76%;
-  left: 79%;
+  left: 80%;
   transform: translateY(-50%);
   width: 340px;
   height: 320px;
@@ -119,16 +119,22 @@
   border-radius: 12px;
   z-index: 12;
   padding: 10px;
-">
+"><div id="radial-label-box"
+       style="position:absolute; right:28px; top:8px;
+              border:2px solid #4c7ec4; border-radius:8px; background:rgba(255,255,255,0.96);
+              color:#4c7ec4; font-weight:700; font-size:15px;
+              padding:4px 16px; pointer-events:none; z-index:99; display:none;">
+  </div>
 </div>
-<section id="section2" style="display: flex; flex-direction: row; height: 100vh;">
+
+<section id="section2-inner" style="display: flex; flex-direction: row; height: 100vh;">
   <div class="secondmap-container" style="width: 66.66%; height: 100%;">
     <!-- 这里是地图 -->
   </div>
   <div id="controls-panel"
      style="
        position: absolute;
-       top: 30.4%;
+       top: 20%;
        left: 61.7%;
        transform: translateY(-100%); /* 让按钮恰好顶在下面卡片正上方 */
        width: 650px;
@@ -140,22 +146,22 @@
      ">
 </div>
   <div id="bubble-panel-wrapper" style="
-    width: 550px;
-    height: 180px;
+    width: 650px;
+    height: 250px;
       position: absolute;
-  top: 44%;
-  left: 62%;
+  top: 40%;
+  left: 59%;
   transform: translateY(-50%);
-    background: #fff;
+    background:transparent;
     border-radius: 12px;
     display: flex;
     flex-direction: column;
      z-index: 99;
     align-items: center;
-    padding: 24px 18px 18px 18px;
+    padding: 16px 18px 18px 18px;
     margin-left: 24px;
   ">
-    <div id="bubble-chart" style="width: 900px; height: 420px;"></div>
+    <div id="bubble-chart"></div>
   </div>
 </section>
 
@@ -187,6 +193,10 @@
     <div id="activity-lines">
       <svg id="activity-chart" width="100%" height="100%"></svg>
     </div>
+    <div id="intro-card" class="card" style="top: 20px; left: 49%; transform: translateX(-50%);">
+    <span style="font-weight:700; font-size:1.1em;">Understanding the user needs</span><br>
+    In order to provide the most tailored experience using this tool and ensure the users are truly willing to take the train, we have studied what people are looking for when selecting a nature destination.
+  </div>
   </div>
 
   <!-- ✅ 泡泡图容器：必须在 intro-cover 之外 -->
@@ -196,32 +206,39 @@
 </div>
 
 
-    <div id="layer-toggle">
+<div id="layer-toggle">
   <div class="layer-item">
-    <span class="legend rail"></span>
-    <label><input type="checkbox" id="rail-toggle" checked> Rail</label>
+    <span class="layer-legend rail"></span>
+    <input type="checkbox" id="rail-toggle" checked>
+    <span class="legend-label">Rail</span>
   </div>
   <div class="layer-item">
-    <span class="legend green"></span>
-    <label><input type="checkbox" id="green-toggle" checked> Green Assets</label>
+    <span class="layer-legend green"></span>
+    <input type="checkbox" id="green-toggle" checked>
+    <span class="legend-label">Green Assets</span>
   </div>
   <div class="layer-item">
-    <span class="legend iso iso-30"></span>
-    <label><input type="checkbox" value="30min" checked> 30 min </label>
+    <span class="layer-legend iso iso-30"></span>
+    <input type="checkbox" value="30min" checked>
+    <span class="legend-label">30 min</span>
   </div>
   <div class="layer-item">
-    <span class="legend iso iso-60"></span>
-    <label><input type="checkbox" value="60min" checked> 60 min </label>
+    <span class="layer-legend iso iso-60"></span>
+    <input type="checkbox" value="60min" checked>
+    <span class="legend-label">60 min</span>
   </div>
   <div class="layer-item">
-    <span class="legend iso iso-90"></span>
-    <label><input type="checkbox" value="90min" checked> 90 min </label>
+    <span class="layer-legend iso iso-90"></span>
+    <input type="checkbox" value="90min" checked>
+    <span class="legend-label">90 min</span>
   </div>
   <div class="layer-item">
-    <span class="legend iso iso-120"></span>
-    <label><input type="checkbox" value="120min" checked> 120 min </label>
+    <span class="layer-legend iso iso-120"></span>
+    <input type="checkbox" value="120min" checked>
+    <span class="legend-label">120 min</span>
   </div>
 </div>
+
 
     <div id="tooltip"></div>
     <div id="card-container"></div>
@@ -229,24 +246,25 @@
 
 <div class="landing-textbox" style="
   position: absolute;
-  top: -120px;
-  left: 900px;
+  top: -110px;
+  left: 71%;
   width: 35%;
+    transform: translateX(-50%);
   max-width: 550px;
-    padding: 0.6rem 1.2rem;
+    padding: 0.6rem 1rem;
   background: rgba(255,255,255,0.95);
-  border: 2px solid #5785c5;        /* ✅ 添加蓝色边框 */
   border-radius: 10px;
   z-index: 999;
   color: #4372b5;                      /* ✅ 可选统一字体颜色 */
   font-family: 'Segoe UI', sans-serif; /* ✅ 统一字体风格 */
 ">
-<h1 class="text-title" style="margin: 0 0 0.4rem 0; font-size: 28px; color: #4372b5;">
-    Understanding the user needs
-  </h1>
+<h1 class="text-title" style="margin: 0 0 0.4rem 0; font-size: 18px; color: #4372b5; text-align:center; line-height: 1.8;">
+  Distribution of Natural Assets<br>
+  by Number and Area Across UK Cities
+</h1>
+
   <p class="text-normal" style="margin: 0; color: #4372b5;">
-    In order to provide the most tailored experience using this tool and ensure the users are truly willing to take the train, we have studied what people are looking for when selecting a nature destination.
-  </p>
+   
   </div>
 </section>
 

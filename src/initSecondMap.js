@@ -33,21 +33,36 @@ const perScrollStep = 200;    // 每次滚轮滑动卡片移动距离）
   
   // ✅ 放在你的 main.js 或 <script> 上部
 const cardContainer = document.getElementById('card-container');
+
 const textData = [
-  `🚆 Britain's rail system is among the densest in Europe.\nTrains link cities with remarkable speed and frequency—laying the foundation for exploring green spaces near and far.`,
-  `⏱️ 30-minute Accessibility
+
+  `<span style="font-weight:700; font-size:1.1em;">🚆 Britain's Rail System</span><br>
+  Britain's rail system is among the densest in Europe. Trains link cities with remarkable speed and frequency—laying the foundation for exploring green spaces near and far.`,
+
+  `<span style="font-weight:700; font-size:1.1em;">⏱️ 30-minute Accessibility</span><br>
   Starting from major central train stations in cities like London, Manchester, Birmingham, and Edinburgh, we examine areas reachable within 30 minutes by rail. Despite London's extensive urban footprint and network, its 30-minute isochrone covers a smaller area than other cities.`,
-  `⏱️ 60-minute Expansion
+
+  `<span style="font-weight:700; font-size:1.1em;">⏱️ 60-minute Expansion</span><br>
   The one-hour rail isochrone begins to reveal London's advantage as a national railway hub, with extensive connectivity to surrounding towns and a high density of accessible stations in all directions.`,
-  `⏱️ 90-minute Reach
+
+  `<span style="font-weight:700; font-size:1.1em;">⏱️ 90-minute Reach</span><br>
   Within 90 minutes, most of these major cities become interconnected by rail, enabling easy travel not only between urban centres but also to the natural and rural landscapes along the way.`,
-  `⏱️ 120-minute Full Ring
+
+  `<span style="font-weight:700; font-size:1.1em;">⏱️ 120-minute Accessibility</span><br>
   At the 120-minute mark, accessibility extends well beyond inland landscapes—coastal areas and beaches also come within reach, inviting exploration of both forests and seaside escapes.`,
-  `The green dots on the map represent accessible green assets reachable within two hours, most of which can be directly accessed via a combination of train and walking. Hovering over any city reveals its corresponding isochrone rings, highlighting the extent of its green space reachability.`,
-  `The bubble chart shows the number and total area of green assets accessible from each city. London leads in both metrics, highlighting its exceptional green connectivity. Hover over any bubble to explore the types of green spaces available at each time interval.` ,
-  `While Edinburgh itself has relatively limited rail-accessible green resources, it enjoys strong connectivity with Glasgow, allowing for extensive shared access to green assets across the two cities.`,
-  `This map reveals the limitless potential of experiencing nature by train — a journey that is green, effortless, and just one ticket away from a world of rich and diverse landscapes.`
- ];
+
+  `<span style="font-weight:700; font-size:1.1em;">  Green Dots on the Map</span><br>
+  The green dots on the map represent accessible green assets reachable within two hours, most of which can be directly accessed via a combination of train and walking. Hovering over any city reveals its corresponding isochrone rings, highlighting the extent of its green space reachability.`,
+
+  `<span style="font-weight:700; font-size:1.1em;">  London is exceptional </span><br>
+  The bubble chart shows the number and total area of green assets accessible from each city. London leads in both metrics, highlighting its exceptional green connectivity. Hover over any bubble to explore the types of green spaces available at each time interval.`,
+
+  `<span style="font-weight:700; font-size:1.1em;">  Shared Green Resourse</span><br>
+  While Edinburgh itself has relatively limited rail-accessible green resources, it enjoys strong connectivity with Glasgow, allowing for extensive shared access to green assets across the two cities.`,
+
+  `<span style="font-weight:700; font-size:1.1em;">Go Wild by Train</span><br>
+  This map reveals the limitless potential of experiencing nature by train — a journey that is green, effortless, and just one ticket away from a world of rich and diverse landscapes.`
+];
 
 
 
@@ -172,20 +187,22 @@ sortedFeatures = await isoRes.json();
 
 // ✅ 构造 recs（用于气泡图）
 recs = sortedFeatures.map(f => {
-  const [city, dRaw] = f.properties.id.split('_');
+  const [city, dRaw] = f.properties.id.split('_');  // dRaw: '30min' 字符串
   const dur = +dRaw.replace('min', '');
   return {
     props: f.properties,
     city: city,
+    durationStr: dRaw,   // 新增：比如 "30min"
     x: f.properties.total_points + (Math.random() - 0.5) * 4,
     y: Math.round(f.properties.total_green_area_buffered / 1e6),
     color: colorMap[dur]
   };
 });
+
 drawBubbleChart(recs);  // 加在 recs 构造完成后
 // ✅ 加载 London 的 radial chart（避免初始为空）
-const defaultFeature = recs.find(d => d.city === 'London');
-if (defaultFeature) drawRadialChart(defaultFeature.props);
+const defaultFeature = recs.find(d => d.city === 'London' && d.durationStr === '120min');
+if (defaultFeature) drawRadialChart(defaultFeature.props, 'London', '120min');
 
   // ✅ 再生成城市按钮（必须在 recs 初始化后）
 const ctrl = d3.select('#controls-panel');
@@ -540,7 +557,6 @@ updateMapAndCard(0);  // ✅ 只初始化一次地图
   const width = document.getElementById("activity-lines").clientWidth;
   const height = document.getElementById("activity-lines").clientHeight;
  const margin = { top: 100, right: 10, bottom: 40, left: 80 };  // ✅ 减少顶部间距
-d3.select("#activity-lines").style("border", "1px dashed red");
 
   const lineLen = width * 0.6;
   const rowH = 56;
@@ -662,8 +678,9 @@ function showNewCard(stage) {
       // 清空
       d3.select('#bubble-chart').selectAll('*').remove();
       const margin = {l:50, r:20, t:40, b:20};
-      const totalW = document.getElementById('bubble-chart').clientWidth* 0.4;
-      const totalH = document.getElementById('bubble-chart').clientHeight* 0.4;
+const bubbleDiv = document.getElementById('bubble-chart');
+const totalW = bubbleDiv.clientWidth;
+const totalH = bubbleDiv.clientHeight;
       const W = totalW - margin.l - margin.r;
       const H = totalH - margin.t - margin.b;
   
@@ -686,60 +703,115 @@ function showNewCard(stage) {
       const nodes = data.map(d=>({
       props: d.props,      // ← 一定要保留这一行
       city: d.city,
+      durationStr: d.durationStr,
       cx: xScale(d.x),
       cy: yScale(d.y),
       r: 10,
       color: d.color
     }));
-  
+          // 文本标签
+    const labels = svg.selectAll('text.label').data(nodes).join('text')
+  .attr('class','label')
+  .text(d => `${d.city} ${d.durationStr}`)  // 直接用
+  .attr('fill', d => d.color)
+  .attr('stroke', '#fff')
+  .attr('stroke-width', 2.2)
+  .style('paint-order', 'stroke')
+  .attr('font-size', 18)
+  .attr('font-weight', 700)
+  .attr('text-anchor', 'middle')
+  .attr('x', d => d.cx)
+  .attr('y', d => d.cy - d.r - 14)
+  .style('opacity', 0);
+
       // 圆
       // **在 on('mouseover') 中，用 function(event,d) 拿到第二个参数 d**
-      svg.selectAll('circle').data(nodes).join('circle')
-        .attr('cx',d=>d.cx).attr('cy',d=>d.cy).attr('r',d=>d.r)
-        .attr('fill',d=>d.color).attr('fill-opacity',0.5)
-        .attr('stroke',d=>d.color).attr('stroke-width',2)
-        .style('cursor','pointer')
-        .on('mouseover', function(event, d) {
-          // 放大
-          d3.select(this)
-            .transition().duration(200)
-            .attr('r', d.r * 2.5);
-  
-          // **tooltip.style 现在是 d3 selection，正常可用**
-          tooltip.html(
-            `City: ${d.city}<br>`+
-            `Points: ${d.props.total_points}<br>`+
-            `Area: ${Math.round(d.props.total_green_area_buffered/1e6)} km²`
-          )
-          .style('left',  (event.pageX+10) + 'px')
-          .style('top',   (event.pageY+10) + 'px')
-          .style('visibility','visible');
-          // 画 Donut
-          drawRadialChart(d.props);
-          })
-          .on('mousemove', event=>{
-            tooltip.style('left',(event.pageX+10)+'px')
-                   .style('top',(event.pageY+10)+'px');
-          })
-          .on('mouseout', function(event, d) {
-  d3.select(this).transition().duration(200).attr('r', d.r);
-  tooltip.style('visibility','hidden');
-  // 不清除 radial 图，让上一个图继续留着
-});
+svg.selectAll('circle').data(nodes).join('circle')
+  .attr('cx', d => d.cx)
+  .attr('cy', d => d.cy)
+  .attr('r', d => d.r)
+  .attr('fill', d => d.color)
+  .attr('fill-opacity', 0.5)
+  .attr('stroke', d => d.color)
+  .attr('stroke-width', 2)
+  .style('cursor', 'pointer')
+  .each(function(d, i) {
+    d3.select(this)
+      .on('mouseover', function(event) {
+        d3.select(this).transition().duration(200).attr('r', d.r * 2.5);
+
+        tooltip.html(`
+          <div style="
+            font-size: 0.92rem;
+            font-weight: 600;
+            white-space: nowrap;
+            color: ${d.color};
+            line-height: 1.32;">
+         <span style="font-weight: 500;">Isochrone:</span>
+    <span style="font-weight: 700;"> ${d.city} ${d.durationStr}</span><br>
+    <span style="font-weight: 500;">Number of Natural Assets:</span>
+    <span style="font-weight: 700;"> ${d.props.total_points}</span><br>
+    <span style="font-weight: 500;">Area of Natural Assets:</span>
+    <span style="font-weight: 700;"> ${Math.round(d.props.total_green_area_buffered/1e6)} km²</span>
+  </div>
+        
+        `)
+        .style('border', `2px solid ${d.color}`)
+        .style('background', 'rgba(255,255,255,0.97)')
+        .style('border-radius', '11px')
+        .style('color', d.color)
+        .style('padding', '6px 12px')
+        .style('font-family', 'inherit')
+        .style('display', 'block')
+        .style('pointer-events', 'none')
+        .style('visibility', 'visible');
+
+        // 首次显示也做边界判断
+        const tooltipNode = tooltip.node();
+        const tooltipWidth = tooltipNode ? tooltipNode.offsetWidth : 340;
+        const windowWidth = window.innerWidth;
+        let left;
+        if (event.pageX + tooltipWidth + 14 > windowWidth) {
+          left = event.pageX - tooltipWidth - 16;
+        } else {
+          left = event.pageX + 12;
+        }
+        tooltip
+          .style('left', left + 'px')
+          .style('top', (event.pageY-18) + 'px');
+           drawRadialChart(d.props, d.city, d.durationStr);
+      })
+      .on('mousemove', function(event) {
+        // 每次鼠标移动都判断边界
+        const tooltipNode = tooltip.node();
+        const tooltipWidth = tooltipNode ? tooltipNode.offsetWidth : 340;
+        const windowWidth = window.innerWidth;
+        let left;
+        if (event.pageX + tooltipWidth + 14 > windowWidth) {
+          left = event.pageX - tooltipWidth - 16;
+        } else {
+          left = event.pageX + 12;
+        }
+        tooltip
+          .style('left', left + 'px')
+          .style('top', (event.pageY-18) + 'px');
+        drawRadialChart(d.props);
+         drawRadialChart(d.props, d.city, d.durationStr);
+
+
+      })
+      .on('mouseout', function() {
+        d3.select(this).transition().duration(200).attr('r', d.r);
+        tooltip.style('visibility', 'hidden');
+      });
+  });
+
+
+
+
 
   
-      // 文本标签
-      const labels = svg.selectAll('text.label').data(nodes).join('text')
-        .attr('class','label')
-        .text(d=>d.city)
-        .attr('fill',   d=>d.color)
-        .attr('stroke','#000')      // 黑色描边
-        .attr('stroke-width',0.5)
-        .style('paint-order','stroke')
-        .attr('font-size',11)
-        .attr('text-anchor','middle')
-        .attr('x', d=>d.cx)
-        .attr('y', d=>d.cy);
+
   
       // D3 力导避让
       d3.forceSimulation(nodes)
@@ -754,7 +826,7 @@ function showNewCard(stage) {
         });
   
       // --- 坐标轴最后画，保证在最顶层 ---
-      const axisColor = '#3e63c9';
+      const axisColor = '#6690C9';
   
       const xg = svg.append('g')
         .attr('transform', `translate(0,${H})`)
@@ -766,31 +838,39 @@ function showNewCard(stage) {
       svg.selectAll('.x.axis, .y.axis').raise();
   
       // 应用颜色
-      xg.selectAll('path').attr('stroke',axisColor);
-      xg.selectAll('line').attr('stroke',axisColor);
-      xg.selectAll('text').attr('fill', axisColor);
+      xg.selectAll('path, line')
+  .attr('stroke', axisColor)
+  .attr('stroke-width', 3);   // 线宽随你喜欢
+     xg.selectAll('text')
+  .attr('fill', axisColor)
+  .style('font-size', '0.95rem')   // 比如 18px, 1.3em, 1.2rem，任选
+  .style('font-weight', 300);
   
-      yg.selectAll('path').attr('stroke',axisColor);
-      yg.selectAll('line').attr('stroke',axisColor);
-      yg.selectAll('text').attr('fill', axisColor);
+    yg.selectAll('path, line')
+  .attr('stroke', axisColor)
+  .attr('stroke-width', 3);
+     yg.selectAll('text')
+  .attr('fill', axisColor)
+  .style('font-size', '0.95rem')
+  .style('font-weight', 300);
       // 添加横轴标题：Points
   svg.append('text')
     .attr('x', W / 2)
-    .attr('y', H + 28)
+    .attr('y', H - 8)
     .attr('text-anchor', 'middle')
-    .style('font-size', '12px')
+    .style('font-size', '13px')
     .style('fill', axisColor)
-    .text('Points');
+    .text('Number of Natural Assets');
   
   // 添加纵轴标题：Area
   svg.append('text')
     .attr('transform', 'rotate(-90)')
     .attr('x', -H / 3)
-    .attr('y', -30)
+    .attr('y', 22)
     .attr('text-anchor', 'middle')
-    .style('font-size', '12px')
+    .style('font-size', '13px')
     .style('fill', axisColor)
-    .text('Area (km²)');
+    .text('Total Area of Natural Assets(km²)');
   
   
       // 暴露给 filter
@@ -803,7 +883,7 @@ function showNewCard(stage) {
 
 
 
-   function drawRadialChart(props) {
+   function drawRadialChart(props, city = 'London', durationStr = '120min'){
     const keys = [
       'parks','nature_reserves','protected_areas',
       'wood','scrub','wetlands','gardens',
@@ -829,14 +909,20 @@ function showNewCard(stage) {
     const outerR = innerR + layers * (barH + pad);
     const W = outerR * 2 + margin * 2;
     const H = outerR * 2 + margin * 2;
+      // 更新右上角label
+  d3.select('#radial-label-box')
+    .style('display', 'block')
+    .html(`${city} ${durationStr}`);
+
   
     const colorScale = d3.scaleLinear()
       .domain([4, 6, 12, 22])
       .range(['#ea7a57','#eda25b','#e4b947','#9db94a'])
       .clamp(true);
   
-    const sel = d3.select('#radial-chart').html('');
-    const svg = sel.append('svg')
+      d3.select('#radial-chart svg').remove();
+const sel = d3.select('#radial-chart');
+const svg = sel.append('svg')
       .attr('width', W)
       .attr('height', H)
       .append('g')
@@ -963,7 +1049,7 @@ activityData.forEach(d => {
   .style('fill', '#fff')
   .style('font-size', d => fontSizeScale(d.rank) + 'px');
 console.log("🎈 bubble SVG appended:", document.querySelector("#activity-bubbles svg"));
-d3.select("#activity-bubbles").style("border", "1px dashed blue");
+
 
 
 
@@ -980,79 +1066,7 @@ texts.each(function(d) {
 });
 
 
-   function drawRadialChart(props) {
-    const keys = [
-      'Parks','Nature Reserves','Protected Areas',
-      'Wood','Scrub','Wetlands','Gardens',
-      'Forests','Grassland','Beaches','Heaths'
-    ];
-  
-    const data = keys.map(k => ({
-      label: k.replace(/_/g, ' '),
-      value: +props[k] || 0
-    })).filter(d => d.value > 0)
-      .sort((a, b) => a.value - b.value);
-  
-    const barH = 12;
-    const pad = 10;
-    const innerR = 25;
-    const margin = 65;
-    const labelX = -100;
-    const labelFont = 12;
-    const maxAngle = 1.5 * Math.PI; // ⬅️ 最多 3/4 圆
-    const maxV = d3.max(data, d => d.value) || 1;
-  
-    const layers = data.length;
-    const outerR = innerR + layers * (barH + pad);
-    const W = outerR * 2 + margin * 2;
-    const H = outerR * 2 + margin * 2;
-  
-    const colorScale = d3.scaleLinear()
-      .domain([4, 6, 12, 22])
-      .range(['#c3b602','#d49c03','#ca6104','#af023c'])
-      .clamp(true);
-  
-    const sel = d3.select('#radial-chart').html('');
-    const svg = sel.append('svg')
-      .attr('width', W)
-      .attr('height', H)
-      .append('g')
-      .attr('transform', `translate(${W/2}, ${H/2})`);
-  
-    const startA = 0 ;
-    
-    data.forEach((d, i) => {
-      const frac = d.value / maxV;
-      const endA = startA + maxAngle * frac;
-      const r0 = innerR + i * (barH + pad);
-      const r1 = r0 + barH;
-  
-      // 弧形条
-      svg.append('path')
-        .attr('d', d3.arc()
-          .innerRadius(r0)
-          .outerRadius(r1)
-          .startAngle(startA)
-          .endAngle(endA)
-          .cornerRadius(barH / 2)
-        )
-        .attr('fill', colorScale(d.value))
-        .attr('fill-opacity', 0.7);
-      });
-  
-      // 左上角文字
-      const reversedData = [...data].reverse();
-  
-      reversedData.forEach((d, i) => {
-    svg.append('text')
-      .attr('x', labelX)
-      .attr('y', -outerR + i * (barH + pad) + barH / 2)
-      .attr('dy', '0.35em')
-      .style('font', `${labelFont}px sans-serif`)
-      .style('fill', colorScale(d.value))
-      .text(`${d.label} ${d.value}`);
-  });
-  }
+
   
   
     function filterCity(city) {
@@ -1100,7 +1114,9 @@ function handleHover(e) {
     ]);
   });
 }
+
 }
+
 
 
 
