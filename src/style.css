@@ -1008,6 +1008,7 @@ font-size: 10px;
   height: 400px;
   z-index: 20000;
   pointer-events: none;
+
 }
 
 
@@ -1024,6 +1025,7 @@ font-size: 10px;
   opacity: 1;
   animation: fadein 2s ease forwards;
   z-index: 10000;
+  font-family: var(--text-title-font);
 }
 
 
@@ -1038,6 +1040,7 @@ font-size: 10px;
   height: 390px;    /* ✅ 固定高度，别铺满地图 */
   z-index: 999;
   pointer-events: none;
+  font-family: var(--text-title-font);
 }
 
 #activity-chart {
