@@ -1,19 +1,24 @@
+
 :root {
- --text-normal-font: system-ui, Avenir, Helvetica, Arial, sans-serif;
+ /* --text-normal-font: system-ui, Avenir, Helvetica, Arial, sans-serif; */
+  @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;900&display=swap');
+  --text-normal-font: "Merriweather";
+  --text-title-font: "Playfair Display";
   --text-normal-size: 18px;
   --text-normal-color: #000;
   --text-normal-line-height: 1.5;
-  --text-normal-weight: 400;
+  --text-normal-weight: 300;
 
   /* Title Text */
-  --text-title-size: 30px;
-  --text-title-weight: 700;
+  --text-title-size: 35px;
+  --text-title-weight: 900;
   --text-title-color: #222;
 
   /* Highlight Text */
   --text-highlight-size: 11px;
   --text-highlight-color: #000;
-  --text-highlight-weight: 600;
+  --text-highlight-weight: 500;
 
     /* Project colours */
  --colour-hiking: #C22938;
@@ -93,10 +98,14 @@ html, body {
 }
 
 .text-title {
-  font-family: var(--text-normal-font);
+  font-family: var(--text-title-font);
   font-size: var(--text-title-size);
   font-weight: var(--text-title-weight);
+  /* text-underline-offset: 0.2em;
+  text-decoration: underline;
+  text-decoration-color: var(--navbar-highlight-colour); */
   color: var(--text-title-color);
+  /* color: #5785c5; */
   line-height: 1.2;
   margin-bottom: 10px;
 }
@@ -1073,3 +1082,30 @@ font-size: 10px;
   color: white;           /* ✅ 白色标题 */
   margin-bottom: 5px;
     }
+
+.team-column-container {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  margin-right: 10px;
+  top: 30%;
+  margin-top: 20%;
+  margin-left: 10%;
+  width: 30%;
+}
+
+.team-card {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  padding: 20px;
+  width: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.team-card:hover {
+  transform: scale(1.09);
+  z-index: 1;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
