@@ -3,8 +3,8 @@
  /* --text-normal-font: system-ui, Avenir, Helvetica, Arial, sans-serif; */
   @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;900&display=swap');
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;900&display=swap');
-  --text-normal-font: "Merriweather";
-  --text-title-font: "Playfair Display";
+  --text-normal-font: "Merriweather", serif;
+  --text-title-font: "Playfair Display", serif;
   --text-normal-size: 18px;
   --text-normal-color: #000;
   --text-normal-line-height: 1.5;
