@@ -1,31 +1,39 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # ✅ 新增
+from flask_cors import CORS  # ✅ Enable CORS for cross-origin requests
 import geopandas as gpd
 import networkx as nx
 from shapely.geometry import LineString
 
 app = Flask(__name__)
-CORS(app)  # ✅ 开启所有跨域请求支持
+CORS(app)  # ✅ Allow all cross-origin requests
 
-
-# 读取文件
+# Load files
 nodes_gdf = gpd.read_file("505network_nodes.geojson")
 edges_gdf = gpd.read_file("505network_edges.geojson")
 
-# 构建图
+# Build the network graph
 G = nx.Graph()
 for _, row in edges_gdf.iterrows():
     u, v = row['start_id'], row['end_id']
     if G.has_edge(u, v):
-        continue  # 忽略重复边
+        continue  # Skip duplicate edges
     G.add_edge(u, v, geometry=row['geometry'], weight=row['geometry'].length)
 
 @app.route("/shortest-path")
 def shortest_path():
+    """
+    Calculate the shortest path between two nodes and return as a GeoJSON Feature.
+    Query parameters:
+      - start_id: Node ID to start from
+      - end_id: Node ID to end at
+    Returns:
+      - GeoJSON Feature of the merged path line, or error message on failure
+    """
     try:
         start_id = int(request.args.get("start_id"))
         end_id = int(request.args.get("end_id"))
 
+        # Find the shortest path using edge length as weight
         path = nx.shortest_path(G, source=start_id, target=end_id, weight='weight')
 
         lines = []
@@ -56,3 +64,4 @@ def shortest_path():
 
 if __name__ == "__main__":
     app.run(debug=True)
+

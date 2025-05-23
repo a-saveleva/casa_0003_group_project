@@ -3,8 +3,8 @@
  /* --text-normal-font: system-ui, Avenir, Helvetica, Arial, sans-serif; */
   @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;900&display=swap');
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;900&display=swap');
-  --text-normal-font: "Merriweather", serif;
-  --text-title-font: "Playfair Display", serif;
+  --text-normal-font: "Merriweather";
+  --text-title-font: "Playfair Display";
   --text-normal-size: 18px;
   --text-normal-color: #000;
   --text-normal-line-height: 1.5;
@@ -816,6 +816,7 @@ font-size: 10px;
      height: 24px;              /* 明确写死高度 */
   line-height: 10px;         /* 行高不要太大 */
   font-size: 12px;
+  font-family: var(--text-normal-font);
   border: 2px solid #6690C9;
          /* 可选：设定最小高度 */
   background: transparent;
@@ -968,7 +969,7 @@ font-size: 10px;
 
 
 #background-image {
-  position: absolute;
+  position: relative;
   top: 0; left: 0;
   width: 100%; height: 100%;
   background-image: url('train.png');
@@ -1000,22 +1001,24 @@ font-size: 10px;
   border-radius: 10px;
 }
 
-#activity-bubbles {  
-    position: absolute;           
+#activity-bubbles {
+  position: absolute;
   bottom: 340px;
- left: 190px;
-  width: 1500px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
   height: 400px;
   z-index: 20000;
   pointer-events: none;
-
 }
+
+
 
 
 #bubble-title {
   position: absolute;
   top: -5%;
-  left: 20%;
+  left: 44%;
   transform: translateX(-50%);
   width: auto;
   text-align: center;
@@ -1025,24 +1028,23 @@ font-size: 10px;
   opacity: 1;
   animation: fadein 2s ease forwards;
   z-index: 10000;
-  font-family: var(--text-title-font);
-}
-
+  font-family: var(--text-title-font);}
 
 @keyframes fadein {
   to { opacity: 1; }
 }
+
 #activity-lines {
   position: absolute;
-  bottom: 10px;     /* ✅ 从底部起算，而不是 top */
-  right:100px;      /* ✅ 右侧对齐一点 */
-  width: 780px;     /* ✅ 固定宽度，更协调 */
-  height: 390px;    /* ✅ 固定高度，别铺满地图 */
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 390px;
   z-index: 999;
   pointer-events: none;
   font-family: var(--text-title-font);
 }
-
 #activity-chart {
   width: 100%;
   height: 100%;
