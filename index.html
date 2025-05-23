@@ -17,6 +17,7 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"> 
         <!-- Add this in your <head> section -->
         <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;900&display=swap" rel="stylesheet">
     </head>
 
     <body>
@@ -31,8 +32,8 @@
                     <a href="#section4"><div class="nav-button"><i class="fas fa-lightbulb"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Our response</span></div></a>
                     <a href="#section7"><div class="nav-button"><i class="fas fa-map-marked-alt"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Natural assets map</span></div></a>
                     <a href="#section8"><div class="nav-button"><i class="fas fa-cogs"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Methods and sources</span></div></a>
-                    <a href="#section9"><div class="nav-button"><i class="fas fa-comments"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Limitations and discussion</span></div></a>
-                    <a href="#section10"><div class="nav-button"><i class="fas fa-users"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Authors</span></div></a>
+                    <!-- <a href="#section9"><div class="nav-button"><i class="fas fa-comments"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Limitations and discussion</span></div></a> -->
+                    <a href="#section9"><div class="nav-button"><i class="fas fa-users"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Conclusion & Authors</span></div></a>
                     <a href="#" class="nav-button" style="margin-top: auto;" data-action="previous"><i class="fas fa-arrow-up"></i><span style="bottom: 20%; font-weight: 400; font-size: smaller; padding-right: 40px;">Previous section</span></a>
                     <a href="#" class="nav-button" data-action="next"><i class="fas fa-arrow-down"></i><span style="font-weight: 400; font-size: smaller; padding-right: 40px;">Next section</span></a>                    
                     <div id="nav-content-highlight"></div>
@@ -84,7 +85,7 @@
                 </div>
                 <img src="/data/assets/Problem overview.jpg" style="margin-left:15%; margin-top: 100px; height:auto; max-width: 600px; object-fit: contain;">
             </section>
-<section id="section2" class="landing-slide" style="display: flex; flex-direction: row; height: 100vh; position: relative; ">
+<section id="section2" class="landing-slide" style="display: flex; flex-direction: row; height: 100vh; position: relative;">
 <!-- ✅ 原始有效的容器：放 anywhere 都能跑 -->
 <!-- ✅ 固定在 section2 的右半边中下位置 -->
 <!-- ✅ 圆环图容器，右半边中下方 -->
@@ -253,7 +254,7 @@
 </section>
 
             <section id="section3" class="landing-slide" style="overflow-y: auto; scroll-snap-align: start; scroll-snap-stop: always; box-sizing: border-box; display: flex; flex-direction: row;">
-                <div class="landing-textbox">
+                <div class="landing-textbox" style="margin-top: 4%;">
                     <h1 class="text-title">Urgency</h1>
                     <p class="text-normal">In recent years, there has been a noticeable willingness among the public to adopt more sustainable travel behaviors, particularly in response to climate change.
                     According to a 
@@ -273,7 +274,7 @@
                         <p class="legend-item" style="display: block; overflow-wrap: anywhere;">Department for Transport, 2024. Our Changing Travel: 2023. [pdf] London: Department for Transport. Available at: <a href="https://assets.publishing.service.gov.uk/media/66d87e76561701fa1c214e04/our-changing-travel-2023.pdf " target="_blank" rel="noopener noreferrer">https://assets.publishing.service.gov.uk/media/66d87e76561701fa1c214e04/our-changing-travel-2023.pdf</a> [Accessed 13 May 2025].</p>
                         </div>
                 </div>
-                <img src="/data/assets/Urgency.jpg" style="margin-left:15%; margin-top: 100px; height:auto; max-width: 600px; object-fit: contain;">
+                <img src="/data/assets/Urgency.jpg" style="margin-left:10%; height:auto; max-width: 700px; object-fit: contain;">
             </section>
             <section id="section4" class="landing-slide" style="display:flex; flex-direction: row; overflow-y: auto; scroll-snap-align: start; scroll-snap-stop: always; box-sizing: border-box;">
                 <div class="controls-internal" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 5%; margin-left: 8%; margin-bottom: 5%; width: 100%;  box-shadow: none;">
@@ -307,13 +308,13 @@
                     <h1 class="text-title">Our response</h1>
                     <p class="text-normal">We have developed an online tool that displays natural assets within the user's chosen travel time, allowing exploration of destinations and their suitability for different types of outdoor activities. The interactive map is backed by a selection of datasets and research on user needs.</p>
                     <p class="text-normal">The map uses TravelTime API to calculate accessible areas, with inclusion of a short walk on start and end of the journey. The travel time can be adjusted with a slider. After the accessible area is generated, the natural assets within it are highlighted. The user can hover and click on the asset to learn more about it.</p>
-                    <p class="text-normal">A key element of the project is classifying natural assets. Drawing on surveys such as the
+                    <!-- <p class="text-normal">A key element of the project is classifying natural assets. Drawing on surveys such as the
                         <a href="https://www.gov.uk/government/statistics/the-people-and-nature-survey-for-england-year-2-annual-report-data-and-publications-april-2021-march-2022-official-statistics-main-findings/the-people-and-nature-survey-for-england-year-2-annual-report-data-and-publications-april-2021-march-2022-official-statistics-main-findings" target="_blank" rel="noopener noreferrer">
                         People and Nature Survey</a> 
                         and national polls, we reviewed over 40 common outdoor activities. From these, we selected seven key activities that are both popular and supported by geospatial data, allowing us to assign scores to each natural asset. We excluded activities that lacked consistent national datasets (e.g. stargazing, berry picking). Each natural asset is assigned a score based on suitability for each of those activities. The scores can be viewed by hovering on the asset.</p>
                     <div class="controls-internal" style="width: 100%; margin-bottom: 50px;">
                         <p class="legend-item" style="display: block; overflow-wrap: anywhere;">Natural England, 2024. The People and Nature Survey for England: Adults Year 4 Annual Report (April 2023 – March 2024). [online] Natural England. Available at: <a href="https://www.gov.uk/government/statistics/the-people-and-nature-surveys-for-england-data-tables-and-publications-from-adults-survey-year-4-april-2023-march-2024/adults-year-4-annual-report-april-2023-march-2024" target="_blank" rel="noopener noreferrer">https://www.gov.uk/government/statistics/the-people-and-nature-surveys-for-england-data-tables-and-publications-from-adults-survey-year-4-april-2023-march-2024/adults-year-4-annual-report-april-2023-march-2024</a> [Accessed 13 May 2025].</p>
-                    </div>
+                    </div> -->
                 </div>
             </section>
 
@@ -375,13 +376,13 @@
 
                     <div id="controls-instructions2" class="controls" class="text-normal">
                         <div class="controls-internal" style = "flex: 0.6;">
-                            <div style="font-weight: 700; line-height: 22px;">1. Select the time you wish to travel</div>
+                            <div class= "text-normal" style="font-weight: 700; line-height: 22px;">1. Select the time you wish to travel</div>
                             <input type="range" id="timeRange" min="5" max="240" step="5" value="60">
                             <div style="margin-top: -8px;"><span id="timeValue">60 minutes</span></div>
                             </div>
                     
                         <div class="controls-internal">
-                            <div style="font-weight: 700; line-height: 22px;">2. Drag the marker</div>
+                            <div  class= "text-normal"  style="font-weight: 700; line-height: 22px;">2. Drag the marker</div>
                             <div id="geocoder-container"></div>
                             <div id="originStation" class="text-normal" style="font-size: 12px; margin-top: 5px;">
                                 Station closest to selected origin: <span id="originStationName">None selected</span>
@@ -473,82 +474,59 @@
                     </div>
               </section>
               
-            <section id="section9" class="landing-slide" style="overflow-y: auto; scroll-snap-align: start; scroll-snap-stop: always; box-sizing: border-box;">
-                <h1 class="text-title" style="margin-top: 5%; margin-left: 10%;">Limitations and discussion</h1>
-                <div class="methodology-columns" style="margin-left: 10%; display: flex; flex-direction: row; justify-content: left; width: 80%; gap: 30px;">
-                    <div style="flex: 1; min-width: 0;">
-                        <h2>Discussion</h2>
-                        <p class="text-normal">This project set out to explore how digital tools could promote sustainable leisure travel in the UK by making nature more visible and accessible via the existing rail network. 
+            <section id="section9" class="landing-slide" style="position: relative; overflow-y: auto; scroll-snap-align: start; scroll-snap-stop: always; box-sizing: border-box; padding: 5% 0;">
+                <video class="front-page-video" autoplay muted loop playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;">
+                    <source src="/data/assets/trimmed_video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+
+                <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; padding: 0 10%; gap: 5%;">
+
+                    <!-- Left column: Conclusion -->
+                    <div style="width: 40%; margin-top: 20%;">
+                        <h1 class="text-title" style="margin-bottom: 20px; color: white;">Conclusion</h1>
+                        <p class="text-normal" style="color: white;">
+                            This project set out to explore how digital tools could promote sustainable leisure travel in the UK by making nature more visible and accessible via the existing rail network.
                             Through a mix of geospatial analysis, data integration, and user-focused design, we created an interactive map that highlights nature destinations reachable within a rail-based 
-                            travel time, supported by contextual information about each site’s recreational and ecological value.</p>
-                        <p class="text-normal"><strong>Key contributions include:</strong></p>
-                        <ul class="text-normal">
-                            <li>Bespoke map combining UK natural assets with rail travel times;</li>
-                            <li>A novel aggregation method to enhance OpenStreetMap’s fragmented representations of natural features.</li>
-                            <li>A category-based scoring system to help users choose destinations aligned with their interests;</li>
-                            <li>A modular, responsive web application that prioritises usability, visual appeal, and data transparency.</li>
-                        </ul>
+                            travel time, supported by contextual information about each site’s recreational and ecological value.
+                        </p>
                     </div>
 
-                    <div style="flex: 1; min-width: 0;">
-                        <p class="text-normal" style="margin-top: 67px;"> Each team member brought different expertise to this interdisciplinary tool, blending transport data science, ecological insight, design, and user engagement. The resulting tool is not only technically functional but also accessible, visually compelling, and grounded in the user experience of planning low-impact trips.</p>
-                    </div>
+                    <!-- Right column: Authors -->
+                    <div style="width: 50%; display: flex; flex-direction: column; margin-top: 20%;">
+                        <h1 class="text-title" style="color: white; margin-bottom: 20px;">Authors</h1>
 
-                </div>
-                <div class="methodology-columns" style="margin-left: 10%; margin-top: 50px; margin-bottom: 50px; display: flex; flex-direction: row; justify-content: left; width: 80%; gap: 30px;">
-                    <div style="flex: 1; min-width: 0;">
-                        <h2>Limitations of the Data Sources</h2>
-                        <p class="text-normal">The interactive map is fully functional, but several limitations warrant careful consideration of findings. 
-                            The main concern lies in the quality and completeness of the natural assets dataset, which relies heavily on OpenStreetMap contributions and is thus susceptible to input errors. 
-                            Since some indicators are also sourced from OpenStreetMap, they inherit similar limitations.</p>
-                        <p class="text-normal">To reduce reliance on precise boundaries, future versions could adopt a more abstract data format, such as grids or point-based representations. 
-                            Indicator quality could also be enhanced by incorporating more curated datasets. 
-                            If OpenStreetMap remains a core source, improvements could come from more advanced queries and higher-resolution data.</p>
-                        <p class="text-normal">While shape aggregation improved usability and readability, it also resulted in the loss of detailed attributes (e.g., names, Wikipedia links). 
-                            Asset naming remains a challenge, but automated approaches based on dominant features and location could help assign meaningful names.</p>
-                    </div>
-                    
-                    <div style="flex: 1; min-width: 0;">
-                        <h2>Network Representation</h2>
-                        <p class="text-normal"> While isochrones are generated using the TravelTime API based on rail travel time, the underlying station and track data used by the API are not publicly disclosed. 
-                            In contrast, the network graph and route visualizations in this project are independently constructed using railway and station data extracted from OpenStreetMap. 
-                            As a result, there may be discrepancies between the isochrone coverage and the network visualization. Additionally, some minor stations or track segments may be missing from OSM, or their positional inaccuracies may lead to mismatches in the inferred rail connectivity. 
-                            These limitations introduce a degree of uncertainty into the route calculations and network representations.</p>
-                    </div>
-                
-                    <div style="flex: 1; min-width: 0;">
-                        <h2>Limitations Arising from the Tool’s Scope</h2>
-                        <p class="text-normal">Like many targeted tools, our solution is not fully independent from traditional trip planning methods. The isochrone feature, for instance, only supports rail and limited walking, excluding key modes such as buses. These omissions are due to time and scope constraints. However, for future or commercial applications, the tool would need to support all major transport modes and enable multimodal interchanges.
-                        </p>
-                    </div>
-                    
-                </div>
-            </section>
-            <section id="section10" class="landing-slide">
-                <h1 class="text-title" style="margin-top: 5%; margin-left: 10%;">Authors</h1>
-                <div class="methodology-columns" style=" margin-left: 10%; margin-top: 40px; display: flex; flex-direction: row; justify-content: left; width: 80%; gap: 30px;">
-                    <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
-                        <h2>Anna Saveleva</h2>
-                        <p class="text-normal" style="margin-top: 0px;">Anna is a geospatial data scientist with a background in masterplanning, landscape architecture and urban studies. 
-                        </p>
-                        <p class="text-normal"> Currently pursuing an MSc in Urban Spatial Science at UCL, Anna is deepening her expertise in geospatial analytics to integrate data-driven methodologies into her urban design
-                            practice. She is proficient in scripting for geospatial analysis and visualizations using Python, HTML/CSS, and JavaScript, enabling her to streamline data collection, processing, and analysis for more informed and
-                            efficient decision-making.
-                        </p>
-                        <p class="text-normal" style="margin-top: 0px;">Contact me: <a href="https://www.linkedin.com/in/anna-saveleva/" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></p>
-                    </div>
-                    <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
-                        <h2>Yale Lu</h2>
-                        <p class="text-normal" style="margin-top: 0px;">Pen portrait TBC</p>
-                        <p class="text-normal" style="margin-top: 0px;">Contact me: <a href="https://www.linkedin.com/in/anna-saveleva/" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></p>
-                    </div>
-                    <div class="controls-internal" style="width: 90%; margin-bottom: 50px;">
-                        <h2>Yaqi Cui</h2>
-                        <p class="text-normal" style="margin-top: 0px;">Pen portrait TBC</p>
-                        <p class="text-normal" style="margin-top: 0px;">Contact me: <a href="https://www.linkedin.com/in/anna-saveleva/" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a></p>
+                        <div style="display: flex; flex-direction: row; gap: 20px;">
+
+                            <div style="background-color: rgba(255, 255, 255, 0.9); border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+                                <h2>Anna Saveleva</h2>
+                                <p class="text-highlight">Anna is a geospatial data scientist with a background in masterplanning, landscape architecture and urban studies.</p>
+                                <p class="text-highlight">Currently pursuing an MSc in Urban Spatial Science at UCL, Anna is deepening her expertise in geospatial analytics to integrate data-driven methodologies into her urban design practice.
+                                                            She is proficient in scripting for geospatial analysis and visualizations using Python, HTML/CSS, and JavaScript, enabling her to streamline data collection, processing, and analysis for more informed decision-making.</p>
+                                <p class="text-highlight">Contact: <a href="https://www.linkedin.com/in/anna-saveleva/" target="_blank" style="color: #007bff;">LinkedIn</a></p>
+                            </div>
+
+                            <div style="background-color: rgba(255, 255, 255, 0.9); border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+                                <h2>Yale Lu</h2>
+                                <p class="text-highlight">Anna is a geospatial data scientist with a background in masterplanning, landscape architecture and urban studies.</p>
+                                <p class="text-highlight">Currently pursuing an MSc in Urban Spatial Science at UCL, Anna is deepening her expertise in geospatial analytics to integrate data-driven methodologies into her urban design practice.
+                                                            She is proficient in scripting for geospatial analysis and visualizations using Python, HTML/CSS, and JavaScript, enabling her to streamline data collection, processing, and analysis for more informed decision-making.</p>
+                                <p class="text-highlight">Contact: <a href="https://www.linkedin.com/in/anna-saveleva/" target="_blank" style="color: #007bff;">LinkedIn</a></p>
+                            </div>
+
+                            <div style="background-color: rgba(255, 255, 255, 0.9); border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+                                <h2>Yaqi Cui</h2>
+                                <p class="text-highlight">Anna is a geospatial data scientist with a background in masterplanning, landscape architecture and urban studies.</p>
+                                <p class="text-highlight">Currently pursuing an MSc in Urban Spatial Science at UCL, Anna is deepening her expertise in geospatial analytics to integrate data-driven methodologies into her urban design practice.
+                                                            She is proficient in scripting for geospatial analysis and visualizations using Python, HTML/CSS, and JavaScript, enabling her to streamline data collection, processing, and analysis for more informed decision-making.</p>
+                                <p class="text-highlight">Contact: <a href="https://www.linkedin.com/in/anna-saveleva/" target="_blank" style="color: #007bff;">LinkedIn</a></p>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </section>
+
             
         </div>
 

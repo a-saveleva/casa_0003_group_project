@@ -91,34 +91,52 @@ window.addEventListener('DOMContentLoaded', () => {
   observer.observe(section2);
 });
 
+
 // Document navigation
 // Enable keyboard navigation for the landing page
 document.addEventListener('DOMContentLoaded', () => {
-    const slides = Array.from(document.querySelectorAll('section.landing-slide'));
-    let currentIndex = 0;
+  const slides = Array.from(document.querySelectorAll('section.landing-slide'));
+  let currentIndex = 0;
 
-    function scrollToSlide(index) {
-        if (index >= 0 && index < slides.length) {
-        slides[index].scrollIntoView({ behavior: 'smooth' });
-        currentIndex = index;
+  // Watch which section is visible
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          currentIndex = slides.indexOf(entry.target);
         }
+      });
+    },
+    {
+      threshold: 0.5, // 50% visible = considered active
     }
-    document.addEventListener('keydown', (event) => {
-        if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
-        switch (event.key) {
-        case 'ArrowDown':
-        case ' ':
-            event.preventDefault();
-            scrollToSlide(currentIndex + 1);
-            break;
+  );
 
-        case 'ArrowUp':
-            event.preventDefault();
-            scrollToSlide(currentIndex - 1);
-            break;
-        }
-    });
+  slides.forEach(slide => observer.observe(slide));
+
+  function scrollToSlide(index) {
+    if (index >= 0 && index < slides.length) {
+      slides[index].scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+
+    switch (event.key) {
+      case 'ArrowDown':
+      case ' ':
+        event.preventDefault();
+        scrollToSlide(currentIndex + 1);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        scrollToSlide(currentIndex - 1);
+        break;
+    }
+  });
 });
+
 // Enable hover and click effect for navigation buttons
 const rootStyles = getComputedStyle(document.documentElement);
 document.querySelectorAll('.nav-button').forEach(button => {
