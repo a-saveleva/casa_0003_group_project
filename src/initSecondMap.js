@@ -35,34 +35,53 @@ const perScrollStep = 200;    // 每次滚轮滑动卡片移动距离）
 const cardContainer = document.getElementById('card-container');
 
 const textData = [
+  `<span style="font-weight:700; font-size:1.1em; font-family: var(--text-title-font);">🚆 Britain's Rail System</span><br>
+   <span style="font-family: var(--text-normal-font);">
+     Britain's rail system is among the densest in Europe. Trains link cities with remarkable speed and frequency—laying the foundation for exploring green spaces near and far.
+   </span>`,
 
-  `<span style="font-weight:700; font-size:1.1em;">🚆 Britain's Rail System</span><br>
-  Britain's rail system is among the densest in Europe. Trains link cities with remarkable speed and frequency—laying the foundation for exploring green spaces near and far.`,
+  `<span style="font-weight:700; font-size:1.1em; font-family: var(--text-title-font);">⏱️ 30-minute Accessibility</span><br>
+   <span style="font-family: var(--text-normal-font);">
+     Starting from major central train stations in cities like London, Manchester, Birmingham, and Edinburgh, we examine areas reachable within 30 minutes by rail. Despite London's extensive urban footprint and network, its 30-minute isochrone covers a smaller area than other cities.
+   </span>`,
 
-  `<span style="font-weight:700; font-size:1.1em;">⏱️ 30-minute Accessibility</span><br>
-  Starting from major central train stations in cities like London, Manchester, Birmingham, and Edinburgh, we examine areas reachable within 30 minutes by rail. Despite London's extensive urban footprint and network, its 30-minute isochrone covers a smaller area than other cities.`,
+  `<span style="font-weight:700; font-size:1.1em; font-family: var(--text-title-font);">⏱️ 60-minute Expansion</span><br>
+   <span style="font-family: var(--text-normal-font);">
+     The one-hour rail isochrone begins to reveal London's advantage as a national railway hub, with extensive connectivity to surrounding towns and a high density of accessible stations in all directions.
+   </span>`,
 
-  `<span style="font-weight:700; font-size:1.1em;">⏱️ 60-minute Expansion</span><br>
-  The one-hour rail isochrone begins to reveal London's advantage as a national railway hub, with extensive connectivity to surrounding towns and a high density of accessible stations in all directions.`,
+  `<span style="font-weight:700; font-size:1.1em; font-family: var(--text-title-font);">⏱️ 90-minute Reach</span><br>
+   <span style="font-family: var(--text-normal-font);">
+     Within 90 minutes, most of these major cities become interconnected by rail, enabling easy travel not only between urban centres but also to the natural and rural landscapes along the way.
+   </span>`,
 
-  `<span style="font-weight:700; font-size:1.1em;">⏱️ 90-minute Reach</span><br>
-  Within 90 minutes, most of these major cities become interconnected by rail, enabling easy travel not only between urban centres but also to the natural and rural landscapes along the way.`,
+  `<span style="font-weight:700; font-size:1.1em; font-family: var(--text-title-font);">⏱️ 120-minute Accessibility</span><br>
+   <span style="font-family: var(--text-normal-font);">
+     At the 120-minute mark, accessibility extends well beyond inland landscapes—coastal areas and beaches also come within reach, inviting exploration of both forests and seaside escapes.
+   </span>`,
 
-  `<span style="font-weight:700; font-size:1.1em;">⏱️ 120-minute Accessibility</span><br>
-  At the 120-minute mark, accessibility extends well beyond inland landscapes—coastal areas and beaches also come within reach, inviting exploration of both forests and seaside escapes.`,
+  `<span style="font-weight:700; font-size:1.1em; font-family: var(--text-title-font);">Green Dots on the Map</span><br>
+   <span style="font-family: var(--text-normal-font);">
+     The green dots on the map represent accessible green assets reachable within two hours, most of which can be directly accessed via a combination of train and walking. Hovering over any city reveals its corresponding isochrone rings, highlighting the extent of its green space reachability.
+   </span>`,
 
-  `<span style="font-weight:700; font-size:1.1em;">  Green Dots on the Map</span><br>
-  The green dots on the map represent accessible green assets reachable within two hours, most of which can be directly accessed via a combination of train and walking. Hovering over any city reveals its corresponding isochrone rings, highlighting the extent of its green space reachability.`,
+  `<span style="font-weight:700; font-size:1.1em; font-family: var(--text-title-font);">London is exceptional</span><br>
+   <span style="font-family: var(--text-normal-font);">
+     The bubble chart shows the number and total area of green assets accessible from each city. London leads in both metrics, highlighting its exceptional green connectivity. Hover over any bubble to explore the types of green spaces available at each time interval.
+   </span>`,
 
-  `<span style="font-weight:700; font-size:1.1em;">  London is exceptional </span><br>
-  The bubble chart shows the number and total area of green assets accessible from each city. London leads in both metrics, highlighting its exceptional green connectivity. Hover over any bubble to explore the types of green spaces available at each time interval.`,
+  `<span style="font-weight:700; font-size:1.1em; font-family: var(--text-title-font);">Shared Green Resource</span><br>
+   <span style="font-family: var(--text-normal-font);">
+     While Edinburgh itself has relatively limited rail-accessible green resources, it enjoys strong connectivity with Glasgow, allowing for extensive shared access to green assets across the two cities.
+   </span>`,
 
-  `<span style="font-weight:700; font-size:1.1em;">  Shared Green Resourse</span><br>
-  While Edinburgh itself has relatively limited rail-accessible green resources, it enjoys strong connectivity with Glasgow, allowing for extensive shared access to green assets across the two cities.`,
-
-  `<span style="font-weight:700; font-size:1.1em;">Go Wild by Train</span><br>
-  This map reveals the limitless potential of experiencing nature by train — a journey that is green, effortless, and just one ticket away from a world of rich and diverse landscapes.`
+  `<span style="font-weight:700; font-size:1.1em; font-family: var(--text-title-font);">Go Wild by Train</span><br>
+   <span style="font-family: var(--text-normal-font);">
+     This map reveals the limitless potential of experiencing nature by train — a journey that is green, effortless, and just one ticket away from a world of rich and diverse landscapes.
+   </span>`
 ];
+
+
 
 
 
@@ -214,7 +233,10 @@ cities.forEach(c => {
     .on('click', function () {
       d3.selectAll('.city-btn').classed('active', false);
       d3.select(this).classed('active', true);
-      filterCity(c);
+
+      // 🚩 只重绘当前城市的数据，不再用 filterCity
+      drawBubbleChart(recs.filter(r => r.city === c));
+
       if (cityCoords[c]) {
         secondMap.flyTo({
           center: cityCoords[c],
@@ -227,14 +249,16 @@ cities.forEach(c => {
     });
 });
 
-// ✅ 添加 Show All 按钮
+// “Show All”按钮
 ctrl.append('button')
   .text('Show All')
   .attr('class', 'city-btn')
   .on('click', function () {
     d3.selectAll('.city-btn').classed('active', false);
     d3.select(this).classed('active', true);
-    filterCity(null);
+
+    // 🚩 重绘所有数据
+    drawBubbleChart(recs);
   });
 
 
